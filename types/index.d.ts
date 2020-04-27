@@ -1,9 +1,4 @@
 
-declare module App {
+import "./item"
+import "./product"
 
-  interface Item {
-    name: string;
-    value: number;
-  }
-
-}
