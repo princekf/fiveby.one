@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - 10
+  - 8
+services:
+  - mongodb
+env:
+  - AUTH_SHARED_SECRET=auth-shared-secret
+script:
+  - yarn lint
+  - yarn test
