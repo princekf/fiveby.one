@@ -1,0 +1,88 @@
+.main_div {
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(100vh - 64px);
+  background-image: linear-gradient(to right, #99d2ec , #71a4c0e3);
+  padding-top: 20px;
+  display: flex;
+  overflow: auto;
+}  
+.search_input {
+  width: 88%;
+  border: none;
+  border-radius: 7px;
+  font-size: 20px;
+  margin-bottom: 10px;
+  height: 50px;
+}
+.search_input .ant-input-wrapper {
+  height: 100%;
+}
+.search_input .ant-input {
+  height: 100%;
+}
+.search_input:focus {
+  outline: none;
+}
+.last_cont {
+  display: flex;
+  margin-top: 20px;
+  /* height: 35%; */
+  overflow: auto;
+  justify-content: space-between;
+}
+.total_cont {
+  width: 30%;
+  background-image: linear-gradient(to bottom, #76b9d8, #669dba);
+  /* height: 100%; */
+  padding: 5px;
+  box-sizing: border-box;
+}
+.subtotal {
+  height: 40px;
+  border-bottom: 1px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.disc {
+  height: 40px;
+  border-bottom: 1px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tax {
+  height: 40px;
+  border-bottom: 1px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.total_item {
+  height: 40px;
+  border-bottom: 1px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.total_heading {
+  margin: 0;
+  font-size: 20px;
+  color: white;
+  text-align: left;
+  justify-content: space-between;
+}
+.button {
+  width: 30%;
+}
+.pay_btn {
+  height: 130px;
+  width: 65%;
+  color: white;
+  margin-top: 17px;
+  border-radius: 12px;
+  background: white;
+  border: none;
+  background-image: linear-gradient(to bottom, #dcf1f3, #1a8088b8);
+}
