@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import Item from "../server/items/item.model";
 import User from "../server/users/user.model";
+import Product from "../server/products/product.model";
 
 const populateDatabase = async () => {
   try {
@@ -22,6 +23,15 @@ const populateDatabase = async () => {
       ];
       await Item.insertMany(newItems);
       console.log(chalk.green(`${newItems.length} item(s) successfuly created!`));
+
+      const newProducts:App.Product[] = [
+        {name: "Kera Coconut Oil", price: 200, barcode:"909090"},
+        {name: "Pavizham Unda Rice", price: 470, barcode:"808080"},
+        {name: "Moden Milk Bread - Large", price: 45, barcode:"707070"},
+        {name: "Muralya Milk - Packet", price: 24, barcode:"606060"}
+      ]
+      await Product.insertMany(newProducts);
+      console.log(chalk.green(`${newProducts.length} products(s) successfuly created!`));
     } else {
       console.log(chalk.yellow("Database already initiated, skipping populating script"));
     }
