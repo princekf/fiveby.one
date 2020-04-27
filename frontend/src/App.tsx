@@ -1,10 +1,11 @@
 import axios from "axios";
 import React from "react";
-import { Route, Redirect, BrowserRouter as Router, Switch } from 'react-router-dom';
+import { Route, Redirect, BrowserRouter as Router, Switch } from "react-router-dom";
 import "./App.css";
-import LoginForm from "./components/login/LoginForm"
+import LoginForm from "./components/login/LoginForm";
 import { isSessionValid, clearSession, getAuthHeaders } from "./session";
 import HomeContainer from "./components/home/HomeContainer";
+import Sales from "./components/sales/sales-create/sales";
 
 export interface AppState {
   email: string;
@@ -36,8 +37,11 @@ class App extends React.Component<{}, AppState> {
           <Route exact path="/login">
             <LoginForm></LoginForm>
           </Route>
-          <Route path="/home" >
-            <HomeContainer />  
+          <Route path="/home">
+            <HomeContainer />
+          </Route>
+          <Route path="/sales">
+            <Sales />
           </Route>
         </Switch>
         {/*this.state.isLoggedIn ?
@@ -51,9 +55,8 @@ class App extends React.Component<{}, AppState> {
               to={{
                 pathname: "/login",
               }}
-            />*/
-            }
-        </Router>
+            />*/}
+      </Router>
       // <div className="App">
 
       //   <div className="App-error">{this.state.error}</div>
@@ -83,7 +86,6 @@ class App extends React.Component<{}, AppState> {
       // </div>
     );
   }
-  
 
   private logout = (): void => {
     clearSession();
