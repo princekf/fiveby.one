@@ -2,7 +2,7 @@
   box-sizing: border-box;
   width: 100%;
   height: calc(100vh - 64px);
-  background-image: linear-gradient(to right, #99d2ec , #71a4c0e3);
+  /* background-image: linear-gradient(to right, #99d2ec , #71a4c0e3); */
   padding-top: 20px;
   display: flex;
   overflow: auto;
@@ -33,35 +33,35 @@
 }
 .total_cont {
   width: 30%;
-  background-image: linear-gradient(to bottom, #76b9d8, #669dba);
+  /* background-image: linear-gradient(to bottom, #76b9d8, #669dba); */
   /* height: 100%; */
   padding: 5px;
   box-sizing: border-box;
 }
 .subtotal {
   height: 40px;
-  border-bottom: 1px solid white;
+  border-bottom: 1px solid black;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .disc {
   height: 40px;
-  border-bottom: 1px solid white;
+  border-bottom: 1px solid black;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .tax {
   height: 40px;
-  border-bottom: 1px solid white;
+  border-bottom: 1px solid black;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 .total_item {
   height: 40px;
-  border-bottom: 1px solid white;
+  border-bottom: 1px solid black;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -69,7 +69,7 @@
 .total_heading {
   margin: 0;
   font-size: 20px;
-  color: white;
+  /* color: white; */
   text-align: left;
   justify-content: space-between;
 }
@@ -77,12 +77,17 @@
   width: 30%;
 }
 .pay_btn {
-  height: 130px;
+  height: 130px !important;
   width: 65%;
-  color: white;
+  /* color: white; */
   margin-top: 17px;
-  border-radius: 12px;
-  background: white;
+  border-radius: 12px !important;
+  /* background: white; */
   border: none;
-  background-image: linear-gradient(to bottom, #dcf1f3, #1a8088b8);
+  /* background-image: linear-gradient(to bottom, #dcf1f3, #1a8088b8); */
+}
+.card {
+  height: 60px;
+  margin: 0 7px;
+  cursor: pointer;
 }

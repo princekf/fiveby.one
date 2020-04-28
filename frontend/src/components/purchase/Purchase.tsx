@@ -1,36 +1,33 @@
-import React, { useState } from "react";
-import { Button, Form, Input, Checkbox, Spin, message, Table, Layout, Row, Col, AutoComplete } from "antd";
-import { SettingOutlined } from "@ant-design/icons";
-import "./Sales.css";
-import { string } from "prop-types";
+import React, { Component } from "react";
+import { Button, Table, Layout, Row, Col, AutoComplete } from "antd";
+// import { SettingOutlined } from "@ant-design/icons";
+// import "./Sales.css";
+// import { string } from "prop-types";
 
-const { Header, Footer, Sider, Content } = Layout;
+const { Header } = Layout;
 
 const dataSource = [
   {
     key: "1",
     name: "Classmate Note book 100p",
-    unit_price: 32,
+    rate: 32,
     quantity: 5,
-    discount: 50,
     tax: 10,
     total: 200,
   },
   {
     key: "2",
     name: "Classmate Note book 100p",
-    unit_price: 32,
+    rate: 32,
     quantity: 5,
-    discount: 50,
     tax: 10,
     total: 200,
   },
   {
     key: "3",
     name: "Classmate Note book 100p",
-    unit_price: 32,
+    rate: 32,
     quantity: 5,
-    discount: 50,
     tax: 10,
     total: 200,
   },
@@ -38,24 +35,19 @@ const dataSource = [
 
 const columns = [
   {
-    title: "Product Name/Desc",
+    title: "Name",
     dataIndex: "name",
     key: "name",
   },
   {
-    title: "Unit Price",
-    dataIndex: "unit_price",
-    key: "unit_price",
+    title: "Rate",
+    dataIndex: "rate",
+    key: "rate",
   },
   {
     title: "Qty",
     dataIndex: "quantity",
     key: "quantity",
-  },
-  {
-    title: "Discount",
-    dataIndex: "discount",
-    key: "discount",
   },
   {
     title: "Tax %",
@@ -81,13 +73,13 @@ const options = [
   },
 ];
 
-export class Sales extends React.Component {
+export class purchase extends Component {
   public render() {
     return (
       <Layout>
         <Header>Header</Header>
         <Row className="main_div">
-          <Col span={16} style={{ padding: "10px" }}>
+          <Col span={24} style={{ padding: "10px" }}>
             <div style={{ marginBottom: 16 }}>
               {/* <Input className="search_input" addonAfter={<SettingOutlined />} defaultValue="mysite" /> */}
               <AutoComplete
@@ -131,15 +123,15 @@ export class Sales extends React.Component {
               </div>
             </div>
           </Col>
-          <Col span={8} style={{ display: "flex" }}>
+          {/* <Col span={8} style={{ display: "flex" }}>
             <Button style={{ margin: "auto" }} type="primary" size={"large"}>
               Save
             </Button>
-          </Col>
+          </Col> */}
         </Row>
       </Layout>
     );
   }
 }
 
-export default Sales;
+export default purchase;
