@@ -1,16 +1,9 @@
 import React from "react";
 import axios from "axios";
-import { Button, Form, Input, Checkbox, Spin, message } from "antd";
+import { Button, Form, Input, Checkbox } from "antd";
 import { setSession } from "../../session";
 
-import './LoginForm.css'
-
-interface State {
-};
-
-interface Props {
-}
-
+import "./LoginForm.css";
 
 const layout = {
   labelCol: { span: 8 },
@@ -20,10 +13,40 @@ const tailLayout = {
   wrapperCol: { offset: 8, span: 16 },
 };
 
+export class LoginForm extends React.Component<{}, {}> {
+  public render() {
+    return (
+      <Form
+        className="login-form"
+        {...layout}
+        name="basic"
+        initialValues={{ remember: true }}
+        size="small"
+        onFinish={this.handleLogin}
+        // onFinishFailed={this.onFinishFailed}
+      >
+        <Form.Item label="Email" name="email" rules={[{ required: true, message: "Please input your email!" }]}>
+          <Input />
+        </Form.Item>
 
-export class LoginForm extends React.Component<Props, State> {
+        <Form.Item label="Password" name="password" rules={[{ required: true, message: "Please input your password!" }]}>
+          <Input.Password />
+        </Form.Item>
 
-  private handleLogin = async (values:any): Promise<void> => {
+        <Form.Item {...tailLayout} name="remember" valuePropName="checked">
+          <Checkbox>Remember me</Checkbox>
+        </Form.Item>
+
+        <Form.Item {...tailLayout}>
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
+    );
+  }
+
+  private handleLogin = async (values: any): Promise<void> => {
     const { email, password } = values;
     try {
       this.setState({ error: "" });
@@ -38,45 +61,6 @@ export class LoginForm extends React.Component<Props, State> {
       this.setState({ isRequesting: false });
     }
   };
-
-  public render() {
-    return (
-      <Form className='login-form'
-        {...layout}
-        name="basic"
-        initialValues={{ remember: true }}
-        size='small'
-        onFinish={this.handleLogin}
-      // onFinishFailed={this.onFinishFailed}
-      >
-        <Form.Item
-          label="Email"
-          name="email"
-          rules={[{ required: true, message: 'Please input your email!' }]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[{ required: true, message: 'Please input your password!' }]}
-        >
-          <Input.Password />
-        </Form.Item>
-
-        <Form.Item {...tailLayout} name="remember" valuePropName="checked">
-          <Checkbox>Remember me</Checkbox>
-        </Form.Item>
-
-        <Form.Item {...tailLayout}>
-          <Button type="primary" htmlType="submit">
-            Submit
-        </Button>
-        </Form.Item>
-      </Form>
-    )
-  }
 }
 
-export default LoginForm
+export default LoginForm;

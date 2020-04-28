@@ -1,6 +1,6 @@
 import axios from "axios";
 import React from "react";
-import { Route, Redirect, BrowserRouter as Router, Switch } from "react-router-dom";
+import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 import "./App.css";
 import LoginForm from "./components/login/LoginForm";
 import { isSessionValid, clearSession, getAuthHeaders } from "./session";
@@ -34,8 +34,8 @@ class App extends React.Component<{}, AppState> {
     return (
       <Router>
         <Switch>
-          <Route exact path="/login">
-            <LoginForm></LoginForm>
+          <Route exact={true} path="/login">
+            <LoginForm />
           </Route>
           <Route path="/home">
             <HomeContainer />
