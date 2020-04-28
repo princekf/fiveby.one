@@ -41,7 +41,8 @@
     "lint": "yarn lint:backend && yarn lint:frontend",
     "lint:backend": "cd backend && yarn lint",
     "lint:frontend": "cd frontend && yarn lint",
-    "test": "yarn test:backend && yarn test:frontend",
+    "test": "yarn test:backend",
+    "test-backup": "yarn test:backend && yarn test:frontend",
     "test:backend": "cd backend && yarn test",
     "test:frontend": "cd frontend && yarn test",
     "serve": "cd backend && node build/server.js"
