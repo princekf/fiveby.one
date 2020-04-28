@@ -5,7 +5,8 @@ import "./App.css";
 import LoginForm from "./components/login/LoginForm";
 import { isSessionValid, clearSession, getAuthHeaders } from "./session";
 import HomeContainer from "./components/home/HomeContainer";
-import Sales from "./components/sales/sales-create/sales";
+import Sales from "./components/sales/sales-create/Sales";
+import Purchase from "./components/purchase/Purchase";
 
 export interface AppState {
   email: string;
@@ -42,6 +43,9 @@ class App extends React.Component<{}, AppState> {
           </Route>
           <Route path="/sales">
             <Sales />
+          </Route>
+          <Route path="/purchase">
+            <Purchase />
           </Route>
         </Switch>
         {/*this.state.isLoggedIn ?
