@@ -1,166 +1,124 @@
 import React from "react";
-import { Button, Table, Layout, Row, Col, AutoComplete } from "antd";
+import axios from "axios";
+import { Button, Table, Layout, Row, Col, AutoComplete, Input } from "antd";
 import "./Sales.scss";
+import { SelectProps } from "antd/lib/select";
+import { getAuthHeaders } from "../../../session";
 
 const { Header } = Layout;
-
-const dataSource = [
-  {
-    key: "1",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-  {
-    key: "2",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-  {
-    key: "3",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-  {
-    key: "1",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-  {
-    key: "2",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-  {
-    key: "3",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-  {
-    key: "1",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-  {
-    key: "2",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-  {
-    key: "3",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-  {
-    key: "1",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-  {
-    key: "2",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-  {
-    key: "3",
-    name: "Classmate Note book 100p",
-    unit_price: 32,
-    quantity: 5,
-    discount: 50,
-    tax: 10,
-    total: 200,
-  },
-];
 
 const columns = [
   {
     title: "Product Name/Desc",
     dataIndex: "name",
-    key: "name",
+    width: "50%",
   },
   {
     title: "Unit Price",
-    dataIndex: "unit_price",
-    key: "unit_price",
+    dataIndex: "price",
+    align: "right" as "right",
   },
   {
     title: "Qty",
     dataIndex: "quantity",
-    key: "quantity",
+    align: "right" as "right",
   },
   {
     title: "Discount",
     dataIndex: "discount",
-    key: "discount",
+    align: "right" as "right",
   },
   {
     title: "Tax %",
     dataIndex: "tax",
-    key: "tax",
+    align: "right" as "right",
   },
   {
     title: "Total",
     dataIndex: "total",
-    key: "total",
+    align: "right" as "right",
   },
 ];
 
-const options = [
-  {
-    value: "Burns Bay Road",
-  },
-  {
-    value: "Downing Street",
-  },
-  {
-    value: "Wall Street",
-  },
-];
+interface SaleState {
+  options: SelectProps<object>["options"];
+  selectedProductId: string;
+  seleProducts: App.ProductSale[];
+}
 
-export class Sales extends React.Component {
+export class Sales extends React.Component<{}, SaleState> {
+  state = {
+    options: [],
+    selectedProductId: "",
+    seleProducts: Array<App.ProductSale>(),
+  };
+  products: App.Product[] = [];
+
+  private handleSearch = (value: string) => {
+    this.setState({ options: value ? this.searchResult(value) : [] });
+  };
+
+  private onProductTyping = (value: string) => {
+    this.setState({ selectedProductId: value });
+  };
+
+  private onProductSelect = (value: string) => {
+    let existingP: App.ProductSale = this.state.seleProducts.find((saleP) => saleP.product_id === value)!;
+
+    if (existingP) {
+      let quantity: number = existingP.quantity + 1;
+      existingP.quantity = quantity;
+      existingP.total = existingP.price * quantity;
+      this.setState({ seleProducts: [...this.state.seleProducts] });
+    } else {
+      let selectedProduct: App.Product = this.products.find((product) => product._id === value)!;
+      let productSale: App.ProductSale = Object.assign(
+        { ...selectedProduct },
+        {
+          _id: "",
+          name: selectedProduct?.name,
+          barcode: selectedProduct?.barcode,
+          product_id: selectedProduct?._id,
+          price: selectedProduct?.price,
+          quantity: 1,
+          discount: 0,
+          tax: 0,
+          total: selectedProduct?.price,
+        }
+      );
+      this.setState({ seleProducts: [...this.state.seleProducts, productSale] });
+    }
+    this.setState({ selectedProductId: "" });
+  };
+
+  private searchResult = (query: string) => {
+    const query_l: string = query.toLowerCase();
+    return this.products
+      .filter((product) => product.name.toLowerCase().includes(query_l) || product.barcode.toLowerCase().startsWith(query_l))
+      .map((product_f) => {
+        return {
+          value: product_f._id,
+          label: (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <span>{product_f.name}</span>
+              <span>{product_f.barcode}</span>
+              <span>{product_f.price}</span>
+            </div>
+          ),
+        };
+      });
+  };
+
+  public async componentDidMount() {
+    const response = await axios.get<App.Product[]>("/api/products", { headers: getAuthHeaders() });
+    this.products = response.data;
+  }
+
   public render() {
     return (
       <Layout>
@@ -168,25 +126,27 @@ export class Sales extends React.Component {
         <Row className="main_div">
           <Col span={18} style={{ padding: "10px" }}>
             <div style={{ marginBottom: 16 }}>
-              {/* <Input className="search_input" addonAfter={<SettingOutlined />} defaultValue="mysite" /> */}
               <AutoComplete
                 style={{
                   width: "100%",
                 }}
-                options={options}
-                placeholder="Enter item code or name or scan bar code"
-                filterOption={true}
-              />
+                defaultActiveFirstOption={true}
+                options={this.state.options}
+                onChange={this.onProductTyping}
+                onSelect={this.onProductSelect}
+                onSearch={this.handleSearch}
+                value={this.state.selectedProductId}
+              >
+                <Input.Search size="large" placeholder="Enter item code or name or scan bar code" enterButton={true} />
+              </AutoComplete>
             </div>
             <Table
-              dataSource={dataSource}
+              dataSource={this.state.seleProducts}
               columns={columns}
               scroll={{ y: 240 }}
-              pagination={{
-                total: dataSource.length,
-                pageSize: dataSource.length,
-                hideOnSinglePage: true,
-              }}
+              rowKey="product_id"
+              size="small"
+              pagination={false}
             />
             <div className="last_cont">
               <div className="total_cont">
