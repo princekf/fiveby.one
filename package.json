@@ -46,5 +46,8 @@
     "test:backend": "cd backend && yarn test",
     "test:frontend": "cd frontend && yarn test",
     "serve": "cd backend && node build/server.js"
+  },
+  "dependencies": {
+    "node-sass": "^4.14.0"
   }
 }
