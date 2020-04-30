@@ -41,7 +41,7 @@ class App extends React.Component<{}, AppState> {
           <Route path="/home">
             <HomeContainer />
           </Route>
-          <Route path="/sales">
+          <Route path="/sale">
             <Sales />
           </Route>
           <Route path="/purchase">
