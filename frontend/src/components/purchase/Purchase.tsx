@@ -1,10 +1,14 @@
 import React, { Component } from "react";
-import { Button, Table, Layout, Row, Col, AutoComplete } from "antd";
+import { Button, Table, Layout, Row, Col, AutoComplete, InputNumber, DatePicker, Select, Input } from "antd";
 // import { SettingOutlined } from "@ant-design/icons";
-// import "./Sales.css";
+import "./Purchase.scss";
 // import { string } from "prop-types";
+import moment from "moment";
+import { TagOutlined } from "@ant-design/icons";
 
 const { Header } = Layout;
+const { Option } = Select;
+const { TextArea } = Input;
 
 const dataSource = [
   {
@@ -12,35 +16,45 @@ const dataSource = [
     name: "Classmate Note book 100p",
     rate: 32,
     quantity: 5,
+    unit: 5,
+    mrp: 15,
     tax: 10,
-    total: 200,
+    amount: 200,
+    net_amount: 1000,
   },
   {
     key: "2",
     name: "Classmate Note book 100p",
     rate: 32,
     quantity: 5,
+    unit: 5,
+    mrp: 15,
     tax: 10,
-    total: 200,
+    amount: 200,
+    net_amount: 1000,
   },
   {
     key: "3",
     name: "Classmate Note book 100p",
     rate: 32,
     quantity: 5,
+    unit: 5,
+    mrp: 15,
     tax: 10,
-    total: 200,
+    amount: 200,
+    net_amount: 1000,
   },
 ];
 
 const columns = [
   {
-    title: "Name",
+    title: "Product name/Desc",
     dataIndex: "name",
     key: "name",
+    width: "20%",
   },
   {
-    title: "Rate",
+    title: "Unit Price",
     dataIndex: "rate",
     key: "rate",
   },
@@ -48,6 +62,32 @@ const columns = [
     title: "Qty",
     dataIndex: "quantity",
     key: "quantity",
+    render: (quantity: any) => {
+      return (
+        <div>
+          {/* <span>{quantity}</span> */}
+          <InputNumber min={1} max={100000} defaultValue={1} />
+        </div>
+      );
+    },
+  },
+  {
+    title: "Unit",
+    dataIndex: "unit",
+    key: "unit",
+  },
+  {
+    title: "MRP",
+    dataIndex: "mrp",
+    key: "mrp",
+    render: (mrp: any) => {
+      return (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span>{mrp}</span>
+          <TagOutlined />
+        </div>
+      );
+    },
   },
   {
     title: "Tax %",
@@ -55,9 +95,14 @@ const columns = [
     key: "tax",
   },
   {
-    title: "Total",
-    dataIndex: "total",
-    key: "total",
+    title: "Amount",
+    dataIndex: "amount",
+    key: "amount",
+  },
+  {
+    title: "Net Amount",
+    dataIndex: "net_amount",
+    key: "net_amount",
   },
 ];
 
@@ -73,55 +118,150 @@ const options = [
   },
 ];
 
+const party = [
+  {
+    value: "Party 1",
+  },
+  {
+    value: "Party 2",
+  },
+  {
+    value: "Party 3",
+  },
+];
+
+// const menu = (
+//   <Menu>
+//     <Menu.Item>
+//       Direct
+//     </Menu.Item>
+//     <Menu.Item>
+//       Reverse
+//     </Menu.Item>
+//   </Menu>
+// );
+
+const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY"];
+
 export class purchase extends Component {
   public render() {
     return (
       <Layout>
         <Header>Header</Header>
         <Row className="main_div">
+          <Col span={24} style={{ display: "flex", padding: "10px" }}>
+            <Col span={12} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div className="item">
+                <h4>Invoice No.</h4>
+                <InputNumber min={1} max={100000} defaultValue={12035} disabled={true} />
+              </div>
+              <div className="item">
+                <h4>Invoice Date</h4>
+                <DatePicker defaultValue={moment("01/01/2015", dateFormatList[0])} format={dateFormatList} />
+              </div>
+            </Col>
+            <Col span={12} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div className="item">
+                <h4>Order No.</h4>
+                <InputNumber min={1} max={100000} defaultValue={458123} disabled={true} />
+              </div>
+              <div className="item">
+                <h4>Order Date</h4>
+                <DatePicker defaultValue={moment("01/01/2015", dateFormatList[0])} format={dateFormatList} />
+              </div>
+            </Col>
+          </Col>
+
+          <Col span={24} style={{ display: "flex", padding: "10px" }}>
+            <Col span={12} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div className="two_item">
+                <h4>Party</h4>
+                <AutoComplete
+                  style={{
+                    width: "70%",
+                  }}
+                  options={party}
+                  placeholder="Party code / name to search"
+                  filterOption={true}
+                />
+              </div>
+            </Col>
+            <Col span={12} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div className="two_item">
+                <h4>Tax Type</h4>
+                <Select defaultValue="Direct" style={{ width: 120 }}>
+                  <Option value="direct">Direct</Option>
+                  <Option value="reverse">Reverse</Option>
+                </Select>
+              </div>
+            </Col>
+          </Col>
+
           <Col span={24} style={{ padding: "10px" }}>
             <div style={{ marginBottom: 16 }}>
-              {/* <Input className="search_input" addonAfter={<SettingOutlined />} defaultValue="mysite" /> */}
               <AutoComplete
                 style={{
                   width: "100%",
+                  maxWidth: "700px",
                 }}
+                size="large"
                 options={options}
                 placeholder="Enter item code or name or scan bar code"
-                // filterOption={(inputValue, option) =>
-                //   option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
-                // }
+                filterOption={true}
               />
             </div>
-            <Table dataSource={dataSource} columns={columns} />
-            <div className="last_cont">
-              <div className="total_cont">
-                <div className="subtotal">
-                  <h1 className="total_heading">SUB TOTAL </h1>
-                  <h1 className="total_heading">51.00</h1>
-                </div>
-                <div className="disc">
-                  <h1 className="total_heading">Discount </h1>
-                  <h1 className="total_heading">0.00</h1>
-                </div>
-                <div className="tax">
-                  <h1 className="total_heading">Tax </h1>
-                  <h1 className="total_heading"> 0.00</h1>
-                </div>
-                <div className="total_item">
-                  <h1 className="total_heading">Total item</h1>
-                  <h1 className="total_heading">1.00</h1>
-                </div>
-              </div>
-              <div className="button">
-                <button className="pay_btn">
-                  <h1>PAY</h1>
+            <Table
+              dataSource={dataSource}
+              columns={columns}
+              scroll={{ y: 240 }}
+              pagination={{
+                total: dataSource.length,
+                pageSize: dataSource.length,
+                hideOnSinglePage: true,
+              }}
+            />
+            <Col span={24} style={{ display: "flex", justifyContent: "start", alignItems: "center", marginTop: "15px" }}>
+              <h4 style={{ marginRight: "10px" }}>Narration</h4>
+              <TextArea rows={3} style={{ width: "50%" }} />
+            </Col>
+            <Col span={24} style={{ display: "flex", justifyContent: "space-between", marginTop: "15px" }}>
+              <Col span={18}>
+                <Col span={10} className="total_line" style={{ display: "flex", justifyContent: "space-between" }}>
+                  <Col span={8} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h4>SUB TOTAL</h4>
+                    <h4>54.25</h4>
+                  </Col>
+                  <Col span={8} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h4>Tax</h4>
+                    <h4>0.00</h4>
+                  </Col>
+                </Col>
+                <Col span={10} className="total_line" style={{ display: "flex", justifyContent: "space-between" }}>
+                  <Col span={8} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h4>Discount</h4>
+                    <h4>0.00</h4>
+                  </Col>
+                  <Col span={8} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h4>Round Off</h4>
+                    <h4>0.00</h4>
+                  </Col>
+                </Col>
+                <Col span={5} className="total_line" style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+                  <Col span={15} style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h3>Total Items</h3>
+                    <h3>3</h3>
+                  </Col>
+                </Col>
+              </Col>
+              <Col span={6}>
+                <Button className="pay_btn">
+                  <h1>SAVE</h1>
                   <span>Total amount</span>
                   <br />
                   <span>Rs. 51.00</span>
-                </button>
-              </div>
-            </div>
+                </Button>
+              </Col>
+            </Col>
           </Col>
           {/* <Col span={8} style={{ display: "flex" }}>
             <Button style={{ margin: "auto" }} type="primary" size={"large"}>
