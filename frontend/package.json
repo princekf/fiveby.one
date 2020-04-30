@@ -1,11 +1,11 @@
 {
-  "name": "react-frontend",
+  "name": "fiveby.one-frontend",
   "version": "0.1.0",
   "private": true,
   "proxy": "http://localhost:9000",
   "engines": {
-    "node": "8.* || >= 10.*",
-    "yarn": ">=1.*"
+    "node": "12.*",
+    "yarn": "1.*"
   },
   "jest": {
     "collectCoverageFrom": [
@@ -26,28 +26,29 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@types/react-router-dom": "^5.1.4",
-    "antd": "^4.1.4",
-    "axios": "^0.19.0",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.0.1"
+    "@types/react-router-dom": "5.1.5",
+    "axios": "0.19.2",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "react-router-dom": "5.1.2",
+    "react-scripts": "3.4.1",
+    "antd" : "4.2.0",
+    "node-sass": "4.14.0"
   },
   "devDependencies": {
     "@types/app-shared-types": "link:../types",
-    "@types/enzyme": "^3.1.17",
-    "@types/enzyme-adapter-react-16": "^1.0.4",
-    "@types/jest": "^24.0.11",
-    "@types/node": "^11.13.8",
-    "@types/react": "^16.8.14",
-    "@types/react-dom": "^16.8.4",
-    "axios-mock-adapter": "^1.16.0",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.9.1",
-    "jest-localstorage-mock": "^2.4.0",
-    "tslint": "^5.16.0",
-    "typescript": "^3.4.5"
+    "@types/enzyme": "3.10.5",
+    "@types/enzyme-adapter-react-16": "1.0.6",
+    "@types/jest": "25.2.1",
+    "@types/node": "13.13.4",
+    "@types/react": "16.9.34",
+    "@types/react-dom": "16.9.7",
+    "axios-mock-adapter": "1.18.1",
+    "enzyme": "3.11.0",
+    "enzyme-adapter-react-16": "1.15.2",
+    "jest-localstorage-mock": "2.4.2",
+    "tslint": "6.1.2",
+    "typescript": "3.8.3"
   },
   "scripts": {
     "start": "react-scripts start",

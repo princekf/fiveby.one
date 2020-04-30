@@ -6,21 +6,23 @@ import { Strategy } from "passport-local";
 import { authorize } from "../config";
 import User from "./user.model";
 
-passport.use(new Strategy({ usernameField: "email" }, async (username, password, done) => {
-  try {
-    // Tries to find the user matching the given username
-    const user = await User.findOne({ email: username });
-    // Check if the password is valid
-    if (user && user.isPasswordValid(password)) {
-      return done(null, user);
-    } else {
-      // Throws an error if credentials are not valid
-      throw new Error("Invalid credentials");
+passport.use(
+  new Strategy({ usernameField: "email" }, async (username, password, done) => {
+    try {
+      // Tries to find the user matching the given username
+      const user = await User.findOne({ email: username });
+      // Check if the password is valid
+      if (user && user.isPasswordValid(password)) {
+        return done(null, user);
+      } else {
+        // Throws an error if credentials are not valid
+        throw new Error("Invalid credentials");
+      }
+    } catch (error) {
+      return done(error);
     }
-  } catch (error) {
-    return done(error);
-  }
-}));
+  })
+);
 
 const router = Router();
 
@@ -52,7 +54,7 @@ router.route("/login").post(bodyParser.json(), (request, response) => {
 });
 
 // This is an example of a protected route. Notice that we call `authorize` in the first place!
-router.route("/profile").get(authorize, async (request, response) => {
+router.route("/profile").get(authorize, async (request: any, response) => {
   const user = await User.findById(request.user._id);
   return response.status(200).json(user);
 });

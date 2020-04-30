@@ -1,20 +1,20 @@
 {
-  "name": "create-mern-ts-app",
+  "name": "fiveby.one",
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": "8.* || >= 10.*",
-    "yarn": ">=1"
+    "node": "12.*",
+    "yarn": "1.*"
   },
   "devDependencies": {
-    "concurrently": "^4.0.1",
-    "husky": "^2.3.0",
-    "lint-staged": "^8.1.7",
-    "prettier": "^1.17.1",
-    "tslint": "^5.16.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-react": "^4.0.0",
-    "typescript": "^3.8.3"
+    "concurrently": "5.2.0",
+    "husky": "4.2.5",
+    "lint-staged": "10.2.0",
+    "prettier": "2.0.5",
+    "tslint": "6.1.2",
+    "tslint-config-prettier": "1.18.0",
+    "tslint-react": "5.0.0",
+    "typescript": "3.8.3"
   },
   "husky": {
     "hooks": {
@@ -46,8 +46,5 @@
     "test:backend": "cd backend && yarn test",
     "test:frontend": "cd frontend && yarn test",
     "serve": "cd backend && node build/server.js"
-  },
-  "dependencies": {
-    "node-sass": "^4.14.0"
   }
 }

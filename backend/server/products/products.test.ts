@@ -1,4 +1,4 @@
-import MongodbMemoryServer from "mongodb-memory-server";
+import * as MMS from "mongodb-memory-server";
 import * as mongoose from "mongoose";
 import * as request from "supertest";
 import app from "../app";
@@ -6,8 +6,7 @@ import User from "../users/user.model";
 import Product from "./product.model";
 
 describe("/api/products tests", () => {
-
-  const mongod = new MongodbMemoryServer();
+  const mongod = new MMS.MongoMemoryServer();
   let token: string = "";
 
   // Connect to mongoose mock, create a test user and get the access token
@@ -18,9 +17,7 @@ describe("/api/products tests", () => {
     user.email = "test@email.com";
     user.setPassword("test-password");
     await user.save();
-    const response = await request(app)
-      .post("/api/users/login")
-      .send({ email: "test@email.com", password: "test-password" });
+    const response = await request(app).post("/api/users/login").send({ email: "test@email.com", password: "test-password" });
     token = response.body.token;
   });
 
@@ -46,9 +43,7 @@ describe("/api/products tests", () => {
   });
 
   it("should get products", async () => {
-    const response = await request(app)
-      .get("/api/products")
-      .set("Authorization", `Bearer ${token}`);
+    const response = await request(app).get("/api/products").set("Authorization", `Bearer ${token}`);
     expect(response.status).toBe(200);
     expect(response.body).toEqual([expect.objectContaining({ name: "product name", price: 1000, barcode: "product code" })]);
   });
@@ -57,16 +52,13 @@ describe("/api/products tests", () => {
     const response = await request(app)
       .post("/api/products")
       .set("Authorization", `Bearer ${token}`)
-      .send({ name: "new product", price: 2000, barcode: "product barcode"});
+      .send({ name: "new product", price: 2000, barcode: "product barcode" });
     expect(response.status).toBe(200);
     expect(response.body).toBe("Product saved!");
   });
 
   it("should catch errors when posting products", async () => {
-    const response = await request(app)
-      .post("/api/products")
-      .set("Authorization", `Bearer ${token}`)
-      .send({});
+    const response = await request(app).post("/api/products").set("Authorization", `Bearer ${token}`).send({});
     expect(response.status).toBe(400);
   });
 });

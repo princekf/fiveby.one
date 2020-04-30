@@ -4,6 +4,7 @@ import { Document, model, Schema } from "mongoose";
 import { SchemaDef } from "../../types";
 
 interface User {
+  // _id: any;
   email: string;
   hash: string;
   salt: string;
@@ -16,20 +17,25 @@ interface UserDoc extends User, Document {
 }
 
 const userSchemaDef: SchemaDef<User> = {
+  // _id: {
+  //   type: Schema.Types.ObjectId,
+  //   required: false
+  // },
+
   email: {
     type: String,
     // Important! We want users to be unique
     unique: true,
-    required: true
+    required: true,
   },
   hash: {
     type: String,
-    required: true
+    required: true,
   },
   salt: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 };
 
 // Declare the model schema
@@ -59,11 +65,14 @@ class UserClass {
     const expiry = new Date();
     expiry.setMinutes(expiry.getMinutes() + 30);
 
-    const token = sign({
-      _id: this.id,
-      email: this.email,
-      exp: Math.round(expiry.getTime() / 1000),
-    }, process.env.AUTH_SHARED_SECRET);
+    const token = sign(
+      {
+        _id: this.id,
+        email: this.email,
+        exp: Math.round(expiry.getTime() / 1000),
+      },
+      process.env.AUTH_SHARED_SECRET
+    );
 
     return { token, expiry };
   }

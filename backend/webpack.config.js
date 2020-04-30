@@ -1,34 +1,28 @@
-const fs = require("fs");
 const path = require("path");
+const nodeExternals = require("webpack-node-externals");
 const NodemonPlugin = require("nodemon-webpack-plugin");
 
-const nodeModules = {};
-fs.readdirSync("node_modules")
-  .filter(function(x) {
-    return [".bin"].indexOf(x) === -1;
-  })
-  .forEach(function(mod) {
-    nodeModules[mod] = "commonjs " + mod;
-  });
-
+const { NODE_ENV = "production" } = process.env;
 module.exports = {
   entry: "./server/server.ts",
+  mode: NODE_ENV,
+  target: "node",
   output: {
-    path: path.join(__dirname, "/build"),
+    path: path.resolve(__dirname, "build"),
     filename: "server.js",
   },
   resolve: {
     extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"],
   },
   module: {
-    loaders: [
+    rules: [
       {
-        test: /\.tsx?$/,
-        loader: "ts-loader",
+        test: /\.ts|\.tsx$/,
+        include: __dirname,
+        use: ["ts-loader"],
       },
     ],
   },
-  target: "node",
-  externals: nodeModules,
+  externals: [nodeExternals()],
   plugins: [new NodemonPlugin()],
 };
