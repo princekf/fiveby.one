@@ -144,6 +144,7 @@ export class Sales extends React.Component<{}, SaleState> {
               rowKey="product_id"
               size="small"
               pagination={false}
+              style={{ height: "50vh" }}
             />
             <div className="last_cont">
               <div className="total_cont">
