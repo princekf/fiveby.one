@@ -1,13 +1,10 @@
-import { Document, model, Schema, Types } from "mongoose";
+import { Document, model, Schema } from "mongoose";
 import { SchemaDef } from "../../types";
 
 // Declare model interface
-interface ProductDoc extends App.Product, Document {}
+interface ProductDoc extends App.ProductM, Document {}
 
-const productSchemaDef: SchemaDef<App.Product> = {
-  _id: {
-    required: false,
-  },
+const productSchemaDef: SchemaDef<App.ProductM> = {
   name: {
     type: String,
     required: true,

@@ -6,7 +6,6 @@ import "./Purchase.scss";
 import moment from "moment";
 import { TagOutlined } from "@ant-design/icons";
 
-const { Header } = Layout;
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -147,7 +146,6 @@ export class purchase extends Component {
   public render() {
     return (
       <Layout>
-        <Header>Header</Header>
         <Row className="main_div">
           <Col span={24} style={{ display: "flex", padding: "10px" }}>
             <Col span={12} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>

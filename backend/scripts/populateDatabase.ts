@@ -22,9 +22,6 @@ const populateDatabase = async () => {
       ];
       await Item.insertMany(newItems);
       console.log(chalk.green(`${newItems.length} item(s) successfuly created!`));
-
-      // await Product.insertMany(newProducts);
-      // console.log(chalk.green(`${newProducts.length} products(s) successfuly created!`));
     } else {
       console.log(chalk.yellow("Database already initiated, skipping populating script"));
     }

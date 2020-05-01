@@ -1,0 +1,26 @@
+.home-parent-layout {
+  min-height: 100vh;
+
+  .trigger {
+    font-size: 18px;
+    line-height: 64px;
+    padding: 0 24px;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  .trigger:hover {
+    color: #1890ff;
+  }
+  .logo {
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 16px;
+  }
+  .layout-content {
+    margin-left: 24px;
+    min-height: 90vh;
+  }
+  .ant-layout-sider-zero-width-trigger {
+    display: none;
+  }
+}

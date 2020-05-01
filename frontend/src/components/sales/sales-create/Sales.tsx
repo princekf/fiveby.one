@@ -5,8 +5,6 @@ import "./Sales.scss";
 import { SelectProps } from "antd/lib/select";
 import { getAuthHeaders } from "../../../session";
 
-const { Header } = Layout;
-
 const columns = [
   {
     title: "Product Name/Desc",
@@ -122,7 +120,6 @@ export class Sales extends React.Component<{}, SaleState> {
   public render() {
     return (
       <Layout>
-        <Header>Header</Header>
         <Row className="main_div">
           <Col span={18} style={{ padding: "10px" }}>
             <div style={{ marginBottom: 16 }}>
