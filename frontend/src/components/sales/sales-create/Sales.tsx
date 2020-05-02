@@ -61,6 +61,7 @@ export class Sales extends React.Component<{}, SaleState> {
   };
 
   private onProductSelect = (value: string) => {
+    console.log(value)
     const existingP: App.ProductSale = this.state.seleProducts.find((saleP) => saleP.product_id === value)!;
 
     if (existingP) {
@@ -87,6 +88,7 @@ export class Sales extends React.Component<{}, SaleState> {
       this.setState({ seleProducts: [...this.state.seleProducts, productSale] });
     }
     this.setState({ selectedProductId: "" });
+    console.log(this.state.seleProducts)
   };
 
   private searchResult = (query: string) => {

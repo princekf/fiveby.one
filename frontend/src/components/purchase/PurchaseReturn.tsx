@@ -1,12 +1,9 @@
 import React, { Component } from "react";
-import { Button, Table, Layout, Row, Col, AutoComplete, InputNumber, DatePicker, Select, Input } from "antd";
-// import { SettingOutlined } from "@ant-design/icons";
+import { Button, Table, Layout, Row, Col, AutoComplete, InputNumber, DatePicker, Input } from "antd";
 import "./Purchase.scss";
-// import { string } from "prop-types";
 import moment from "moment";
 import { TagOutlined } from "@ant-design/icons";
 
-const { Option } = Select;
 const { TextArea } = Input;
 
 const dataSource = [
@@ -34,6 +31,28 @@ const dataSource = [
   },
   {
     key: "3",
+    name: "Classmate Note book 100p",
+    rate: 32,
+    quantity: 5,
+    unit: 5,
+    mrp: 15,
+    tax: 10,
+    amount: 200,
+    net_amount: 1000,
+  },
+  {
+    key: "4",
+    name: "Classmate Note book 100p",
+    rate: 32,
+    quantity: 5,
+    unit: 5,
+    mrp: 15,
+    tax: 10,
+    amount: 200,
+    net_amount: 1000,
+  },
+  {
+    key: "5",
     name: "Classmate Note book 100p",
     rate: 32,
     quantity: 5,
@@ -129,42 +148,21 @@ const party = [
   },
 ];
 
-// const menu = (
-//   <Menu>
-//     <Menu.Item>
-//       Direct
-//     </Menu.Item>
-//     <Menu.Item>
-//       Reverse
-//     </Menu.Item>
-//   </Menu>
-// );
-
 const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY"];
 
-export class Purchase extends Component {
+export class PurchaseReturn extends Component {
   public render() {
     return (
       <Layout>
         <Row className="main_div">
           <Col span={24} style={{ display: "flex", padding: "10px" }}>
-            <Col span={12} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div className="item">
-                <h4>Invoice No.</h4>
+            <Col span={24} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center"}}>
+                <h4 style={{ margin: "0", marginRight: "5px"}}>Reference No.</h4>
                 <InputNumber min={1} max={100000} defaultValue={12035} disabled={true} />
               </div>
-              <div className="item">
-                <h4>Invoice Date</h4>
-                <DatePicker defaultValue={moment("01/01/2015", dateFormatList[0])} format={dateFormatList} />
-              </div>
-            </Col>
-            <Col span={12} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div className="item">
-                <h4>Order No.</h4>
-                <InputNumber min={1} max={100000} defaultValue={458123} disabled={true} />
-              </div>
-              <div className="item">
-                <h4>Order Date</h4>
+              <div style={{ display: "flex", alignItems: "center"}}>
+                <h4 style={{ margin: "0", marginRight: "5px"}}>Return Date</h4>
                 <DatePicker defaultValue={moment("01/01/2015", dateFormatList[0])} format={dateFormatList} />
               </div>
             </Col>
@@ -182,15 +180,6 @@ export class Purchase extends Component {
                   placeholder="Party code / name to search"
                   filterOption={true}
                 />
-              </div>
-            </Col>
-            <Col span={12} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div className="two_item">
-                <h4>Tax Type</h4>
-                <Select defaultValue="Direct" style={{ width: 120 }}>
-                  <Option value="direct">Direct</Option>
-                  <Option value="reverse">Reverse</Option>
-                </Select>
               </div>
             </Col>
           </Col>
@@ -217,6 +206,9 @@ export class Purchase extends Component {
                 pageSize: dataSource.length,
                 hideOnSinglePage: true,
               }}
+              style={{
+                height: "50%"
+              }}
             />
             <Col span={24} style={{ display: "flex", justifyContent: "start", alignItems: "center", marginTop: "15px" }}>
               <h4 style={{ marginRight: "10px" }}>Narration</h4>
@@ -224,28 +216,28 @@ export class Purchase extends Component {
             </Col>
             <Col span={24} style={{ display: "flex", justifyContent: "space-between", marginTop: "15px" }}>
               <Col span={18}>
-                <Col span={10} className="total_line" style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Col span={8} style={{ display: "flex", justifyContent: "space-between" }}>
+                <Col span={14} className="total_line" style={{ display: "flex", justifyContent: "space-between" }}>
+                  <Col span={10} style={{ display: "flex", justifyContent: "space-between" }}>
                     <h4>SUB TOTAL</h4>
                     <h4>54.25</h4>
                   </Col>
-                  <Col span={8} style={{ display: "flex", justifyContent: "space-between" }}>
+                  <Col span={10} style={{ display: "flex", justifyContent: "space-between" }}>
                     <h4>Tax</h4>
                     <h4>0.00</h4>
                   </Col>
                 </Col>
-                <Col span={10} className="total_line" style={{ display: "flex", justifyContent: "space-between" }}>
-                  <Col span={8} style={{ display: "flex", justifyContent: "space-between" }}>
+                <Col span={14} className="total_line" style={{ display: "flex", justifyContent: "space-between" }}>
+                  <Col span={10} style={{ display: "flex", justifyContent: "space-between" }}>
                     <h4>Discount</h4>
                     <h4>0.00</h4>
                   </Col>
-                  <Col span={8} style={{ display: "flex", justifyContent: "space-between" }}>
+                  <Col span={10} style={{ display: "flex", justifyContent: "space-between" }}>
                     <h4>Round Off</h4>
                     <h4>0.00</h4>
                   </Col>
                 </Col>
-                <Col span={5} className="total_line" style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
-                  <Col span={15} style={{ display: "flex", justifyContent: "space-between" }}>
+                <Col span={6} className="total_line" style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}>
+                  <Col span={24} style={{ display: "flex", justifyContent: "space-between" }}>
                     <h3>Total Items</h3>
                     <h3>3</h3>
                   </Col>
@@ -261,15 +253,11 @@ export class Purchase extends Component {
               </Col>
             </Col>
           </Col>
-          {/* <Col span={8} style={{ display: "flex" }}>
-            <Button style={{ margin: "auto" }} type="primary" size={"large"}>
-              Save
-            </Button>
-          </Col> */}
+          <h1 style={{ textAlign: "right",width:"100%", paddingRight:'10%'}}>Rupees : Fifty three and paise twenty five only</h1>
         </Row>
       </Layout>
     );
   }
 }
 
-export default Purchase;
+export default PurchaseReturn
