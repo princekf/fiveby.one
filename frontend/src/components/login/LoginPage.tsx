@@ -16,7 +16,7 @@ export class LoginPage extends React.Component<{}, {}> {
   public render() {
     return (
       <Modal title="Please login to continue..." visible={true} closable={false} destroyOnClose={true} footer={null}>
-        <LoginForm authSuccessHandler={this.handleAuthScess.bind(this)} />
+        <LoginForm authSuccessHandler={this.handleAuthScess} />
       </Modal>
     );
   }

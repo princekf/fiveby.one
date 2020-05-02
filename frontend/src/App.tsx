@@ -30,7 +30,7 @@ class App extends React.Component<{}, AppState> {
   };
 
   public componentDidMount() {
-    let isSvalid = isSessionValid();
+    const isSvalid = isSessionValid();
     this.setState({ isSessionValid: isSvalid, isPageLoading: false });
     if (isSvalid) {
       this.setState({ isFirstTime: false });
@@ -54,7 +54,7 @@ class App extends React.Component<{}, AppState> {
               <LoginPage />
             </Route>
           </Switch>
-          <Redirect to="/login" push />
+          <Redirect to="/login" push={true} />
         </Router>
       );
     }
@@ -67,7 +67,7 @@ class App extends React.Component<{}, AppState> {
           destroyOnClose={true}
           footer={null}
         >
-          <LoginForm authSuccessHandler={this.handleAuthScess.bind(this)} />
+          <LoginForm authSuccessHandler={this.handleAuthScess} />
         </Modal>
         <Router>
           <Switch>

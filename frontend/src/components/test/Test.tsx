@@ -29,7 +29,7 @@ class TestComponent extends Component {
     return (
       <Router>
         <Layout style={{ minHeight: "100vh" }}>
-          <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse}>
+          <Sider collapsible={true} collapsed={this.state.collapsed} onCollapse={this.onCollapse}>
             <div className="logo" />
             <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
               <Menu.Item key="1">
@@ -61,7 +61,7 @@ class TestComponent extends Component {
                 minHeight: 280,
               }}
             >
-              <Route exact path="/" component={Dashboard} />
+              <Route exact={true} path="/" component={Dashboard} />
               <Route path="/meseros" component={Meseros} />
             </Content>
             <Footer style={{ textAlign: "center" }}>Ant Design ©2016 Created by Ant UED</Footer>

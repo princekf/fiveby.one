@@ -54,7 +54,7 @@ class HomeContainer extends Component {
               <Breadcrumb.Item>App</Breadcrumb.Item>
             </Breadcrumb>
             <Content className="layout-content">
-              <Route exact path="/sale" component={Sales} />
+              <Route exact={true} path="/sale" component={Sales} />
               <Route path="/purcahse" component={Purchase} />
             </Content>
           </Layout>

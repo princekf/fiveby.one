@@ -61,16 +61,16 @@ export class Sales extends React.Component<{}, SaleState> {
   };
 
   private onProductSelect = (value: string) => {
-    let existingP: App.ProductSale = this.state.seleProducts.find((saleP) => saleP.product_id === value)!;
+    const existingP: App.ProductSale = this.state.seleProducts.find((saleP) => saleP.product_id === value)!;
 
     if (existingP) {
-      let quantity: number = existingP.quantity + 1;
+      const quantity: number = existingP.quantity + 1;
       existingP.quantity = quantity;
       existingP.total = existingP.price * quantity;
       this.setState({ seleProducts: [...this.state.seleProducts] });
     } else {
-      let selectedProduct: App.Product = this.products.find((product) => product._id === value)!;
-      let productSale: App.ProductSale = Object.assign(
+      const selectedProduct: App.Product = this.products.find((product) => product._id === value)!;
+      const productSale: App.ProductSale = Object.assign(
         { ...selectedProduct },
         {
           _id: "",
@@ -90,12 +90,12 @@ export class Sales extends React.Component<{}, SaleState> {
   };
 
   private searchResult = (query: string) => {
-    const query_l: string = query.toLowerCase();
+    const queryL: string = query.toLowerCase();
     return this.products
-      .filter((product) => product.name.toLowerCase().includes(query_l) || product.barcode.toLowerCase().startsWith(query_l))
-      .map((product_f) => {
+      .filter((product) => product.name.toLowerCase().includes(queryL) || product.barcode.toLowerCase().startsWith(queryL))
+      .map((productF) => {
         return {
-          value: product_f._id,
+          value: productF._id,
           label: (
             <div
               style={{
@@ -103,9 +103,9 @@ export class Sales extends React.Component<{}, SaleState> {
                 justifyContent: "space-between",
               }}
             >
-              <span>{product_f.name}</span>
-              <span>{product_f.barcode}</span>
-              <span>{product_f.price}</span>
+              <span>{productF.name}</span>
+              <span>{productF.barcode}</span>
+              <span>{productF.price}</span>
             </div>
           ),
         };

@@ -1,13 +1,13 @@
 import * as chalk from "chalk";
 import Product from "../server/products/product.model";
 
-const populateDatabase_products = async () => {
+const populateDatabaseProducts = async () => {
   try {
     const products = await Product.find({});
     if (products.length === 0) {
       console.log(chalk.yellow("No products in the database, creating sample products..."));
 
-      let newProducts = [
+      const newProducts = [
         {
           barcode: 35200264013,
           name: "Riceland American Jazmine Rice",
@@ -100021,4 +100021,4 @@ const populateDatabase_products = async () => {
   }
 };
 
-export default populateDatabase_products;
+export default populateDatabaseProducts;
