@@ -1,6 +1,7 @@
 {
   "name": "fiveby.one-backend",
   "version": "1.0.0",
+  "license": "MIT",
   "main": "./build/server.js",
   "engines": {
     "node": "12.*",
