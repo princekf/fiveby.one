@@ -1,3 +1,3 @@
-import "./item";
-import "./product";
-import "./product-sale";
+import './item';
+import './product';
+import './product-sale';

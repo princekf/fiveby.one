@@ -1,4 +1,4 @@
-import { SchemaTypeOpts } from "mongoose";
+import { SchemaTypeOpts } from 'mongoose';
 
 type SchemaPropType<T> = T extends string
   ? StringConstructor

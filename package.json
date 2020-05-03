@@ -8,25 +8,17 @@
     "yarn": "1.*"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.30.0",
+    "@typescript-eslint/parser": "^2.30.0",
     "concurrently": "5.2.0",
-    "husky": "4.2.5",
-    "lint-staged": "10.2.0",
-    "prettier": "2.0.5",
-    "tslint": "6.1.2",
-    "tslint-config-prettier": "1.18.0",
-    "tslint-react": "5.0.0",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "^7.19.0",
+    "eslint-plugin-standard": "^4.0.1",
     "typescript": "3.8.3"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{tsx,ts,js,scss}": [
-      "prettier --write",
-      "git add"
-    ]
   },
   "scripts": {
     "install": "yarn install:backend && yarn install:frontend",
@@ -39,7 +31,8 @@
     "start:db": "sudo mongod --dbpath /Users/prince/X/learnings/fullstack/data/test/ --port 27017",
     "start:backend": "cd backend && yarn start",
     "start:frontend": "cd frontend && yarn start",
-    "lint": "yarn lint:backend && yarn lint:frontend",
+    "lint": "eslint -c .eslintrc.json '*/**/*.{js,ts,tsx}' --quiet --fix",
+    "lint-back": "yarn lint:frontend",
     "lint:backend": "cd backend && yarn lint",
     "lint:frontend": "cd frontend && yarn lint",
     "test": "yarn test:backend",

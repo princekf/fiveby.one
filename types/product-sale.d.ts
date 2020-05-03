@@ -1,7 +1,7 @@
-declare module App {
+declare namespace App {
   interface ProductSale {
     _id: any;
-    product_id: string;
+    productId: string;
     name: string;
     barcode: string;
     price: number;

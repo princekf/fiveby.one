@@ -1,23 +1,34 @@
-import * as bodyParser from "body-parser";
-import * as express from "express";
-import { authorize } from "../config";
-import Product from "./product.model";
+import * as bodyParser from 'body-parser';
+import {Router as expressRouter} from 'express';
+import { authorize } from '../config';
+import Product from './product.model';
+import {Constants} from 'fivebyone';
 
-const router = express.Router();
+const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
 
-router.route("/").get(authorize, async (_, response) => {
+const router = expressRouter();
+
+router.route('/').get(authorize, async(unkownVariable, response) => {
+
   const products = await Product.find();
-  return response.status(200).json(products);
+  return response.status(HTTP_OK).json(products);
+
 });
 
-router.route("/").post(authorize, bodyParser.json(), async (request, response) => {
+router.route('/').post(authorize, bodyParser.json(), async(request, response) => {
+
   try {
+
     const product = new Product(request.body);
     await product.save();
-    return response.status(200).json("Product saved!");
+    return response.status(HTTP_OK).json('Product saved!');
+
   } catch (error) {
-    return response.status(400).send(error);
+
+    return response.status(HTTP_BAD_REQUEST).send(error);
+
   }
+
 });
 
 export default router;

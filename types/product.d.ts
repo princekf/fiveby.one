@@ -1,4 +1,4 @@
-declare module App {
+declare namespace App {
   interface ProductM {
     name: string;
     barcode: string;

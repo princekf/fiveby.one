@@ -1,59 +1,100 @@
-import * as _ from "lodash";
-import * as MMS from "mongodb-memory-server";
-import * as mongoose from "mongoose";
-import * as request from "supertest";
-import app from "../app";
-import User from "./user.model";
+import * as _ from 'lodash';
+import * as MMS from 'mongodb-memory-server';
+import * as mongoose from 'mongoose';
+import * as request from 'supertest';
+import app from '../app';
+import User from './user.model';
+import {Constants} from 'fivebyone';
 
-describe("/api/users tests", () => {
+const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
+
+describe('/api/users tests', () => {
+
   const mongod = new MMS.MongoMemoryServer();
   const registerNewUser = (): request.Test => {
-    return request(app).post("/api/users/register").send({ email: "new@user.com", password: "test-password" });
+
+    return request(app).post('/api/users/register')
+      .send({
+        email: 'new@user.com',
+        password: 'test-password',
+      });
+
   };
 
-  beforeAll(async () => {
+  beforeAll(async() => {
+
     const uri = await mongod.getConnectionString();
-    await mongoose.connect(uri, { useNewUrlParser: true });
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+    });
+
   });
 
-  afterAll(async () => {
+  afterAll(async() => {
+
     await mongoose.disconnect();
     await mongod.stop();
+
   });
 
-  afterEach(async () => {
+  afterEach(async() => {
+
     await User.remove({});
+
   });
 
-  it("should register user", async () => {
+  it('should register user', async() => {
+
     const response = await registerNewUser();
-    expect(response.status).toBe(200);
-    expect(_.keys(response.body)).toEqual(["token", "expiry"]);
+    expect(response.status).toBe(HTTP_OK);
+    expect(_.keys(response.body)).toEqual([ 'token', 'expiry' ]);
+
   });
 
-  it("should catch errors when registering user", async () => {
-    const response = await request(app).post("/api/users/register").send({});
-    expect(response.status).toBe(400);
+  it('should catch errors when registering user', async() => {
+
+    const response = await request(app).post('/api/users/register')
+      .send({});
+    expect(response.status).toBe(HTTP_BAD_REQUEST);
+
   });
 
-  it("should login user", async () => {
+  it('should login user', async() => {
+
     await registerNewUser();
-    const response = await request(app).post("/api/users/login").send({ email: "new@user.com", password: "test-password" });
-    expect(response.status).toBe(200);
-    expect(_.keys(response.body)).toEqual(["token", "expiry"]);
+    const response = await request(app).post('/api/users/login')
+      .send({
+        email: 'new@user.com',
+        password: 'test-password',
+      });
+    expect(response.status).toBe(HTTP_OK);
+    expect(_.keys(response.body)).toEqual([ 'token', 'expiry' ]);
+
   });
 
-  it("should return invalid credentials error when login is invalid", async () => {
+  it('should return invalid credentials error when login is invalid', async() => {
+
     await registerNewUser();
-    const response = await request(app).post("/api/users/login").send({ email: "new@user.com", password: "wrong-password" });
-    expect(response.status).toBe(400);
-    expect(response.body).toEqual({ error: "Invalid credentials" });
+    const response = await request(app).post('/api/users/login')
+      .send({
+        email: 'new@user.com',
+        password: 'wrong-password',
+      });
+    expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toEqual({
+      error: 'Invalid credentials',
+    });
+
   });
 
-  it("should get user profile", async () => {
+  it('should get user profile', async() => {
+
     const register = await registerNewUser();
-    const response = await request(app).get("/api/users/profile").set("Authorization", `Bearer ${register.body.token}`);
-    expect(response.status).toBe(200);
-    expect(response.body.email).toBe("new@user.com");
+    const response = await request(app).get('/api/users/profile')
+      .set('Authorization', `Bearer ${register.body.token}`);
+    expect(response.status).toBe(HTTP_OK);
+    expect(response.body.email).toBe('new@user.com');
+
   });
+
 });

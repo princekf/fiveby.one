@@ -1,5 +1,5 @@
-import { Document, model, Schema } from "mongoose";
-import { SchemaDef } from "../../types";
+import { Document, Schema, model } from 'mongoose';
+import { SchemaDef } from '../../types';
 
 // Declare model interface
 interface ProductDoc extends App.ProductM, Document {}
@@ -22,4 +22,4 @@ const productSchemaDef: SchemaDef<App.ProductM> = {
 // Define model schema
 const productSchema = new Schema(productSchemaDef);
 
-export default model<ProductDoc>("Product", productSchema);
+export default model<ProductDoc>('Product', productSchema);

@@ -17,6 +17,7 @@ sample-app
 
 # production
 build
+shared/lib
 
 npm-debug.log*
 yarn-debug.log*
