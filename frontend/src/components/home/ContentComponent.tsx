@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import { Breadcrumb, Layout } from 'antd';
 import Sales from '../sales/Sales';
@@ -10,7 +10,9 @@ import './Home.scss';
 const { Content } = Layout;
 
 export class ContentComponent extends Component {
+
   render() {
+
     return (
       <div>
         <Content style={{ height: 'calc(100vh - 64px)',
@@ -29,8 +31,10 @@ export class ContentComponent extends Component {
           </Content>
         </Content>
       </div>
-    )
+    );
+
   }
+
 }
 
-export default ContentComponent
+export default ContentComponent;
