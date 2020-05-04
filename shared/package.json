@@ -10,5 +10,8 @@
   },
   "keywords": [],
   "author": "Prince Francis",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "3.8.3"
+  }
 }

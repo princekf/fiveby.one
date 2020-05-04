@@ -21,12 +21,14 @@
     "typescript": "3.8.3"
   },
   "scripts": {
-    "install": "yarn install:backend && yarn install:frontend",
+    "install": "yarn install:shared && yarn install:backend && yarn install:frontend",
     "install:backend": "cd backend && yarn install",
     "install:frontend": "cd frontend && yarn install",
-    "build": "yarn build:backend && yarn build:frontend",
+    "install:shared": "cd shared && yarn install",
+    "build": "yarn build:shared && yarn build:backend && yarn build:frontend",
     "build:backend": "cd backend && yarn build",
     "build:frontend": "cd frontend && yarn build",
+    "build:shared": "cd shared && yarn build",
     "start": "concurrently \"yarn start:backend\" \"yarn start:frontend\"",
     "start:db": "sudo mongod --dbpath /Users/prince/X/learnings/fullstack/data/test/ --port 27017",
     "start:backend": "cd backend && yarn start",
