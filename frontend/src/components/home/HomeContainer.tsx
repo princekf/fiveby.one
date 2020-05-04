@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link, Route, BrowserRouter as Router } from 'react-router-dom';
 import { Breadcrumb, Layout, Menu} from 'antd';
 import { AppstoreOutlined, MenuFoldOutlined, MenuUnfoldOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons';
-import Sales from '../sales/sales-create/Sales';
+import Sales from '../sales/Sales';
 import Purchase from '../purchase/Purchase';
 import PurchaseReturn from '../purchase/PurchaseReturn';
 import './Home.scss';
