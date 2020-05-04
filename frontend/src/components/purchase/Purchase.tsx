@@ -132,8 +132,149 @@ const party = [
   },
 ];
 
-
 const dateFormatList = [ 'DD/MM/YYYY', 'DD/MM/YY' ];
+
+const InvoiceArea = function() {
+
+  return (
+    <Col span={12} style={{ display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between' }}>
+      <div className='item'>
+        <h4>Invoice No.</h4>
+        <InputNumber min={1} max={100000} defaultValue={12035} disabled={true} />
+      </div>
+      <div className='item'>
+        <h4>Invoice Date</h4>
+        <DatePicker defaultValue={moment('01/01/2015', dateFormatList[0])} format={dateFormatList} />
+      </div>
+    </Col>
+  );
+
+};
+
+const OrderArea = function() {
+
+  return (
+    <Col span={12} style={{ display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between' }}>
+      <div className='item'>
+        <h4>Order No.</h4>
+        <InputNumber min={1} max={100000} defaultValue={458123} disabled={true} />
+      </div>
+      <div className='item'>
+        <h4>Order Date</h4>
+        <DatePicker defaultValue={moment('01/01/2015', dateFormatList[0])} format={dateFormatList} />
+      </div>
+    </Col>
+  );
+
+};
+
+const SummaryArea = function() {
+
+  return (
+    <Col span={24} style={{ display: 'flex',
+      justifyContent: 'space-between',
+      marginTop: '15px' }}>
+      <Col span={18}>
+        <Col span={10} className='total_line' style={{ display: 'flex',
+          justifyContent: 'space-between' }}>
+          <Col span={8} style={{ display: 'flex',
+            justifyContent: 'space-between' }}>
+            <h4>SUB TOTAL</h4>
+            <h4>54.25</h4>
+          </Col>
+          <Col span={8} style={{ display: 'flex',
+            justifyContent: 'space-between' }}>
+            <h4>Tax</h4>
+            <h4>0.00</h4>
+          </Col>
+        </Col>
+        <Col span={10} className='total_line' style={{ display: 'flex',
+          justifyContent: 'space-between' }}>
+          <Col span={8} style={{ display: 'flex',
+            justifyContent: 'space-between' }}>
+            <h4>Discount</h4>
+            <h4>0.00</h4>
+          </Col>
+          <Col span={8} style={{ display: 'flex',
+            justifyContent: 'space-between' }}>
+            <h4>Round Off</h4>
+            <h4>0.00</h4>
+          </Col>
+        </Col>
+        <Col span={5} className='total_line' style={{ display: 'flex',
+          justifyContent: 'space-between',
+          marginTop: '10px' }}>
+          <Col span={15} style={{ display: 'flex',
+            justifyContent: 'space-between' }}>
+            <h3>Total Items</h3>
+            <h3>3</h3>
+          </Col>
+        </Col>
+      </Col>
+      <SaveButton/>
+    </Col>
+  );
+
+};
+
+const SaveButton = function() {
+
+  return (
+    <Col span={6}>
+      <Button className='pay_btn'>
+        <h1>SAVE</h1>
+        <span>Total amount</span>
+        <br />
+        <span>Rs. 51.00</span>
+      </Button>
+    </Col>
+  );
+
+};
+
+const MainArea = function() {
+
+  return (
+    <Col span={24} style={{ padding: '10px' }}>
+      <div style={{ marginBottom: 16 }}>
+        <AutoComplete
+          style={{
+            width: '100%',
+            maxWidth: '700px',
+          }}
+          size='large'
+          options={options}
+          placeholder='Enter item code or name or scan bar code'
+          filterOption={true}
+        />
+      </div>
+      <Table
+        dataSource={dataSource}
+        columns={columns}
+        scroll={{ y: 240 }}
+        pagination={{
+          total: dataSource.length,
+          pageSize: dataSource.length,
+          hideOnSinglePage: true,
+        }}
+      />
+      <Col span={24} style={{ display: 'flex',
+        justifyContent: 'start',
+        alignItems: 'center',
+        marginTop: '15px' }}>
+        <h4 style={{ marginRight: '10px' }}>Narration</h4>
+        <TextArea rows={3} style={{ width: '50%' }} />
+      </Col>
+      <SummaryArea/>
+    </Col>
+  );
+
+};
+
 
 export class Purchase extends Component {
 
@@ -144,32 +285,9 @@ export class Purchase extends Component {
         <Row className='main_div'>
           <Col span={24} style={{ display: 'flex',
             padding: '10px' }}>
-            <Col span={12} style={{ display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between' }}>
-              <div className='item'>
-                <h4>Invoice No.</h4>
-                <InputNumber min={1} max={100000} defaultValue={12035} disabled={true} />
-              </div>
-              <div className='item'>
-                <h4>Invoice Date</h4>
-                <DatePicker defaultValue={moment('01/01/2015', dateFormatList[0])} format={dateFormatList} />
-              </div>
-            </Col>
-            <Col span={12} style={{ display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between' }}>
-              <div className='item'>
-                <h4>Order No.</h4>
-                <InputNumber min={1} max={100000} defaultValue={458123} disabled={true} />
-              </div>
-              <div className='item'>
-                <h4>Order Date</h4>
-                <DatePicker defaultValue={moment('01/01/2015', dateFormatList[0])} format={dateFormatList} />
-              </div>
-            </Col>
+            <InvoiceArea/>
+            <OrderArea/>
           </Col>
-
           <Col span={24} style={{ display: 'flex',
             padding: '10px' }}>
             <Col span={12} style={{ display: 'flex',
@@ -199,92 +317,7 @@ export class Purchase extends Component {
               </div>
             </Col>
           </Col>
-
-          <Col span={24} style={{ padding: '10px' }}>
-            <div style={{ marginBottom: 16 }}>
-              <AutoComplete
-                style={{
-                  width: '100%',
-                  maxWidth: '700px',
-                }}
-                size='large'
-                options={options}
-                placeholder='Enter item code or name or scan bar code'
-                filterOption={true}
-              />
-            </div>
-            <Table
-              dataSource={dataSource}
-              columns={columns}
-              scroll={{ y: 240 }}
-              pagination={{
-                total: dataSource.length,
-                pageSize: dataSource.length,
-                hideOnSinglePage: true,
-              }}
-            />
-            <Col span={24} style={{ display: 'flex',
-              justifyContent: 'start',
-              alignItems: 'center',
-              marginTop: '15px' }}>
-              <h4 style={{ marginRight: '10px' }}>Narration</h4>
-              <TextArea rows={3} style={{ width: '50%' }} />
-            </Col>
-            <Col span={24} style={{ display: 'flex',
-              justifyContent: 'space-between',
-              marginTop: '15px' }}>
-              <Col span={18}>
-                <Col span={10} className='total_line' style={{ display: 'flex',
-                  justifyContent: 'space-between' }}>
-                  <Col span={8} style={{ display: 'flex',
-                    justifyContent: 'space-between' }}>
-                    <h4>SUB TOTAL</h4>
-                    <h4>54.25</h4>
-                  </Col>
-                  <Col span={8} style={{ display: 'flex',
-                    justifyContent: 'space-between' }}>
-                    <h4>Tax</h4>
-                    <h4>0.00</h4>
-                  </Col>
-                </Col>
-                <Col span={10} className='total_line' style={{ display: 'flex',
-                  justifyContent: 'space-between' }}>
-                  <Col span={8} style={{ display: 'flex',
-                    justifyContent: 'space-between' }}>
-                    <h4>Discount</h4>
-                    <h4>0.00</h4>
-                  </Col>
-                  <Col span={8} style={{ display: 'flex',
-                    justifyContent: 'space-between' }}>
-                    <h4>Round Off</h4>
-                    <h4>0.00</h4>
-                  </Col>
-                </Col>
-                <Col span={5} className='total_line' style={{ display: 'flex',
-                  justifyContent: 'space-between',
-                  marginTop: '10px' }}>
-                  <Col span={15} style={{ display: 'flex',
-                    justifyContent: 'space-between' }}>
-                    <h3>Total Items</h3>
-                    <h3>3</h3>
-                  </Col>
-                </Col>
-              </Col>
-              <Col span={6}>
-                <Button className='pay_btn'>
-                  <h1>SAVE</h1>
-                  <span>Total amount</span>
-                  <br />
-                  <span>Rs. 51.00</span>
-                </Button>
-              </Col>
-            </Col>
-          </Col>
-          {/* <Col span={8} style={{ display: "flex" }}>
-            <Button style={{ margin: "auto" }} type="primary" size={"large"}>
-              Save
-            </Button>
-          </Col> */}
+          <MainArea/>
         </Row>
       </Layout>
     );

@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu } from 'antd';
 import { AppstoreOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons';
@@ -7,6 +7,7 @@ import './Home.scss';
 export class SilderComponent extends Component {
 
   render() {
+
     return (
       <div>
         <Menu theme='dark' defaultSelectedKeys={[ '1' ]} mode='inline'>
@@ -32,8 +33,10 @@ export class SilderComponent extends Component {
           </Menu.Item>
         </Menu>
       </div>
-    )
+    );
+
   }
+
 }
 
-export default SilderComponent
+export default SilderComponent;
