@@ -5,6 +5,7 @@ import { AppstoreOutlined, MenuFoldOutlined, MenuUnfoldOutlined, UserOutlined, V
 import Sales from '../sales/Sales';
 import Purchase from '../purchase/Purchase';
 import PurchaseReturn from '../purchase/PurchaseReturn';
+import SalesReturn from '../sales/SalesReturn';
 import './Home.scss';
 
 const { Header, Content, Sider } = Layout;
@@ -27,6 +28,11 @@ const SiderMenuSection = function() {
         <AppstoreOutlined />
         <span>Purchase Return</span>
         <Link to='/purchase/return' />
+      </Menu.Item>
+      <Menu.Item key='4'>
+        <AppstoreOutlined />
+        <span>Sale Return</span>
+        <Link to='/sale/return' />
       </Menu.Item>
     </Menu>
   );
@@ -82,6 +88,7 @@ class HomeContainer extends Component {
                 <Route exact={true} path='/sale' component={Sales} />
                 <Route path='/purchase/return' component={PurchaseReturn} />
                 <Route path='/purchase' component={Purchase} />
+                <Route path='/sale/return' component={SalesReturn} />
               </Content>
             </Content>
           </Layout>
