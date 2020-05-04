@@ -3,7 +3,7 @@ import axios from 'axios';
 import { AutoComplete, Button, Col, Input, Layout, Row, Table } from 'antd';
 import './Sales.scss';
 import { SelectProps } from 'antd/lib/select';
-import { getAuthHeaders } from '../../../session';
+import { getAuthHeaders } from '../../session';
 
 const columns = [
   {
