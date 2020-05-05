@@ -285,6 +285,7 @@ export class Sales extends React.Component<{}, SaleState> {
         <Row className='main_div'>
           <Col span={18} style={{ padding: '10px' }}>
             <div style={{ marginBottom: 16 }}>
+              <PartyDetails/>
               <AutoComplete
                 style={{
                   width: '100%',
@@ -298,7 +299,6 @@ export class Sales extends React.Component<{}, SaleState> {
               >
                 <Input.Search size='large' placeholder='Enter item code or name or scan bar code' enterButton={true} />
               </AutoComplete>
-              <PartyDetails/>
             </div>
             <Table
               dataSource={this.state.seleProducts}
