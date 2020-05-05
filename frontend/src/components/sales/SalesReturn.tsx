@@ -1,9 +1,10 @@
 import React from 'react';
 import axios from 'axios';
-import { AutoComplete, Button, Col, Input, Layout, Row, Table } from 'antd';
+import { AutoComplete, Button, Col, Input, Layout, Row, Table, DatePicker } from 'antd';
 import './Sales.scss';
 import { SelectProps } from 'antd/lib/select';
 import { getAuthHeaders } from '../../session';
+import moment from 'moment';
 
 const columns = [
   {
@@ -38,6 +39,19 @@ const columns = [
   },
 ];
 
+const dateFormatList = [ 'DD/MM/YYYY', 'DD/MM/YY' ];
+
+const party = [
+  {
+    value: 'Party 1',
+  },
+  {
+    value: 'Party 2',
+  },
+  {
+    value: 'Party 3',
+  },
+];
 
 const SummaryArea = function() {
 
@@ -70,6 +84,40 @@ const SummaryArea = function() {
         </Button>
       </div>
     </div>
+  );
+
+};
+
+const PartyDetails = function() {
+
+  return (
+    <Col span={24} style={{ display: 'flex',
+      padding: '10px' }}>
+      <Col span={16} style={{ display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between' }}>
+        <div className='two_item'>
+          <h4>Party</h4>
+          <AutoComplete
+            style={{
+              width: '70%',
+            }}
+            options={party}
+            placeholder='Party code / name to search'
+            filterOption={true}
+          />
+        </div>
+      </Col>
+      <Col span={8} style={{ display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between' }}>
+        <div className='two_item'>
+          <h4>Date</h4>
+          <DatePicker defaultValue={moment('01/01/2015', dateFormatList[0])} format={dateFormatList} />
+
+        </div>
+      </Col>
+    </Col>
   );
 
 };
@@ -203,6 +251,7 @@ export class SalesReturn extends React.Component<{}, SaleState> {
               >
                 <Input.Search size='large' placeholder='Enter item code or name or scan bar code' enterButton={true} />
               </AutoComplete>
+              <PartyDetails/>
             </div>
             <Table
               dataSource={this.state.seleProducts}
