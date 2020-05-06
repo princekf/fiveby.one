@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import { Breadcrumb, Layout } from 'antd';
-import Sales from '../sales/Sales';
-import Purchase from '../purchase/Purchase';
-import PurchaseReturn from '../purchase/PurchaseReturn';
-import SalesReturn from '../sales/SalesReturn';
+import Sales from '../inventory/sales/Sales';
+import Purchase from '../inventory/purchase/Purchase';
+import PurchaseReturn from '../inventory/purchase/PurchaseReturn';
+import SalesReturn from '../inventory/sales/SalesReturn';
 import './Home.scss';
+import PriceType from '../inventory/master/PriceType';
+import StockGroup from '../inventory/master/StockGroup';
+import Product from '../inventory/master/Product';
 
 const { Content } = Layout;
 
@@ -28,6 +31,9 @@ export class ContentComponent extends Component {
             <Route path='/purchase/return' component={PurchaseReturn} />
             <Route path='/purchase' component={Purchase} />
             <Route path='/sale/return' component={SalesReturn} />
+            <Route path='/price' component={PriceType} />
+            <Route path='/stock' component={StockGroup} />
+            <Route path='/product' component={Product} />
           </Content>
         </Content>
       </div>
