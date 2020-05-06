@@ -1,5 +1,5 @@
 import { Document, Schema, model } from 'mongoose';
-import { SchemaDef } from '../../types';
+import { SchemaDef } from '../../../types';
 
 // Declare model interface
 interface ProductDoc extends App.ProductM, Document {}

@@ -1,5 +1,7 @@
 import {Constants} from './constants';
 export {Constants};
+import {TaxS, Tax} from './entity/Tax';
+export {TaxS, Tax};
 export const Greeter = (name: string) => {
 
   return `Hello ${name}`;
