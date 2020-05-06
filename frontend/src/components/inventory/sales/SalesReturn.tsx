@@ -3,7 +3,7 @@ import axios from 'axios';
 import { AutoComplete, Button, Col, Input, Layout, Row, Table, DatePicker } from 'antd';
 import './Sales.scss';
 import { SelectProps } from 'antd/lib/select';
-import { getAuthHeaders } from '../../session';
+import { getAuthHeaders } from '../../../session';
 import moment from 'moment';
 
 const columns = [
@@ -77,7 +77,7 @@ const SummaryArea = function() {
       </div>
       <div className='button'>
         <Button className='pay_btn' type='primary' size={'large'}>
-          <h1>PAY</h1>
+          <h1>Submit</h1>
           <span>Total amount</span>
           <br />
           <span>Rs. 51.00</span>
@@ -122,58 +122,13 @@ const PartyDetails = function() {
 
 };
 
-const SavedSalesArea = function() {
-
-  return (
-    <Col span={6}>
-      <Row style={{ display: 'flex',
-        marginBottom: '20px',
-        justifyContent: 'space-around' }}>
-        <Button className='card' style={{ height: '90px',
-          width: '150px',
-          marginBottom: '10px' }} size={'large'}>
-          <h2 style={{ marginBottom: '0px' }}>Save</h2>
-        </Button>
-        <Button className='card' style={{ height: '90px',
-          width: '150px',
-          marginBottom: '10px',
-          border: 'none' }}>
-          <h3>Customer 1</h3>
-          <h5>Qty: 5</h5>
-          <h5>Price: 5</h5>
-          <h5>Date: 20/2/2020</h5>
-        </Button>
-        <Button className='card' style={{ height: '90px',
-          width: '150px',
-          marginBottom: '10px',
-          border: 'none' }}>
-          <h3>Customer 2</h3>
-          <h5>Qty: 5</h5>
-          <h5>Price: 5</h5>
-          <h5>Date: 20/2/2020</h5>
-        </Button>
-        <Button className='card' style={{ height: '90px',
-          width: '150px',
-          marginBottom: '10px',
-          border: 'none' }}>
-          <h3>Customer 3</h3>
-          <h5>Qty: 5</h5>
-          <h5>Price: 5</h5>
-          <h5>Date: 20/2/2020</h5>
-        </Button>
-      </Row>
-    </Col>
-  );
-
-};
-
 interface SaleState {
   options: SelectProps<object>['options'];
   selectedProductId: string;
   seleProducts: App.ProductSale[];
 }
 
-export class Sales extends React.Component<{}, SaleState> {
+export class SalesReturn extends React.Component<{}, SaleState> {
 
   state = {
     options: [],
@@ -269,7 +224,6 @@ export class Sales extends React.Component<{}, SaleState> {
 
   };
 
-
   public async componentDidMount() {
 
     const response = await axios.get<App.Product[]>('/api/products', { headers: getAuthHeaders() });
@@ -277,13 +231,12 @@ export class Sales extends React.Component<{}, SaleState> {
 
   }
 
-
   public render() {
 
     return (
       <Layout>
         <Row className='main_div'>
-          <Col span={18} style={{ padding: '10px' }}>
+          <Col span={24} style={{ padding: '10px' }}>
             <div style={{ marginBottom: 16 }}>
               <PartyDetails/>
               <AutoComplete
@@ -311,7 +264,6 @@ export class Sales extends React.Component<{}, SaleState> {
             />
             <SummaryArea />
           </Col>
-          <SavedSalesArea />
         </Row>
       </Layout>
     );
@@ -320,4 +272,4 @@ export class Sales extends React.Component<{}, SaleState> {
 
 }
 
-export default Sales;
+export default SalesReturn;
