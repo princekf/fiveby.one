@@ -1,3 +1,4 @@
+/* eslint max-lines-per-function: 0 */
 import * as _ from 'lodash';
 import * as MMS from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';

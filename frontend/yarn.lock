@@ -4881,7 +4881,7 @@ find-up@^3.0.0:
   dependencies:
     locate-path "^3.0.0"
 
-"fivebyone@link:../shared/":
+"fivebyone@link:../shared":
   version "0.0.0"
   uid ""
 

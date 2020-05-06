@@ -1,5 +1,6 @@
+/* eslint max-lines-per-function: 0 */
 import * as chalk from 'chalk';
-import Product from '../server/products/product.model';
+import Product from '../server/inventory/product/product.model';
 
 const populateDatabaseProducts = async() => {
 

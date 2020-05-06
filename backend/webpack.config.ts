@@ -1,5 +1,6 @@
 import path = require('path');
 import nodeExternals = require('webpack-node-externals');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const NodemonPlugin = require('nodemon-webpack-plugin');
 
 const { NODE_ENV = 'production' } = process.env;

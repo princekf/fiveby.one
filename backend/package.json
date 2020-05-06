@@ -24,6 +24,7 @@
       "!**/*.d.ts",
       "!server/server.ts",
       "!server/app.ts",
+      "!webpack.config.ts",
       "!scripts/*"
     ]
   },
@@ -70,7 +71,7 @@
   },
   "scripts": {
     "start": "webpack --watch",
-    "build": "webpack --config webpack.config.js",
+    "build": "webpack --config webpack.config.ts",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "test": "jest --coverage --colors",
     "test:watch": "jest --coverage --colors --watchAll"
