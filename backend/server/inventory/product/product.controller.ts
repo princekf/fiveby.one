@@ -21,7 +21,7 @@ router.route('/').post(authorize, bodyParser.json(), async(request, response) =>
 
     const product = new Product(request.body);
     await product.save();
-    return response.status(HTTP_OK).json('Product saved!');
+    return response.status(HTTP_OK).json(product);
 
   } catch (error) {
 
