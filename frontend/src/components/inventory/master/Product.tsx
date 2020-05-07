@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
-import { Button, Col, Input, Row, Table, Checkbox } from 'antd';
+import axios from 'axios';
+import { getAuthHeaders } from '../../../session';
+import { Button, Col, Input, Row, Table, Switch, Form, message, Select, InputNumber} from 'antd';
 import './Style.scss';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import {Constants} from 'fivebyone';
+
+const {HTTP_OK} = Constants;
 
 const dataSource = [
   {
@@ -50,12 +55,18 @@ const columns = [
     render() {
 
       return (
-        <div style={{ display: 'flex',
-          alignItems: 'center' }}>
-          <EditOutlined style={{marginRight: '10px',
-            cursor: 'pointer'}}/>
-          <DeleteOutlined style={{marginRight: '10px',
-            cursor: 'pointer'}}/>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          <EditOutlined style={{
+            marginRight: '10px',
+            cursor: 'pointer'
+          }} />
+          <DeleteOutlined style={{
+            marginRight: '10px',
+            cursor: 'pointer'
+          }} />
         </div>
       );
 
@@ -63,103 +74,231 @@ const columns = [
   },
 ];
 
-const InputAreaOne = function() {
+const layout = {
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+};
+
+const tailLayout = {
+  wrapperCol: {
+    offset: 8,
+    span: 16,
+  },
+};
+
+const ProductFormRow1 = function() {
 
   return (
-    <Col span={12} style={{ padding: '0 15px',
-      boxSizing: 'border-box'}}>
-      <Col className='box'>
-        <h4 className='text'>Code</h4>
-        <Input placeholder='Code'/>
+    <>
+      <Col span={12}>
+        <Form.Item
+          name='name'
+          label='Name'
+          rules={[
+            {
+              required: true,
+              message: 'Product name is required',
+            },
+          ]}
+        >
+          <Input placeholder='Name of product' />
+        </Form.Item>
       </Col>
-      <Col className='box'>
-        <h4 className='text'>Short Name</h4>
-        <Input placeholder='Short Name'/>
+      <Col span={12}>
+        <Form.Item
+          name='group'
+          label='Group'
+          rules={[
+            {
+              required: true,
+              message: 'Group name is required',
+            },
+          ]}
+        >
+          <Input.Search placeholder='Name of group' />
+        </Form.Item>
       </Col>
-      <Col className='box'>
-        <h4 className='text'>Group</h4>
-        <Input placeholder='Group'/>
-      </Col>
-      <Col className='box'>
-        <h4 className='text'>HSN Code</h4>
-        <Input placeholder='HSN Code'/>
-      </Col>
-      <Col className='box'>
-        <h4 className='text'>Reorder level</h4>
-        <Input placeholder='Reorder level'/>
-      </Col>
-    </Col>
 
+    </>
   );
 
 };
 
-const InputAreaTwo = function() {
+const ProductFormRow2 = function() {
 
   return (
+    <>
 
-    <Col span={12} style={{ padding: '0 15px',
-      boxSizing: 'border-box'}}>
-      <Col className='box'>
-        <h4 className='text'>Name</h4>
-        <Input placeholder='Name'/>
+      <Col span={12}>
+        <Form.Item
+          name='barcode'
+          label='Barcode'
+          rules={[
+            {
+              required: true,
+              message: 'Barcode is required',
+            },
+          ]}
+        >
+          <Input placeholder='Enter product barcode' />
+        </Form.Item>
       </Col>
-      <Col className='box'>
-        <h4 className='text'>Brand</h4>
-        <Input placeholder='Brand'/>
+      <Col span={12}>
+        <Form.Item
+          name='shortName'
+          label='Short Name'
+        >
+          <Input placeholder='Enter product short name' />
+        </Form.Item>
       </Col>
-      <Col className='box'>
-        <h4 className='text'>Location</h4>
-        <Input placeholder='Location'/>
+    </>
+  );
+
+};
+const ProductFormRow3 = function() {
+
+  return (
+    <>
+      <Col span={12}>
+        <Form.Item
+          name='code'
+          label='HSN Code'
+        >
+          <Input.Search placeholder='Enter product HSN code' />
+        </Form.Item>
       </Col>
-      <Col className='box'>
-        <h4 className='text'>Unit Packing</h4>
-        <Input placeholder='Unit Packing'/>
+      <Col span={12}>
+        <Form.Item
+          name='brand'
+          label='Brand'
+        >
+          <Input.Search placeholder='Enter product brand' />
+        </Form.Item>
       </Col>
-      <Col className='box'>
-        <h4 className='text'>Color</h4>
-        <Input placeholder='Color'/>
+      <Col span={12}>
+        <Form.Item
+          name='location'
+          label='Location'
+        >
+          <Input.Search placeholder='Enter product location' />
+        </Form.Item>
       </Col>
-    </Col>
+      <Col span={12}>
+        <Form.Item
+          name='unit'
+          label='Unit'
+        >
+          <Input.Search placeholder='Enter product unit' />
+        </Form.Item>
+      </Col>
+    </>
+  );
+
+};
+const ProductFormRow4 = function() {
+
+  return (
+    <>
+      <Col span={12}>
+        <Form.Item
+          name='reorderLevel'
+          label='Re-Order Level'
+        >
+          <InputNumber placeholder='Enter product re order level' />
+        </Form.Item>
+      </Col>
+      <Col span={12}>
+        <Form.Item
+          name='colors'
+          label='Colors'
+        >
+          <Select mode='tags' placeholder='Select colors' allowClear={true}>
+          </Select>
+        </Form.Item>
+      </Col>
+      <Col span={12}>
+        <Form.Item
+          name='hasBatch'
+          label='Maintain in Batch'
+        >
+          <Switch />
+        </Form.Item>
+      </Col>
+    </>
+  );
+
+};
+
+const ProductForm = function() {
+
+  return (
+    <>
+      <Row gutter={24}>
+        <ProductFormRow1/>
+        <ProductFormRow2/>
+        <ProductFormRow3/>
+        <ProductFormRow4/>
+      </Row>
+      <Form.Item {...tailLayout}>
+        <Button type='primary' htmlType='submit'>
+            Submit
+        </Button>
+      </Form.Item>
+    </>
   );
 
 };
 export class Product extends Component {
 
+  private handlePoductUpdate = async(values: any): Promise<void> => {
+
+    const hideLodingMessage = message.loading('Updating product into server...');
+    const ERROR_MESSAGE_DISPLAY_TIME = 5;
+    try {
+
+      const response = await axios.post<{ token: string; expiry: string }>('/api/products', values, { headers: getAuthHeaders() });
+      if (response.status !== HTTP_OK) {
+
+        message.error('Product update failes, pelase try again', ERROR_MESSAGE_DISPLAY_TIME);
+
+      }
+
+    } catch (error) {
+
+      message.error('Product update failes, pelase try again', ERROR_MESSAGE_DISPLAY_TIME);
+
+    } finally {
+
+      hideLodingMessage();
+
+    }
+
+  };
+
+
   render() {
 
     return (
-      <div>
-        <Row style={{ display: 'flex'}}>
-          <Col span={24} style={{ display: 'flex'}}>
-            <InputAreaOne/>
-            <InputAreaTwo/>
-          </Col>
-          <Col span={24} className='box' style={{display: 'flex',
-            paddingLeft: '15px',
-            margin: '10px 0'}}>
-            <h4 className='text' style={{width: 'auto'}}>Maintain in Batch</h4>
-            <Checkbox></Checkbox>
-          </Col>
-          <Col span={24} className='box submit' style={{display: 'flex',
-            justifyContent: 'flex-end',
-            paddingRight: '30px'}}>
-            <Button type='primary'>Submit</Button>
-          </Col>
-          <Col span={24}>
-            <Table
-              dataSource={dataSource}
-              columns={columns}
-              scroll={{ y: 240 }}
-              pagination={{
-                total: dataSource.length,
-                pageSize: dataSource.length,
-                hideOnSinglePage: true,
-              }}
-            />
-          </Col>
-        </Row>
-      </div>
+      <>
+        <Form
+          {...layout}
+          name='advanced_search'
+          size='small'
+          onFinish={this.handlePoductUpdate}
+        >
+          <ProductForm />
+        </Form>
+        <Table
+          dataSource={dataSource}
+          columns={columns}
+          scroll={{ y: 240 }}
+          pagination={{
+            total: dataSource.length,
+            pageSize: dataSource.length,
+            hideOnSinglePage: true,
+          }}
+        />
+      </>
     );
 
   }
