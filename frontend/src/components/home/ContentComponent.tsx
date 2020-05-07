@@ -9,6 +9,10 @@ import './Home.scss';
 import PriceType from '../inventory/master/PriceType';
 import StockGroup from '../inventory/master/StockGroup';
 import Product from '../inventory/master/Product';
+import Unit from '../inventory/master/Unit';
+import Tax from '../inventory/master/Tax';
+import ExcessShortDamage from '../inventory/master/ExcessShortDamage';
+import Vendor from '../inventory/master/Vendor';
 
 const { Content } = Layout;
 
@@ -34,6 +38,10 @@ export class ContentComponent extends Component {
             <Route path='/price' component={PriceType} />
             <Route path='/stock' component={StockGroup} />
             <Route path='/product' component={Product} />
+            <Route path='/unit' component={Unit} />
+            <Route path='/tax' component={Tax} />
+            <Route path='/excess' component={ExcessShortDamage} />
+            <Route path='/vendor' component={Vendor} />
           </Content>
         </Content>
       </div>
