@@ -10,6 +10,7 @@ import {Constants, ProductGroup as ProductGroupEntity} from 'fivebyone';
 const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
 
 describe('/api/inventory/productgroups tests', () => {
+
   const mongod = new MMS.MongoMemoryServer();
   let serverToken = '';
 
@@ -45,10 +46,12 @@ describe('/api/inventory/productgroups tests', () => {
   // Create a sample item
   beforeEach(async() => {
 
-    // const productGroup = new ProductGroup();
-    // productGroup.name = 'Product Group Name';
-    // productGroup.shortName = 'Short Name';
-    // await productGroup.save();
+    /*
+     * Const productGroup = new ProductGroup();
+     * productGroup.name = 'Product Group Name';
+     * productGroup.shortName = 'Short Name';
+     * await productGroup.save();
+     */
 
   });
 
@@ -58,7 +61,6 @@ describe('/api/inventory/productgroups tests', () => {
     await ProductGroup.remove({});
 
   });
-
 
 
   it('should post productGroups', async() => {
@@ -118,12 +120,25 @@ describe('/api/inventory/productgroups tests', () => {
 
   it('cant save productGroup if parent group is invalid', async() => {
 
+    const response2 = await request(app).post('/api/inventory/productgroup')
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Group Name 2',
+        shortName: 'Short Name 2',
+      });
+    expect(response2.status).toBe(HTTP_OK);
+    const savedProductGroup2: ProductGroupEntity = response2.body;
+
+    const response3 = await request(app)['delete'](`/api/inventory/productgroup/${savedProductGroup2._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response3.status).toBe(HTTP_OK);
+
     const response = await request(app).post('/api/inventory/productgroup')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Group Name 2',
         shortName: 'Short Name 2',
-        parent: 'Invalid Group Parent',
+        parent: savedProductGroup2._id,
       });
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
@@ -139,7 +154,7 @@ describe('/api/inventory/productgroups tests', () => {
       });
     expect(response1.status).toBe(HTTP_OK);
     const savedProductGroup1: ProductGroupEntity = response1.body;
-    // level one parent
+    // Level one parent
     const response2 = await request(app).post('/api/inventory/productgroup')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
@@ -154,10 +169,10 @@ describe('/api/inventory/productgroups tests', () => {
         name: 'Group Name 2',
         shortName: 'Short Name 2',
         parent: savedProductGroup1._id,
-        ancestors:[savedProductGroup1._id]
+        ancestors: [ savedProductGroup1._id ]
       }),
     );
-    // level two parent
+    // Level two parent
     const response3 = await request(app).post('/api/inventory/productgroup')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
@@ -172,20 +187,22 @@ describe('/api/inventory/productgroups tests', () => {
         name: 'Group Name 3',
         shortName: 'Short Name 3',
         parent: savedProductGroup2._id,
-        ancestors:[savedProductGroup1._id, savedProductGroup2._id]
+        ancestors: [ savedProductGroup1._id, savedProductGroup2._id ]
       }),
     );
+
   });
-  
+
   it('should get productGroups', async() => {
+
     const response1 = await request(app).post('/api/inventory/productgroup')
-    .set('Authorization', `Bearer ${serverToken}`)
-    .send({
-      name: 'Product Group Name',
-      shortName: 'Short Name',
-      parent: '',
-    });
-  expect(response1.status).toBe(HTTP_OK);
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Product Group Name',
+        shortName: 'Short Name',
+        parent: '',
+      });
+    expect(response1.status).toBe(HTTP_OK);
     const response = await request(app).get('/api/inventory/productgroup')
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response.status).toBe(HTTP_OK);
@@ -196,7 +213,7 @@ describe('/api/inventory/productgroups tests', () => {
         name: 'Product Group Name',
         shortName: 'Short Name',
         parent: '',
-        ancestors:[],
+        ancestors: [],
       }),
     ]);
 
@@ -223,18 +240,22 @@ describe('/api/inventory/productgroups tests', () => {
         name: 'Product Group Name 2',
         shortName: 'Short Name 2',
         parent: '',
-        ancestors:[],
+        ancestors: [],
       }),
     );
+
   });
 
   it('should not return productGroup with invalid id', async() => {
-    const response = await request(app).get(`/api/inventory/productgroup/0987654`)
+
+    const response = await request(app).get('/api/inventory/productgroup/0987654')
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+
   });
 
   it('Should update product group', async() => {
+
     const response1 = await request(app).post('/api/inventory/productgroup')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
@@ -245,7 +266,7 @@ describe('/api/inventory/productgroups tests', () => {
     const savedProductGroup1: ProductGroupEntity = response1.body;
     savedProductGroup1.name = 'Name-1';
     const response2 = await request(app).put(`/api/inventory/productgroup/${savedProductGroup1._id}`)
-    .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${serverToken}`)
       .send(savedProductGroup1);
     expect(response2.status).toBe(HTTP_OK);
     expect(response2.body).toEqual('Product group updated successfully.');
@@ -258,12 +279,14 @@ describe('/api/inventory/productgroups tests', () => {
         _id: savedProductGroup1._id,
         name: 'Name-1',
         shortName: 'Short Name 1',
-        ancestors:[],
+        ancestors: [],
       }),
     );
+
   });
 
   it('Should update product group with parent', async() => {
+
     const response1 = await request(app).post('/api/inventory/productgroup')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
@@ -288,18 +311,19 @@ describe('/api/inventory/productgroups tests', () => {
       });
     expect(response3.status).toBe(HTTP_OK);
 
-  const response4 = await request(app).get(`/api/inventory/productgroup/${savedProductGroup1._id}`)
-    .set('Authorization', `Bearer ${serverToken}`);
-  expect(response4.status).toBe(HTTP_OK);
+    const response4 = await request(app).get(`/api/inventory/productgroup/${savedProductGroup1._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response4.status).toBe(HTTP_OK);
     const savedProductGroup4: ProductGroupEntity = response4.body;
     expect(savedProductGroup4).toEqual(
       expect.objectContaining({
         _id: savedProductGroup1._id,
         name: 'Group Name 1',
         parent: savedProductGroup2._id,
-        ancestors:[savedProductGroup2._id],
+        ancestors: [ savedProductGroup2._id ],
       }),
     );
+
   });
 
   it('cant update productGroup if there is circular relation with parent', async() => {
@@ -311,7 +335,7 @@ describe('/api/inventory/productgroups tests', () => {
       });
     expect(response1.status).toBe(HTTP_OK);
     const savedProductGroup1: ProductGroupEntity = response1.body;
-    
+
     const response2 = await request(app).post('/api/inventory/productgroup')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
@@ -352,7 +376,7 @@ describe('/api/inventory/productgroups tests', () => {
     expect(response.status).toBe(HTTP_OK);
     const savedProductGroup: ProductGroupEntity = response.body;
 
-    const response3 = await request(app).delete(`/api/inventory/productgroup/${savedProductGroup._id}`)
+    const response3 = await request(app)['delete'](`/api/inventory/productgroup/${savedProductGroup._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_OK);
 
@@ -364,7 +388,7 @@ describe('/api/inventory/productgroups tests', () => {
 
   it('should handle delete of invalid productGroups', async() => {
 
-    const response3 = await request(app).delete(`/api/inventory/productgroup/09876`)
+    const response3 = await request(app)['delete']('/api/inventory/productgroup/09876')
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_BAD_REQUEST);
 

@@ -9,24 +9,36 @@ const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
 const router = expressRouter();
 
 
-const validateParent = async (productGroup:ProductGroupS, id:string=undefined):Promise<string[]> => {
-  let ancestors:string[] = [];
-  if(productGroup.parent){
+const validateParent = async(productGroup: ProductGroupS, productGroupId: string = null): Promise<string[]> => {
+
+  let ancestors: string[] = [];
+  if (productGroup.parent) {
+
     // If parent exists, then it should be a proper one.
-    const parentGroup:ProductGroupEntity = await ProductGroup.findOne({_id: productGroup.parent});
-    if(!parentGroup){
-      throw ('Parent group doesn\'t exists');
+    const parentGroup: ProductGroupEntity = await ProductGroup.findOne({_id: productGroup.parent});
+
+    if (!parentGroup) {
+
+      throw new Error('Parent group doesn\'t exists');
+
     }
-    if(parentGroup.ancestors){
-      // if name of the product group contains in the ancestor list, then it is a circular relation.
-      if(id && parentGroup.ancestors.indexOf(id) !== -1){
-        throw ('Circular relation with parent.');
+
+    if (parentGroup.ancestors) {
+
+      // If name of the product group contains in the ancestor list, then it is a circular relation.
+      if (productGroupId && parentGroup.ancestors.indexOf(productGroupId) !== -1) {
+
+        throw new Error('Circular relation with parent.');
+
       }
       ancestors = ancestors.concat(parentGroup.ancestors);
+
     }
-    ancestors.push(productGroup.parent)
+    ancestors.push(productGroup.parent);
+
   }
   return ancestors;
+
 };
 
 
@@ -40,11 +52,15 @@ router.route('/').get(authorize, async(unkownVariable, response) => {
 router.route('/:id').get(authorize, async(request, response) => {
 
   try {
+
     const productGroup = await ProductGroup.findById(request.params.id);
-    if(!productGroup){
+    if (!productGroup) {
+
       return response.status(HTTP_BAD_REQUEST).send('No product group with the specified id.');
+
     }
     return response.status(HTTP_OK).json(productGroup);
+
   } catch (error) {
 
     return response.status(HTTP_BAD_REQUEST).send(error);
@@ -59,7 +75,7 @@ router.route('/').post(authorize, bodyParser.json(), async(request, response) =>
   try {
 
     const productGroup = new ProductGroup(request.body);
-    const ancestors:string[] = await validateParent(productGroup);
+    const ancestors: string[] = await validateParent(productGroup);
     productGroup.ancestors = ancestors;
     await productGroup.save();
     return response.status(HTTP_OK).json(productGroup);
@@ -75,25 +91,30 @@ router.route('/').post(authorize, bodyParser.json(), async(request, response) =>
 router.route('/:id').put(authorize, bodyParser.json(), async(request, response) => {
 
   try {
-    const id = request.params.id;
-    const updateObject:ProductGroupS = request.body;
-    const ancestors:string[] = await validateParent(updateObject, id);
+
+    const {id} = request.params;
+    const updateObject: ProductGroupS = request.body;
+    const ancestors: string[] = await validateParent(updateObject, id);
     updateObject.ancestors = ancestors;
     await ProductGroup.update({_id: id}, updateObject);
     return response.status(HTTP_OK).json('Product group updated successfully.');
 
   } catch (error) {
+
     return response.status(HTTP_BAD_REQUEST).send(error);
+
   }
 
 });
 
 
-router.route('/:id').delete(authorize, async(request, response) => {
+router.route('/:id')['delete'](authorize, async(request, response) => {
 
   try {
-   await ProductGroup.deleteOne({_id: request.params.id});
+
+    await ProductGroup.deleteOne({_id: request.params.id});
     return response.status(HTTP_OK).json('Product Group deleted successfully.');
+
   } catch (error) {
 
     return response.status(HTTP_BAD_REQUEST).send(error);

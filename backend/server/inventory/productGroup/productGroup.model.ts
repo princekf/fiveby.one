@@ -6,7 +6,7 @@ import { ProductGroupS } from 'fivebyone';
 interface ProductGroupDoc extends ProductGroupS, Document {}
 
 const productGroupSchemaDef: SchemaDef<ProductGroupS> = {
-  
+
   name: {
     type: String,
     required: true,

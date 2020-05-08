@@ -9,7 +9,7 @@ import {Constants, Product as ProductEntity} from 'fivebyone';
 
 const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
 
-describe('/api/products tests', () => {
+describe('/api/inventory/products tests', () => {
 
   const mongod = new MMS.MongoMemoryServer();
   let serverToken = '';
@@ -72,7 +72,7 @@ describe('/api/products tests', () => {
 
   it('should get products', async() => {
 
-    const response = await request(app).get('/api/products')
+    const response = await request(app).get('/api/inventory/products')
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response.status).toBe(HTTP_OK);
     const listedProducts: ProductEntity[] = response.body;
@@ -97,7 +97,7 @@ describe('/api/products tests', () => {
 
   it('should post products', async() => {
 
-    const response = await request(app).post('/api/products')
+    const response = await request(app).post('/api/inventory/products')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: 'Group Name 2',
@@ -136,7 +136,7 @@ describe('/api/products tests', () => {
 
   it('should catch errors when posting products', async() => {
 
-    const response = await request(app).post('/api/products')
+    const response = await request(app).post('/api/inventory/products')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({});
     expect(response.status).toBe(HTTP_BAD_REQUEST);
@@ -145,7 +145,7 @@ describe('/api/products tests', () => {
 
   it('cant save product because group cant be empty', async() => {
 
-    const response = await request(app).post('/api/products')
+    const response = await request(app).post('/api/inventory/products')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: '',
@@ -166,7 +166,7 @@ describe('/api/products tests', () => {
 
   it('cant save product because group is required', async() => {
 
-    const response = await request(app).post('/api/products')
+    const response = await request(app).post('/api/inventory/products')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Product Name 2',
@@ -186,7 +186,7 @@ describe('/api/products tests', () => {
 
   it('cant save product because name cant be empty', async() => {
 
-    const response = await request(app).post('/api/products')
+    const response = await request(app).post('/api/inventory/products')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: 'Group Name 2',
@@ -207,7 +207,7 @@ describe('/api/products tests', () => {
 
   it('cant save product because name is required', async() => {
 
-    const response = await request(app).post('/api/products')
+    const response = await request(app).post('/api/inventory/products')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: 'Group Name 2',

@@ -2,7 +2,7 @@ export interface ProductGroupS {
   name: string;
   shortName: string;
   parent: string;
-  ancestors:string[];
+  ancestors: string[];
 }
 
 export interface ProductGroup extends ProductGroupS {

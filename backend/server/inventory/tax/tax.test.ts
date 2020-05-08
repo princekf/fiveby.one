@@ -9,7 +9,7 @@ import {Constants, Tax as TaxEntity} from 'fivebyone';
 
 const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
 
-describe('/api/tax tests', () => {
+describe('/api/inventory/tax tests', () => {
 
   const mongod = new MMS.MongoMemoryServer();
   let serverToken = '';
@@ -68,7 +68,7 @@ describe('/api/tax tests', () => {
   });
   it('should get taxes', async() => {
 
-    const response = await request(app).get('/api/tax')
+    const response = await request(app).get('/api/inventory/tax')
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response.status).toBe(HTTP_OK);
     const listedTaxes: TaxEntity[] = response.body;
@@ -91,7 +91,7 @@ describe('/api/tax tests', () => {
 
   it('should post tax', async() => {
 
-    const response = await request(app).post('/api/tax')
+    const response = await request(app).post('/api/inventory/tax')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'new Tax',
@@ -110,7 +110,7 @@ describe('/api/tax tests', () => {
 
   it('should catch errors when posting tax', async() => {
 
-    const response = await request(app).post('/api/tax')
+    const response = await request(app).post('/api/inventory/tax')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({});
     expect(response.status).toBe(HTTP_BAD_REQUEST);
