@@ -10,14 +10,16 @@ import itemsController from './items/items.controller';
 import usersController from './users/users.controller';
 import productController from './inventory/product/product.controller';
 import taxController from './inventory/tax/tax.controller';
+import productGroupController from './inventory/productGroup/productgroup.controller';
 // Create the express application
 const app = express();
 
 // Assign controllers to routes
 app.use('/api/items', itemsController);
 app.use('/api/users', usersController);
-app.use('/api/products', productController);
-app.use('/api/tax', taxController);
+app.use('/api/inventory/products', productController);
+app.use('/api/inventory/tax', taxController);
+app.use('/api/inventory/productgroup', productGroupController);
 
 // Declare the path to frontend's static assets
 app.use(express['static'](path.resolve('..', 'frontend', 'build')));

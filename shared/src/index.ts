@@ -4,6 +4,8 @@ import {TaxS, Tax} from './entity/inventory/Tax';
 export {TaxS, Tax};
 import {ProductS, Product} from './entity/inventory/Product';
 export {Product, ProductS};
+import {ProductGroupS, ProductGroup} from './entity/inventory/ProductGroup';
+export {ProductGroupS, ProductGroup};
 
 export const Greeter = (name: string) => {
 
