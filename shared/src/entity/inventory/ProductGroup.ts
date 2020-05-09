@@ -1,7 +1,7 @@
 export interface ProductGroupS {
   name: string;
   shortName: string;
-  parent: string;
+  parent: ProductGroup;
   ancestors: string[];
 }
 

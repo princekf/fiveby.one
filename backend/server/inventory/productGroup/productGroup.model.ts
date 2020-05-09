@@ -17,7 +17,8 @@ const productGroupSchemaDef: SchemaDef<ProductGroupS> = {
     required: false,
   },
   parent: {
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref: 'ProductGroup',
     required: false,
   },
   ancestors: {

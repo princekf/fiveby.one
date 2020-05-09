@@ -9,13 +9,14 @@ const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
 const router = expressRouter();
 
 
-const validateParent = async(productGroup: ProductGroupS, productGroupId: string = null): Promise<string[]> => {
+const validateParentAndFindAncestors =
+async(productGroup: ProductGroupS, productGroupId: string = null): Promise<string[]> => {
 
   let ancestors: string[] = [];
   if (productGroup.parent) {
 
     // If parent exists, then it should be a proper one.
-    const parentGroup: ProductGroupEntity = await ProductGroup.findOne({_id: productGroup.parent});
+    const parentGroup: ProductGroupEntity = await ProductGroup.findOne({_id: productGroup.parent._id});
 
     if (!parentGroup) {
 
@@ -23,7 +24,7 @@ const validateParent = async(productGroup: ProductGroupS, productGroupId: string
 
     }
 
-    if (parentGroup.ancestors) {
+    if (parentGroup.ancestors && parentGroup.ancestors.length > 0) {
 
       // If name of the product group contains in the ancestor list, then it is a circular relation.
       if (productGroupId && parentGroup.ancestors.indexOf(productGroupId) !== -1) {
@@ -34,7 +35,7 @@ const validateParent = async(productGroup: ProductGroupS, productGroupId: string
       ancestors = ancestors.concat(parentGroup.ancestors);
 
     }
-    ancestors.push(productGroup.parent);
+    ancestors.push(productGroup.parent._id);
 
   }
   return ancestors;
@@ -44,7 +45,7 @@ const validateParent = async(productGroup: ProductGroupS, productGroupId: string
 
 router.route('/').get(authorize, async(unkownVariable, response) => {
 
-  const productGroups = await ProductGroup.find();
+  const productGroups = await ProductGroup.find().populate('parent');
   return response.status(HTTP_OK).json(productGroups);
 
 });
@@ -53,7 +54,7 @@ router.route('/:id').get(authorize, async(request, response) => {
 
   try {
 
-    const productGroup = await ProductGroup.findById(request.params.id);
+    const productGroup = await ProductGroup.findById(request.params.id).populate('parent');
     if (!productGroup) {
 
       return response.status(HTTP_BAD_REQUEST).send('No product group with the specified id.');
@@ -75,7 +76,7 @@ router.route('/').post(authorize, bodyParser.json(), async(request, response) =>
   try {
 
     const productGroup = new ProductGroup(request.body);
-    const ancestors: string[] = await validateParent(productGroup);
+    const ancestors: string[] = await validateParentAndFindAncestors(productGroup);
     productGroup.ancestors = ancestors;
     await productGroup.save();
     return response.status(HTTP_OK).json(productGroup);
@@ -94,8 +95,9 @@ router.route('/:id').put(authorize, bodyParser.json(), async(request, response) 
 
     const {id} = request.params;
     const updateObject: ProductGroupS = request.body;
-    const ancestors: string[] = await validateParent(updateObject, id);
+    const ancestors: string[] = await validateParentAndFindAncestors(updateObject, id);
     updateObject.ancestors = ancestors;
+
     await ProductGroup.update({_id: id}, updateObject);
     return response.status(HTTP_OK).json('Product group updated successfully.');
 
@@ -112,7 +114,15 @@ router.route('/:id')['delete'](authorize, async(request, response) => {
 
   try {
 
-    await ProductGroup.deleteOne({_id: request.params.id});
+    const productGroupId = request.params.id;
+    // If it is a parent group, then can't be deleted.
+    const productGroupsSelected: ProductGroupEntity[] = await ProductGroup.find({ancestors: productGroupId});
+    if (productGroupsSelected && productGroupsSelected.length > 0) {
+
+      return response.status(HTTP_BAD_REQUEST).send(new Error('Cannot delete a parent group'));
+
+    }
+    await ProductGroup.deleteOne({_id: productGroupId});
     return response.status(HTTP_OK).json('Product Group deleted successfully.');
 
   } catch (error) {
