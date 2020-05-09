@@ -2,7 +2,9 @@ import * as bodyParser from 'body-parser';
 import {Router as expressRouter} from 'express';
 import { authorize } from '../../config';
 import ProductGroup from './productGroup.model';
-import {Constants, ProductGroup as ProductGroupEntity, ProductGroupS} from 'fivebyone';
+import Product from '../product/product.model';
+import {Constants, ProductGroup as ProductGroupEntity,
+  ProductGroupS, Product as ProdutEntity} from 'fivebyone';
 
 const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
 
@@ -43,14 +45,14 @@ async(productGroup: ProductGroupS, productGroupId: string = null): Promise<strin
 };
 
 
-router.route('/').get(authorize, async(unkownVariable, response) => {
+const listProductGroup = async(_request: any, response: any) => {
 
   const productGroups = await ProductGroup.find().populate('parent');
   return response.status(HTTP_OK).json(productGroups);
 
-});
+};
 
-router.route('/:id').get(authorize, async(request, response) => {
+const getProductGroup = async(request: any, response: any) => {
 
   try {
 
@@ -68,10 +70,10 @@ router.route('/:id').get(authorize, async(request, response) => {
 
   }
 
-});
+};
 
 
-router.route('/').post(authorize, bodyParser.json(), async(request, response) => {
+const saveProductGroup = async(request: any, response: any) => {
 
   try {
 
@@ -87,9 +89,9 @@ router.route('/').post(authorize, bodyParser.json(), async(request, response) =>
 
   }
 
-});
+};
 
-router.route('/:id').put(authorize, bodyParser.json(), async(request, response) => {
+const updateProductGroup = async(request: any, response: any) => {
 
   try {
 
@@ -107,10 +109,10 @@ router.route('/:id').put(authorize, bodyParser.json(), async(request, response) 
 
   }
 
-});
+};
 
 
-router.route('/:id')['delete'](authorize, async(request, response) => {
+const deleteProductGroup = async(request: any, response: any) => {
 
   try {
 
@@ -122,6 +124,14 @@ router.route('/:id')['delete'](authorize, async(request, response) => {
       return response.status(HTTP_BAD_REQUEST).send(new Error('Cannot delete a parent group'));
 
     }
+
+    const products: ProdutEntity[] = await Product.find({group: productGroupId});
+    if (products && products.length > 0) {
+
+      return response.status(HTTP_BAD_REQUEST).send(new Error('Cant delete a group which has products'));
+
+    }
+
     await ProductGroup.deleteOne({_id: productGroupId});
     return response.status(HTTP_OK).json('Product Group deleted successfully.');
 
@@ -131,6 +141,13 @@ router.route('/:id')['delete'](authorize, async(request, response) => {
 
   }
 
-});
+};
+
+
+router.route('/').get(authorize, listProductGroup);
+router.route('/:id').get(authorize, getProductGroup);
+router.route('/').post(authorize, bodyParser.json(), saveProductGroup);
+router.route('/:id').put(authorize, bodyParser.json(), updateProductGroup);
+router.route('/:id')['delete'](authorize, deleteProductGroup);
 
 export default router;

@@ -1,4 +1,4 @@
-/* eslint {max-lines-per-function: 0, max-statements:0} */
+/* eslint {max-lines-per-function: 0, max-statements:0, max-lines:0} */
 import * as MMS from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import * as request from 'supertest';
@@ -419,6 +419,26 @@ describe('/api/inventory/productgroups tests', () => {
 
   });
 
+  it('Should not update product group with duplicate name', async() => {
+
+    const response = await request(app).post('/api/inventory/productgroup')
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Product Group Name',
+        shortName: 'Short Name',
+      });
+    expect(response.status).toBe(HTTP_OK);
+
+    const response2 = await request(app).post('/api/inventory/productgroup')
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Product Group Name',
+        shortName: 'Short Name 2',
+      });
+    expect(response2.status).toBe(HTTP_BAD_REQUEST);
+
+  });
+
   it('Should remove parent by updating product group', async() => {
 
     const response1 = await request(app).post('/api/inventory/productgroup')
@@ -601,6 +621,35 @@ describe('/api/inventory/productgroups tests', () => {
     const productGroupAfterDeleteChild: ProductGroupEntity = response4.body;
     expect(response4.status).toBe(HTTP_OK);
     expect(productGroupAfterDeleteChild.name).toBe('Product Group Name 1');
+
+  });
+
+  it('Should not delete a product group if it is assigned to a product', async() => {
+
+    const response1 = await request(app).post('/api/inventory/productgroup')
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Product Group Name 1',
+        shortName: 'Short Name 1',
+      });
+    expect(response1.status).toBe(HTTP_OK);
+    const response2 = await request(app).get(`/api/inventory/productgroup/${response1.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response2.status).toBe(HTTP_OK);
+    const savedProductGroup: ProductGroupEntity = response2.body;
+
+    const response3 = await request(app).post('/api/inventory/product')
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        group: savedProductGroup,
+        name: 'Product One',
+        shortName: 'Short Name 1',
+      });
+    expect(response3.status).toBe(HTTP_OK);
+
+    const response4 = await request(app)['delete'](`/api/inventory/productgroup/${response1.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response4.status).toBe(HTTP_BAD_REQUEST);
 
   });
 

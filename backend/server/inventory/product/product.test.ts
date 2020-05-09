@@ -441,15 +441,28 @@ describe('/api/inventory/product tests', () => {
   it('Should not update a product with invalid group', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
+    const response5 = await request(app).post('/api/inventory/productgroup')
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        shortName: 'Group Short',
+        name: 'Group One',
+      });
+    expect(response5.status).toBe(HTTP_OK);
+    const response6 = await request(app).get(`/api/inventory/productgroup/${response5.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    const productGroup2: ProductGroupEntity = response6.body;
+
     const response = await request(app).post('/api/inventory/product')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
-        group: productGroup,
+        group: productGroup2,
         name: 'Product OneP',
       });
     expect(response.status).toBe(HTTP_OK);
-    await request(app)['delete'](`/api/inventory/productgroup/${productGroup._id}`)
+    const response3 = await request(app)['delete'](`/api/inventory/productgroup/${productGroup._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
+    expect(response3.status).toBe(HTTP_OK);
+
     const response2 = await request(app).put(`/api/inventory/product/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
