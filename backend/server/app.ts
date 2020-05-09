@@ -17,7 +17,7 @@ const app = express();
 // Assign controllers to routes
 app.use('/api/items', itemsController);
 app.use('/api/users', usersController);
-app.use('/api/inventory/products', productController);
+app.use('/api/inventory/product', productController);
 app.use('/api/inventory/tax', taxController);
 app.use('/api/inventory/productgroup', productGroupController);
 

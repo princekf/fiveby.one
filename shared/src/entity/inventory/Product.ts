@@ -1,5 +1,7 @@
+import { ProductGroup } from './ProductGroup';
+
 export interface ProductS {
-  group: string;
+  group: ProductGroup;
   name: string;
   code: string;
   shortName: string;

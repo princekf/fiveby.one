@@ -7,7 +7,8 @@ interface ProductDoc extends ProductS, Document {}
 
 const productSchemaDef: SchemaDef<ProductS> = {
   group: {
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref: 'ProductGroup',
     required: true,
   },
   name: {
@@ -18,7 +19,6 @@ const productSchemaDef: SchemaDef<ProductS> = {
   code: {
     type: String,
     required: false,
-    unique: true,
   },
   shortName: {
     type: String,
@@ -47,6 +47,7 @@ const productSchemaDef: SchemaDef<ProductS> = {
   colors: {
     type: [ String ],
     required: false,
+    index: true,
   },
   hasBatch: {
     type: Boolean,
