@@ -95,7 +95,7 @@ const updateProduct = async(request: any, response: any) => {
     const productId = request.params.id;
 
     const productE: ProductEntity = await Product.findById(productId);
-    if (!productE._id) {
+    if (!productE) {
 
       return response.status(HTTP_BAD_REQUEST).send(new Error('Invalid product Id'));
 
@@ -127,7 +127,7 @@ const deleteProduct = async(request: any, response: any) => {
 
     const productId = request.params.id;
     const product: ProductEntity = await Product.findById(productId);
-    if (!product._id) {
+    if (!product) {
 
       return response.status(HTTP_BAD_REQUEST).send(new Error('Invalid product Id'));
 
