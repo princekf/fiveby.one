@@ -1,4 +1,4 @@
-/* eslint {max-lines-per-function: 0, max-statements:0} */
+/* eslint {max-lines-per-function: 0, max-statements:0, max-lines:0} */
 import * as MMS from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import * as request from 'supertest';
@@ -327,7 +327,6 @@ describe('/api/inventory/product tests', () => {
   });
 
 
-
   it('Should not get product with junk id', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
@@ -338,8 +337,8 @@ describe('/api/inventory/product tests', () => {
         name: 'Product One',
       });
     expect(response.status).toBe(HTTP_OK);
-    
-    const response2 = await request(app).get(`/api/inventory/product/09u7y6`)
+
+    const response2 = await request(app).get('/api/inventory/product/09u7y6')
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response2.status).toBe(HTTP_BAD_REQUEST);
 
@@ -468,8 +467,8 @@ describe('/api/inventory/product tests', () => {
         name: 'Product OneP',
       });
     expect(response.status).toBe(HTTP_OK);
-    
-    const response2 = await request(app).put(`/api/inventory/product/0oki98`)
+
+    const response2 = await request(app).put('/api/inventory/product/0oki98')
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Product One',
@@ -610,7 +609,7 @@ describe('/api/inventory/product tests', () => {
         name: 'Product OneP',
       });
     expect(response.status).toBe(HTTP_OK);
-    const response3 = await request(app)['delete'](`/api/inventory/product/0oik89`)
+    const response3 = await request(app)['delete']('/api/inventory/product/0oik89')
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_BAD_REQUEST);
 
