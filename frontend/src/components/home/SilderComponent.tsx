@@ -30,6 +30,10 @@ const elements = [
     link: '/product'
   },
   {
+    name: 'Unit',
+    link: '/unit'
+  },
+  {
     name: 'StockGroup',
     link: '/stock'
   },

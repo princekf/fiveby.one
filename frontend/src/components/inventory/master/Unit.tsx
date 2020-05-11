@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Col, Input, Row, Table, AutoComplete, Checkbox, Select } from 'antd';
+import { Button, Col, Input, Row, Table, Checkbox, Select, Form } from 'antd';
 import './Style.scss';
 
 const dataSource = [
@@ -43,63 +43,87 @@ const columns = [
   },
 ];
 
-const parent = [
-  {
-    value: 'Party 1',
-  },
-  {
-    value: 'Party 2',
-  },
-  {
-    value: 'Party 3',
-  },
-];
-
 const { Option } = Select;
 
-const InputArea = function() {
+const layout = {
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+};
+
+const tailLayout = {
+  wrapperCol: {
+    offset: 8,
+    span: 16,
+  },
+};
+
+const UnitFormInput = function() {
 
   return (
-    <Col span={24} style={{ margin: 'auto',
-      maxWidth: '600px'}}>
-      <Col className='box'>
-        <h4 className='text'>Name</h4>
-        <Input placeholder='Name'/>
-      </Col>
-      <Col className='box'>
-        <h4 className='text'>Short Name</h4>
-        <Input placeholder='Short Name'/>
-      </Col>
-      <Col className='box'>
-        <h4 className='text'>Parent</h4>
-        <AutoComplete
-          style={{
-            width: '102%',
-          }}
-          options={parent}
-          placeholder='Party code / name to search'
-          filterOption={true}
-        />
-      </Col>
-      <Col className='box'>
-        <h4 className='text'>Fraction Allowed</h4>
-        <Checkbox> </Checkbox>
-      </Col>
-      <Col className='box'>
-        <h4 className='text'>Decimal Places</h4>
+    <>
+      <Form.Item
+        name='name'
+        label='Name'
+        rules={[
+          {
+            required: true,
+            message: 'Name required!',
+          },
+        ]}
+      >
+        <Input.Search placeholder='Name' />
+      </Form.Item>
+      <Form.Item
+        name='short name'
+        label='Short Name'
+      >
+        <Input.Search placeholder='Short Name' />
+      </Form.Item>
+      <Form.Item
+        name='parent'
+        label='Parent'
+      >
+        <Input.Search placeholder='Parent' />
+      </Form.Item>
+    </>
+  );
+
+};
+
+const UnitForm = function() {
+
+  return (
+    <Form
+      {...layout}
+      name='advanced_search'
+      size='small'
+      style={{ margin: 'auto',
+        maxWidth: '600px',
+        width: '100%'}}
+    >
+      <UnitFormInput/>
+      <Form.Item
+        name='hasFraction'
+        label='Fraction Allowed'
+      >
+        <Checkbox />
+      </Form.Item>
+      <Form.Item
+        name='decimal'
+        label='Decimal Places'
+      >
         <Select defaultValue='1' style={{ width: 120 }}>
           <Option value='1'>1</Option>
           <Option value='2'>2</Option>
           <Option value='3'>3</Option>
         </Select>
-      </Col>
-      <Col className='box'>
+      </Form.Item>
+      <Form.Item {...tailLayout}>
         <Button className='button' type='primary'>Clear</Button>
         <Button className='button' type='primary'>Reset</Button>
         <Button className='button' type='primary'>Submit</Button>
-      </Col>
-
-    </Col>
+      </Form.Item>
+    </Form>
   );
 
 };
@@ -111,7 +135,7 @@ export class Unit extends Component {
     return (
       <div>
         <Row style={{ display: 'flex'}}>
-          <InputArea/>
+          <UnitForm/>
           <Col span={24}>
             <Table
               dataSource={dataSource}
