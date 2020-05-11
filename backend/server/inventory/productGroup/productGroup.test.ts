@@ -284,7 +284,6 @@ describe('/api/inventory/productgroups tests', () => {
       .set('Authorization', `Bearer ${serverToken}`)
       .send(savedProductGroup1);
     expect(response2.status).toBe(HTTP_OK);
-    expect(response2.body).toEqual('Product group updated successfully.');
     const response3 = await request(app).get(`/api/inventory/productgroup/${savedProductGroup1._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_OK);
@@ -323,6 +322,43 @@ describe('/api/inventory/productgroups tests', () => {
       .send({
         name: 'Group Name 1',
         parent: savedProductGroup2,
+      });
+    expect(response3.status).toBe(HTTP_OK);
+
+    const response4 = await request(app).get(`/api/inventory/productgroup/${savedProductGroup1._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response4.status).toBe(HTTP_OK);
+    const savedProductGroup4: ProductGroupEntity = response4.body;
+    expect(savedProductGroup4.name).toBe('Group Name 1');
+    expect(savedProductGroup4.parent.name).toBe(savedProductGroup2.name);
+    expect(savedProductGroup4.ancestors.length).toBe(1);
+    expect(savedProductGroup4.ancestors[0]).toBe(savedProductGroup2._id);
+
+  });
+
+  it('Should update product group with valid id of parent', async() => {
+
+    const response1 = await request(app).post('/api/inventory/productgroup')
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Parent-1',
+      });
+    expect(response1.status).toBe(HTTP_OK);
+    const savedProductGroup1: ProductGroupEntity = response1.body;
+
+    const response2 = await request(app).post('/api/inventory/productgroup')
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Parent-2',
+      });
+    expect(response2.status).toBe(HTTP_OK);
+    const savedProductGroup2: ProductGroupEntity = response2.body;
+
+    const response3 = await request(app).put(`/api/inventory/productgroup/${savedProductGroup1._id}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Group Name 1',
+        parent: savedProductGroup2._id,
       });
     expect(response3.status).toBe(HTTP_OK);
 

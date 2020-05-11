@@ -17,8 +17,11 @@ async(productGroup: ProductGroupS, productGroupId: string = null): Promise<strin
   let ancestors: string[] = [];
   if (productGroup.parent) {
 
+    // Either it should be a object or id
+    const parentId = productGroup.parent._id ? productGroup.parent._id : productGroup.parent;
+
     // If parent exists, then it should be a proper one.
-    const parentGroup: ProductGroupEntity = await ProductGroup.findOne({_id: productGroup.parent._id});
+    const parentGroup: ProductGroupEntity = await ProductGroup.findOne({_id: parentId});
 
     if (!parentGroup) {
 
@@ -37,7 +40,7 @@ async(productGroup: ProductGroupS, productGroupId: string = null): Promise<strin
       ancestors = ancestors.concat(parentGroup.ancestors);
 
     }
-    ancestors.push(productGroup.parent._id);
+    ancestors.push(parentGroup._id);
 
   }
   return ancestors;
@@ -101,7 +104,7 @@ const updateProductGroup = async(request: any, response: any) => {
     updateObject.ancestors = ancestors;
 
     await ProductGroup.update({_id: id}, updateObject);
-    return response.status(HTTP_OK).json('Product group updated successfully.');
+    return response.status(HTTP_OK).json(updateObject);
 
   } catch (error) {
 
