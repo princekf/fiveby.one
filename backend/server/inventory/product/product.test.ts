@@ -6,11 +6,11 @@ import app from '../../app';
 import User from '../../users/user.model';
 import ProductGroup from '../productGroup/productGroup.model';
 import Product from './product.model';
-import {Constants, Product as ProductEntity, ProductGroup as ProductGroupEntity} from 'fivebyone';
+import {Constants, Product as ProductEntity, ProductGroup as ProductGroupEntity, InventoryUris} from 'fivebyone';
 
 const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
 
-describe('/api/inventory/product tests', () => {
+describe(`${InventoryUris.PRODUCT_URI} tests`, () => {
 
   const mongod = new MMS.MongoMemoryServer();
   let serverToken = '';
@@ -47,7 +47,7 @@ describe('/api/inventory/product tests', () => {
 
   beforeEach(async() => {
 
-    await request(app).post('/api/inventory/productgroup')
+    await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Product Group',
@@ -68,7 +68,7 @@ describe('/api/inventory/product tests', () => {
 
     const reOrderLevelValue = 100;
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -84,7 +84,7 @@ describe('/api/inventory/product tests', () => {
         hasBatch: true,
       });
     expect(response.status).toBe(HTTP_OK);
-    const response2 = await request(app).get('/api/inventory/product')
+    const response2 = await request(app).get(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response2.status).toBe(HTTP_OK);
     const savedProducts: ProductEntity[] = response2.body;
@@ -109,9 +109,9 @@ describe('/api/inventory/product tests', () => {
   it('Should not save product with invalid group', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    await request(app)['delete'](`/api/inventory/productgroup/${productGroup._id}`)
+    await request(app)['delete'](`${InventoryUris.PRODUCT_GROUP_URI}/${productGroup._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -133,7 +133,7 @@ describe('/api/inventory/product tests', () => {
 
   it('Should not save product without group', async() => {
 
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Product One',
@@ -154,7 +154,7 @@ describe('/api/inventory/product tests', () => {
   it('Should not save product with empty name', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -176,7 +176,7 @@ describe('/api/inventory/product tests', () => {
   it('Should not save product without name', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -197,7 +197,7 @@ describe('/api/inventory/product tests', () => {
   it('Should not save product with duplicate name', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -213,7 +213,7 @@ describe('/api/inventory/product tests', () => {
         hasBatch: true,
       });
     expect(response.status).toBe(HTTP_OK);
-    const response2 = await request(app).post('/api/inventory/product')
+    const response2 = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -235,7 +235,7 @@ describe('/api/inventory/product tests', () => {
   it('Should not save product with negative reorder level', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response2 = await request(app).post('/api/inventory/product')
+    const response2 = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -257,7 +257,7 @@ describe('/api/inventory/product tests', () => {
   it('Should save product, only group and name are mandatory', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response2 = await request(app).post('/api/inventory/product')
+    const response2 = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -271,7 +271,7 @@ describe('/api/inventory/product tests', () => {
 
     const reOrderLevelValue = 100;
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -287,7 +287,7 @@ describe('/api/inventory/product tests', () => {
         hasBatch: true,
       });
     expect(response.status).toBe(HTTP_OK);
-    const response2 = await request(app).get(`/api/inventory/product/${response.body._id}`)
+    const response2 = await request(app).get(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response2.status).toBe(HTTP_OK);
     const savedProduct: ProductEntity = response2.body;
@@ -311,16 +311,16 @@ describe('/api/inventory/product tests', () => {
   it('Should not get product with invalid id', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
         name: 'Product One',
       });
     expect(response.status).toBe(HTTP_OK);
-    await request(app)['delete'](`/api/inventory/product/${response.body._id}`)
+    await request(app)['delete'](`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
-    const response2 = await request(app).get(`/api/inventory/product/${response.body._id}`)
+    const response2 = await request(app).get(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response2.status).toBe(HTTP_BAD_REQUEST);
 
@@ -330,7 +330,7 @@ describe('/api/inventory/product tests', () => {
   it('Should not get product with junk id', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -338,7 +338,7 @@ describe('/api/inventory/product tests', () => {
       });
     expect(response.status).toBe(HTTP_OK);
 
-    const response2 = await request(app).get('/api/inventory/product/09u7y6')
+    const response2 = await request(app).get(`${InventoryUris.PRODUCT_URI}/09u7y6`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response2.status).toBe(HTTP_BAD_REQUEST);
 
@@ -347,7 +347,7 @@ describe('/api/inventory/product tests', () => {
   it('Should list all products', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -355,7 +355,7 @@ describe('/api/inventory/product tests', () => {
       });
     expect(response.status).toBe(HTTP_OK);
 
-    const response2 = await request(app).post('/api/inventory/product')
+    const response2 = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -363,7 +363,7 @@ describe('/api/inventory/product tests', () => {
       });
     expect(response2.status).toBe(HTTP_OK);
 
-    const response3 = await request(app).get('/api/inventory/product')
+    const response3 = await request(app).get(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_OK);
 
@@ -379,7 +379,7 @@ describe('/api/inventory/product tests', () => {
 
     const reOrderLevelValue = 100;
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -396,7 +396,7 @@ describe('/api/inventory/product tests', () => {
       });
     expect(response.status).toBe(HTTP_OK);
 
-    const response2 = await request(app).put(`/api/inventory/product/${response.body._id}`)
+    const response2 = await request(app).put(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Product One',
@@ -412,7 +412,7 @@ describe('/api/inventory/product tests', () => {
       });
     expect(response2.status).toBe(HTTP_OK);
 
-    const response3 = await request(app).get(`/api/inventory/product/${response.body._id}`)
+    const response3 = await request(app).get(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response2.status).toBe(HTTP_OK);
     const savedProduct: ProductEntity = response3.body;
@@ -436,16 +436,16 @@ describe('/api/inventory/product tests', () => {
   it('Should not update a product with invalid id', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
         name: 'Product OneP',
       });
     expect(response.status).toBe(HTTP_OK);
-    await request(app)['delete'](`/api/inventory/product/${response.body._id}`)
+    await request(app)['delete'](`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
-    const response2 = await request(app).put(`/api/inventory/product/${response.body._id}`)
+    const response2 = await request(app).put(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Product One',
@@ -460,7 +460,7 @@ describe('/api/inventory/product tests', () => {
   it('Should not update a product with junk id', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -468,7 +468,7 @@ describe('/api/inventory/product tests', () => {
       });
     expect(response.status).toBe(HTTP_OK);
 
-    const response2 = await request(app).put('/api/inventory/product/0oki98')
+    const response2 = await request(app).put(`${InventoryUris.PRODUCT_URI}/0oki98`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Product One',
@@ -482,29 +482,29 @@ describe('/api/inventory/product tests', () => {
   it('Should not update a product with invalid group', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response5 = await request(app).post('/api/inventory/productgroup')
+    const response5 = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         shortName: 'Group Short',
         name: 'Group One',
       });
     expect(response5.status).toBe(HTTP_OK);
-    const response6 = await request(app).get(`/api/inventory/productgroup/${response5.body._id}`)
+    const response6 = await request(app).get(`${InventoryUris.PRODUCT_GROUP_URI}/${response5.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     const productGroup2: ProductGroupEntity = response6.body;
 
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup2,
         name: 'Product OneP',
       });
     expect(response.status).toBe(HTTP_OK);
-    const response3 = await request(app)['delete'](`/api/inventory/productgroup/${productGroup._id}`)
+    const response3 = await request(app)['delete'](`${InventoryUris.PRODUCT_GROUP_URI}/${productGroup._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_OK);
 
-    const response2 = await request(app).put(`/api/inventory/product/${response.body._id}`)
+    const response2 = await request(app).put(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -519,14 +519,14 @@ describe('/api/inventory/product tests', () => {
   it('Should not update a product without name', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
         name: 'Product OneP',
       });
     expect(response.status).toBe(HTTP_OK);
-    const response2 = await request(app).put(`/api/inventory/product/${response.body._id}`)
+    const response2 = await request(app).put(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -542,14 +542,14 @@ describe('/api/inventory/product tests', () => {
   it('Should not update a product with empty name', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
         name: 'Product OneP',
       });
     expect(response.status).toBe(HTTP_OK);
-    const response2 = await request(app).put(`/api/inventory/product/${response.body._id}`)
+    const response2 = await request(app).put(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
@@ -564,17 +564,17 @@ describe('/api/inventory/product tests', () => {
   it('Should delete a product with valid id', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
         name: 'Product OneP',
       });
     expect(response.status).toBe(HTTP_OK);
-    const response2 = await request(app)['delete'](`/api/inventory/product/${response.body._id}`)
+    const response2 = await request(app)['delete'](`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response2.status).toBe(HTTP_OK);
-    const response3 = await request(app).get(`/api/inventory/product/${response.body._id}`)
+    const response3 = await request(app).get(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_BAD_REQUEST);
 
@@ -583,17 +583,17 @@ describe('/api/inventory/product tests', () => {
   it('Should not delete a product with invalid id', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
         name: 'Product OneP',
       });
     expect(response.status).toBe(HTTP_OK);
-    const response2 = await request(app)['delete'](`/api/inventory/product/${response.body._id}`)
+    const response2 = await request(app)['delete'](`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response2.status).toBe(HTTP_OK);
-    const response3 = await request(app)['delete'](`/api/inventory/product/${response.body._id}`)
+    const response3 = await request(app)['delete'](`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_BAD_REQUEST);
 
@@ -602,14 +602,14 @@ describe('/api/inventory/product tests', () => {
   it('Should not delete a product with junk id', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
         name: 'Product OneP',
       });
     expect(response.status).toBe(HTTP_OK);
-    const response3 = await request(app)['delete']('/api/inventory/product/0oik89')
+    const response3 = await request(app)['delete'](`${InventoryUris.PRODUCT_URI}/0oik89`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_BAD_REQUEST);
 
@@ -618,17 +618,17 @@ describe('/api/inventory/product tests', () => {
   it('Should not delete a group after delete the product', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
-    const response = await request(app).post('/api/inventory/product')
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         group: productGroup,
         name: 'Product OneP',
       });
     expect(response.status).toBe(HTTP_OK);
-    const response2 = await request(app)['delete'](`/api/inventory/product/${response.body._id}`)
+    const response2 = await request(app)['delete'](`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response2.status).toBe(HTTP_OK);
-    const response3 = await request(app).get(`/api/inventory/productgroup/${productGroup._id}`)
+    const response3 = await request(app).get(`${InventoryUris.PRODUCT_GROUP_URI}/${productGroup._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_OK);
     const productGroup2: ProductGroupEntity = response3.body;
