@@ -24,7 +24,9 @@ export class ContentComponent extends Component {
       <div>
         <Content style={{ height: 'calc(100vh - 64px)',
           overflow: 'auto',
-          width: '100%'}}>
+          width: '100%',
+          padding: '0 20px',
+          boxSizing: 'border-box'}}>
           <Breadcrumb style={{ margin: '16px 24px' }}>
             <Breadcrumb.Item>Home</Breadcrumb.Item>
             <Breadcrumb.Item>List</Breadcrumb.Item>
