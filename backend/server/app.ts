@@ -10,7 +10,7 @@ import itemsController from './items/items.controller';
 import usersController from './users/users.controller';
 import productController from './inventory/product/product.controller';
 import taxController from './inventory/tax/tax.controller';
-import productGroupController from './inventory/productGroup/productgroup.controller';
+import productGroupController from './inventory/productGroup/productGroup.controller';
 import brandController from './inventory/brand/brand.controller';
 import locationController from './inventory/location/location.controller';
 import unitController from './inventory/unit/unit.controller';
