@@ -1,8 +1,28 @@
 import React, { Component } from 'react';
-import { Button, Col, Input, Row, Table } from 'antd';
+import { Button, Col, Input, Row, Table, Form, DatePicker } from 'antd';
 import './Style.scss';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import TextArea from 'antd/lib/input/TextArea';
+import moment from 'moment';
+
+const { TextArea } = Input;
+
+
+const layout = {
+  labelCol: { span: 6 },
+  wrapperCol: { span: 18 },
+};
+
+const layout1 = {
+  labelCol: { span: 24 },
+  wrapperCol: { span: 24 },
+};
+
+const tailLayout = {
+  wrapperCol: {
+    offset: 12,
+    span: 12,
+  },
+};
 
 const dataSource = [
   {
@@ -71,41 +91,72 @@ const columns = [
   },
 ];
 
+const dateFormatList = [ 'DD/MM/YYYY', 'DD/MM/YY' ];
+
+const TaxDateArea = function() {
+
+  return (
+    <Col className='box' style={{display: 'flex',
+      justifyContent: 'flex-end'}}>
+      <Form.Item
+        {...layout1}
+        name='TaxReg.no.'
+        label='Tax Reg. no.'
+        style={{marginRight: '10px',
+          display: 'block'}}
+      >
+        <Input placeholder='Tax Reg. no.'/>
+      </Form.Item>
+      <Form.Item
+        {...layout1}
+        name='expiryDate'
+        label='Expiry Date'
+        style={{marginLeft: '10px',
+          display: 'block'}}
+      >
+        <DatePicker defaultValue={moment('01/01/2015', dateFormatList[0])} format={dateFormatList} />
+      </Form.Item>
+    </Col>
+  );
+
+};
+
 const InputAreaOne = function() {
 
   return (
     <Col span={12} style={{ padding: '0 15px',
       boxSizing: 'border-box'}}>
-      <Col className='box'>
-        <h4 className='text'>Nature</h4>
+      <Form.Item
+        name='nature'
+        label='Nature'
+      >
+        <Input placeholder='Nature'/>
+      </Form.Item>
+      <Form.Item
+        name='code'
+        label='Code'
+      >
         <Input placeholder='Code'/>
-      </Col>
-      <Col className='box'>
-        <h4 className='text'>Code</h4>
-        <Input placeholder='Short Name'/>
-      </Col>
-      <Col className='box'>
-        <h4 className='text'>Name</h4>
-        <Input placeholder='Group'/>
-      </Col>
-      <Col className='box'>
-        <h4 className='text'>Email id</h4>
-        <Input placeholder='HSN Code'/>
-      </Col>
-      <Col className='box'>
-        <h4 className='text'>Tel Numbers</h4>
-        <Input placeholder='Reorder level'/>
-      </Col>
-      <Col className='box' style={{display: 'flex'}}>
-        <Col style={{display: 'flex'}}>
-          <h4 className='text'>Tax Reg. no.</h4>
-          <Input placeholder='Reorder level'/>
-        </Col>
-        <Col style={{display: 'flex'}}>
-          <h4 className='text'>Expiry Date</h4>
-          <Input placeholder='Reorder level'/>
-        </Col>
-      </Col>
+      </Form.Item>
+      <Form.Item
+        name='name'
+        label='Name'
+      >
+        <Input placeholder='Name'/>
+      </Form.Item>
+      <Form.Item
+        name='email_id'
+        label='Email id'
+      >
+        <Input placeholder='Email id'/>
+      </Form.Item>
+      <Form.Item
+        name='telNumbers'
+        label='Tel Numbers'
+      >
+        <Input placeholder='Tel Numbers'/>
+      </Form.Item>
+      <TaxDateArea/>
     </Col>
 
   );
@@ -118,13 +169,24 @@ const InputAreaTwo = function() {
 
     <Col span={12} style={{ padding: '0 15px',
       boxSizing: 'border-box'}}>
-      <h4 className='text'>Customer Address</h4>
-      <TextArea rows={5} style={{ width: '100%' }} />
-      <Col className='box' style={{marginTop: '15px'}}>
-        <h4 className='text'>Tel Numbers</h4>
-        <Input placeholder='Reorder level'/>
-      </Col>
-
+      <Form.Item
+        name='address'
+        label='Customer Address'
+      >
+        <TextArea rows={5} style={{ width: '100%' }} />
+      </Form.Item>
+      <Form.Item
+        name='state'
+        label='State'
+      >
+        <Input placeholder='State'/>
+      </Form.Item>
+      <Form.Item
+        name='country'
+        label='Country'
+      >
+        <Input placeholder='Country'/>
+      </Form.Item>
     </Col>
   );
 
@@ -135,29 +197,37 @@ export class Vendor extends Component {
 
     return (
       <div>
-        <Row style={{ display: 'flex'}}>
-          <Col span={24} style={{ display: 'flex'}}>
-            <InputAreaOne/>
-            <InputAreaTwo/>
-          </Col>
-          <Col span={24} className='box submit' style={{display: 'flex',
-            justifyContent: 'flex-end',
-            paddingRight: '30px'}}>
-            <Button type='primary'>Submit</Button>
-          </Col>
-          <Col span={24}>
-            <Table
-              dataSource={dataSource}
-              columns={columns}
-              scroll={{ y: 240 }}
-              pagination={{
-                total: dataSource.length,
-                pageSize: dataSource.length,
-                hideOnSinglePage: true,
-              }}
-            />
-          </Col>
-        </Row>
+        <Form
+          {...layout}
+          name='advanced_search'
+          size='small'
+          style={{ margin: 'auto',
+            width: '100%'}}
+        >
+          <Row style={{ display: 'flex'}}>
+            <Col span={24} style={{ display: 'flex'}}>
+              <InputAreaOne/>
+              <InputAreaTwo/>
+            </Col>
+            <Form.Item {...tailLayout}
+              style={{width: '100%'}}
+            >
+              <Button type='primary'>Submit</Button>
+            </Form.Item>
+            <Col span={24}>
+              <Table
+                dataSource={dataSource}
+                columns={columns}
+                scroll={{ y: 240 }}
+                pagination={{
+                  total: dataSource.length,
+                  pageSize: dataSource.length,
+                  hideOnSinglePage: true,
+                }}
+              />
+            </Col>
+          </Row>
+        </Form>
       </div>
     );
 

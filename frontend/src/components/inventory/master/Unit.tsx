@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Col, Input, Row, Table, Checkbox, Select, Form } from 'antd';
+import { Button, Col, Input, Row, Table, Select, Form } from 'antd';
 import './Style.scss';
 
 const dataSource = [
@@ -61,30 +61,42 @@ const UnitFormInput = function() {
 
   return (
     <>
-      <Form.Item
-        name='name'
-        label='Name'
-        rules={[
-          {
-            required: true,
-            message: 'Name required!',
-          },
-        ]}
-      >
-        <Input.Search placeholder='Name' />
-      </Form.Item>
-      <Form.Item
-        name='short name'
-        label='Short Name'
-      >
-        <Input.Search placeholder='Short Name' />
-      </Form.Item>
-      <Form.Item
-        name='parent'
-        label='Parent'
-      >
-        <Input.Search placeholder='Parent' />
-      </Form.Item>
+      <Row>
+        <Col span={12}>
+          <Form.Item
+            name='name'
+            label='Name'
+            rules={[
+              {
+                required: true,
+                message: 'Name required!',
+              },
+            ]}
+          >
+            <Input.Search placeholder='Name' />
+          </Form.Item>
+          <Form.Item
+            name='short name'
+            label='Short Name'
+          >
+            <Input.Search placeholder='Short Name' />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item
+            name='base unit'
+            label='Base Unit'
+          >
+            <Input.Search placeholder='Base Unit' />
+          </Form.Item>
+          <Form.Item
+            name='times'
+            label='Times'
+          >
+            <Input.Search placeholder='Times' />
+          </Form.Item>
+        </Col>
+      </Row>
     </>
   );
 
@@ -98,28 +110,30 @@ const UnitForm = function() {
       name='advanced_search'
       size='small'
       style={{ margin: 'auto',
-        maxWidth: '600px',
         width: '100%'}}
     >
       <UnitFormInput/>
-      <Form.Item
+      {/* <Form.Item
         name='hasFraction'
         label='Fraction Allowed'
       >
         <Checkbox />
-      </Form.Item>
-      <Form.Item
-        name='decimal'
-        label='Decimal Places'
-      >
-        <Select defaultValue='1' style={{ width: 120 }}>
-          <Option value='1'>1</Option>
-          <Option value='2'>2</Option>
-          <Option value='3'>3</Option>
-        </Select>
-      </Form.Item>
+      </Form.Item> */}
+      <Col span={12}>
+        <Form.Item
+          name='decimal'
+          label='Decimal Places'
+        >
+          <Select defaultValue='0' style={{ width: 120 }}>
+            <Option value='0'>0</Option>
+            <Option value='1'>1</Option>
+            <Option value='2'>2</Option>
+            <Option value='3'>3</Option>
+          </Select>
+        </Form.Item>
+      </Col>
       <Form.Item {...tailLayout}>
-        <Button className='button' type='primary'>Clear</Button>
+        <Button className='button' type='primary'>Delete</Button>
         <Button className='button' type='primary'>Reset</Button>
         <Button className='button' type='primary'>Submit</Button>
       </Form.Item>
