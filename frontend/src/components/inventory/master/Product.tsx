@@ -233,7 +233,7 @@ const ProductForm = function() {
 
   return (
     <>
-      <Row gutter={24}>
+      <Row gutter={24} style={{margin: '0'}}>
         <ProductFormRow1/>
         <ProductFormRow2/>
         <ProductFormRow3/>
