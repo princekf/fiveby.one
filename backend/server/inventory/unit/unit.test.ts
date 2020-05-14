@@ -824,4 +824,65 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
 
   });
 
+
+
+  it('Should not save if decimal places outside the range 0 - 3', async() => {
+
+    let response = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Gram',
+        shortName: 'gm',
+        decimalPlaces: 4,
+      });
+    expect(response.status).toBe(HTTP_BAD_REQUEST);
+    
+    response = await request(app).post(`${InventoryUris.UNIT_URI}`)
+    .set('Authorization', `Bearer ${serverToken}`)
+    .send({
+      name: 'Gram',
+      shortName: 'gm',
+      decimalPlaces: -1,
+    });
+  expect(response.status).toBe(HTTP_BAD_REQUEST);
+
+  });
+
+  it('Should not save if decimal places is not an interger', async() => {
+
+    const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Gram',
+        shortName: 'gm',
+        decimalPlaces: 2.5,
+      });
+    expect(response.status).toBe(HTTP_BAD_REQUEST);
+    
+
+  });
+
+  it('Should not update if decimal places is not an interger', async() => {
+
+    const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Gram',
+        shortName: 'gm',
+        decimalPlaces: 2,
+      });
+    expect(response.status).toBe(HTTP_OK);
+    
+
+    const response1 = await request(app).put(`${InventoryUris.UNIT_URI}/${response.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Gram',
+        shortName: 'gm',
+        decimalPlaces: 2.5,
+      });
+    expect(response1.status).toBe(HTTP_BAD_REQUEST);
+
+  });
+
 });

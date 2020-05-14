@@ -102,7 +102,7 @@ const updateUnit = async(request: any, response: any) => {
     const ancestors: string[] = await validateParentAndFindAncestors(updateObject, id);
     updateObject.ancestors = ancestors;
 
-    await Unit.update({_id: id}, updateObject);
+    await Unit.update({_id: id}, updateObject, { runValidators: true });
     return response.status(HTTP_OK).json(updateObject);
 
   } catch (error) {

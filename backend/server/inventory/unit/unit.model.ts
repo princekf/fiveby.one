@@ -29,6 +29,11 @@ const unitSchemaDef: SchemaDef<UnitS> = {
   decimalPlaces: {
     type: Number,
     required: true,
+    validate: {
+      validator : (val:number):boolean => {
+        return [0,1,2,3].indexOf(val) > -1;
+      },
+    }
   },
   ancestors: {
     type: [ String ],
