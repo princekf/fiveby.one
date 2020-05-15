@@ -33,7 +33,7 @@ class HomeContainer extends Component {
     return (
       <Router>
         <Layout className='home-parent-layout' hasSider={true}>
-          <Sider onCollapse={this.onCollapse} breakpoint='lg' collapsedWidth='0' collapsed={this.state.collapsed} collapsible={false}>
+          <Sider onCollapse={this.onCollapse} breakpoint='lg' collapsedWidth='0' collapsed={this.state.collapsed} collapsible={false} className='menu'>
             <div className='logo' />
             <SilderComponent />
           </Sider>
