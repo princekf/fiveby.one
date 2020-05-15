@@ -13,6 +13,10 @@ import Unit from '../inventory/master/Unit';
 import Tax from '../inventory/master/Tax';
 import ExcessShortDamage from '../inventory/master/ExcessShortDamage';
 import Vendor from '../inventory/master/Vendor';
+import CostCenter from '../finance/CostCenter';
+import Ledger from '../finance/Ledger';
+import LedgerGroup from '../finance/LedgerGroup';
+import LedgerProperty from '../finance/LedgerProperty';
 
 const { Content } = Layout;
 
@@ -44,6 +48,10 @@ export class ContentComponent extends Component {
             <Route path='/tax' component={Tax} />
             <Route path='/excess' component={ExcessShortDamage} />
             <Route path='/vendor' component={Vendor} />
+            <Route path='/cost' component={CostCenter} />
+            <Route path='/ledger' component={Ledger} />
+            <Route path='/ledgergroup' component={LedgerGroup} />
+            <Route path='/ledgerproperty' component={LedgerProperty} />
           </Content>
         </Content>
       </div>

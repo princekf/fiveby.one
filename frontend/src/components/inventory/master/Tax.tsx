@@ -186,19 +186,21 @@ export class TaxComponent extends Component<TaxS, {}> {
 
     const hideLodingMessage = message.loading('Fetching taxs from server...');
     try {
+
       const taxMap: any = {};
       const taxTree: any = [];
 
       const response = await axios.get<Tax[]>(InventoryUris.TAX_URI, { headers: getAuthHeaders() });
       const taxs = response.data;
       taxs.forEach((item: Tax) => {
+
         taxMap.key = item._id;
         taxMap._id = item._id;
         taxMap.groupName = item.groupName;
         taxMap.name = item.name;
         taxTree.push(taxMap);
 
-      })
+      });
 
       await this.setState({ taxTree });
 
