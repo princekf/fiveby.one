@@ -30,8 +30,11 @@ const unitSchemaDef: SchemaDef<UnitS> = {
     type: Number,
     required: true,
     validate: {
-      validator : (val:number):boolean => {
-        return [0,1,2,3].indexOf(val) > -1;
+      validator: (val: number): boolean => {
+
+        /* eslint no-magic-numbers: 0 */
+        return [ 0, 1, 2, 3 ].indexOf(val) > -1;
+
       },
     }
   },

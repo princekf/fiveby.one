@@ -1,11 +1,12 @@
+interface EffectiveFrom {
+  startDate: string;
+  endDate: string;
+  percentage: number;
+}
 export interface TaxS {
   groupName: string;
   name: string;
-  effectiveFrom: [{
-    startDate: Date;
-    endDate: Date;
-    percentage: number;
-  }];
+  effectiveFrom: EffectiveFrom[];
 }
 
 export interface Tax extends TaxS {
