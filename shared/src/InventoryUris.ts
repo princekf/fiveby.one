@@ -14,4 +14,6 @@ export class InventoryUris {
 
   public static COLOR_URI = '/api/inventory/color';
 
+  public static PARTY_URI = '/api/inventory/party';
+
 }

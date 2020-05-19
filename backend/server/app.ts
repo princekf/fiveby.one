@@ -15,6 +15,7 @@ import brandController from './inventory/brand/brand.controller';
 import locationController from './inventory/location/location.controller';
 import unitController from './inventory/unit/unit.controller';
 import colorController from './inventory/color/color.controller';
+import partyController from './inventory/party/party.controller';
 import { InventoryUris } from 'fivebyone';
 // Create the express application
 const app = express();
@@ -29,6 +30,7 @@ app.use(InventoryUris.BRAND_URI, brandController);
 app.use(InventoryUris.LOCATION_URI, locationController);
 app.use(InventoryUris.UNIT_URI, unitController);
 app.use(InventoryUris.COLOR_URI, colorController);
+app.use(InventoryUris.PARTY_URI, partyController);
 
 // Declare the path to frontend's static assets
 app.use(express['static'](path.resolve('..', 'frontend', 'build')));

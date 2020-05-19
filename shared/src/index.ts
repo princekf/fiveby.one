@@ -10,6 +10,8 @@ import {ProductGroupS, ProductGroup} from './entity/inventory/ProductGroup';
 export {ProductGroupS, ProductGroup};
 import { Unit, UnitS } from './entity/inventory/Unit';
 export { Unit, UnitS };
+import {Party, PartyS} from './entity/inventory/Party';
+export {Party, PartyS};
 
 export const Greeter = (name: string) => {
 
