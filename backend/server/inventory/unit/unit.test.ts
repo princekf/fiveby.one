@@ -77,6 +77,25 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
 
   });
 
+  it('Shoule save a new unit after trim', async() => {
+
+    const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: ' Kilogram ',
+        shortName: ' kg ',
+        decimalPlaces: kilogramDecimalPlaces,
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const savedUnit: UnitEntity = response.body;
+    const savedUnit2: UnitEntity = await Unit.findById(savedUnit._id).populate('baseUnit');
+    expect(savedUnit2.name).toBe('Kilogram');
+    expect(savedUnit2.shortName).toBe('kg');
+    expect(savedUnit2.decimalPlaces).toBe(kilogramDecimalPlaces);
+    expect(savedUnit2.ancestors.length).toBe(0);
+
+  });
+
   it('Should not save new unit with empty values', async() => {
 
     const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
@@ -357,6 +376,40 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         _id: savedUnit1._id,
         name: 'Gram-1',
         shortName: 'gm',
+        decimalPlaces: 0,
+        ancestors: [],
+      }),
+    );
+
+  });
+
+  it('Should update unit with valid values', async() => {
+
+    const response1 = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Gram',
+        shortName: 'gm',
+        decimalPlaces: 0,
+      });
+    expect(response1.status).toBe(HTTP_OK);
+    const savedUnit1: UnitEntity = response1.body;
+    const response2 = await request(app).put(`${InventoryUris.UNIT_URI}/${savedUnit1._id}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: ' Gram-1 ',
+        shortName: ' gm1 ',
+      });
+    expect(response2.status).toBe(HTTP_OK);
+    const response3 = await request(app).get(`${InventoryUris.UNIT_URI}/${savedUnit1._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response3.status).toBe(HTTP_OK);
+    const savedUnit2: UnitEntity = response3.body;
+    expect(savedUnit2).toEqual(
+      expect.objectContaining({
+        _id: savedUnit1._id,
+        name: 'Gram-1',
+        shortName: 'gm1',
         decimalPlaces: 0,
         ancestors: [],
       }),

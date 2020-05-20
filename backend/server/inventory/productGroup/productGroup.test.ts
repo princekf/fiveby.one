@@ -80,6 +80,24 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
 
   });
 
+
+  it('Shoule save a new productGroup after trim', async() => {
+
+    const response = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: ' Product Group Name 2 ',
+        shortName: ' Short Name 2 ',
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const savedProductGroup: ProductGroupEntity = response.body;
+    const savedProductGroup2: ProductGroupEntity = await ProductGroup.findById(savedProductGroup._id).populate('parent');
+    expect(savedProductGroup2.name).toBe('Product Group Name 2');
+    expect(savedProductGroup2.shortName).toBe('Short Name 2');
+    expect(savedProductGroup2.ancestors.length).toBe(0);
+
+  });
+
   it('Should not save new product group with empty values', async() => {
 
     const response = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
@@ -293,6 +311,40 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
         _id: savedProductGroup1._id,
         name: 'Name-1',
         shortName: 'Short Name 1',
+        ancestors: [],
+      }),
+    );
+
+  });
+
+
+  it('Should update product group after trim', async() => {
+
+    const response1 = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Parent-1',
+        shortName: 'Short Name 1',
+      });
+    expect(response1.status).toBe(HTTP_OK);
+    const savedProductGroup1: ProductGroupEntity = response1.body;
+    // SavedProductGroup1.name = 'Name-1';
+    const response2 = await request(app).put(`${InventoryUris.PRODUCT_GROUP_URI}/${savedProductGroup1._id}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: ' Parent2-1 ',
+        shortName: ' Name 1 ',
+      });
+    expect(response2.status).toBe(HTTP_OK);
+    const response3 = await request(app).get(`${InventoryUris.PRODUCT_GROUP_URI}/${savedProductGroup1._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response3.status).toBe(HTTP_OK);
+    const savedProductGroup2: ProductGroupEntity = response3.body;
+    expect(savedProductGroup2).toEqual(
+      expect.objectContaining({
+        _id: savedProductGroup1._id,
+        name: 'Parent2-1',
+        shortName: 'Name 1',
         ancestors: [],
       }),
     );

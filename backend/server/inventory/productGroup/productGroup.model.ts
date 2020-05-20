@@ -11,10 +11,15 @@ const productGroupSchemaDef: SchemaDef<ProductGroupS> = {
     type: String,
     required: true,
     unique: true,
+    index: true,
+    trim: true,
   },
   shortName: {
     type: String,
     required: false,
+    trim: true,
+    index: true,
+    sparse: true,
   },
   parent: {
     type: Schema.Types.ObjectId,

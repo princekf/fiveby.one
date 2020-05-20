@@ -11,11 +11,15 @@ const unitSchemaDef: SchemaDef<UnitS> = {
     type: String,
     required: true,
     unique: true,
+    trim: true,
+    index: true,
   },
   shortName: {
     type: String,
     required: true,
     unique: true,
+    trim: true,
+    index: true,
   },
   baseUnit: {
     type: Schema.Types.ObjectId,

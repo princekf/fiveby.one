@@ -106,6 +106,49 @@ describe(`${InventoryUris.PRODUCT_URI} tests`, () => {
 
   });
 
+
+  it('Should save product after trimming', async() => {
+
+    const reOrderLevelValue = 100;
+    const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        group: productGroup,
+        name: ' Product One ',
+        code: ' Code One ',
+        shortName: ' PO ',
+        brand: ' FBO ',
+        location: ' Rack 1 ',
+        barcode: ' 87654321 ',
+        unit: ' Number ',
+        reorderLevel: reOrderLevelValue,
+        colors: [ ' Black ', ' White ' ],
+        hasBatch: true,
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const response2 = await request(app).get(InventoryUris.PRODUCT_URI)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response2.status).toBe(HTTP_OK);
+    const savedProducts: ProductEntity[] = response2.body;
+    const [ savedProduct ] = savedProducts;
+    expect(savedProduct.name).toBe('Product One');
+    expect(savedProduct.code).toBe('Code One');
+    expect(savedProduct.shortName).toBe('PO');
+    expect(savedProduct.brand).toBe('FBO');
+    expect(savedProduct.location).toBe('Rack 1');
+    expect(savedProduct.barcode).toBe('87654321');
+    expect(savedProduct.unit).toBe('Number');
+    expect(savedProduct.reorderLevel).toBe(reOrderLevelValue);
+    expect(savedProduct.hasBatch).toBe(true);
+    const colorLength = 2;
+    expect(savedProduct.colors.length).toBe(colorLength);
+    expect(savedProduct.colors[0]).toBe('Black');
+    expect(savedProduct.colors[1]).toBe('White');
+    expect(savedProduct.group.name).toBe('Product Group');
+
+  });
+
   it('Should not save product with invalid group', async() => {
 
     const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
@@ -408,6 +451,65 @@ describe(`${InventoryUris.PRODUCT_URI} tests`, () => {
         unit: 'Number',
         reorderLevel: reOrderLevelValue,
         colors: [ 'Black', 'White' ],
+        hasBatch: true,
+      });
+    expect(response2.status).toBe(HTTP_OK);
+
+    const response3 = await request(app).get(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response2.status).toBe(HTTP_OK);
+    const savedProduct: ProductEntity = response3.body;
+    expect(savedProduct.name).toBe('Product One');
+    expect(savedProduct.code).toBe('Code One');
+    expect(savedProduct.shortName).toBe('PO');
+    expect(savedProduct.brand).toBe('FBO');
+    expect(savedProduct.location).toBe('Rack 1');
+    expect(savedProduct.barcode).toBe('87654321');
+    expect(savedProduct.unit).toBe('Number');
+    expect(savedProduct.reorderLevel).toBe(reOrderLevelValue);
+    expect(savedProduct.hasBatch).toBe(true);
+    const colorLength = 2;
+    expect(savedProduct.colors.length).toBe(colorLength);
+    expect(savedProduct.colors[0]).toBe('Black');
+    expect(savedProduct.colors[1]).toBe('White');
+    expect(savedProduct.group.name).toBe('Product Group');
+
+  });
+
+
+  it('Should update a product after trim', async() => {
+
+    const reOrderLevelValue = 100;
+    const productGroup: ProductGroupEntity = await ProductGroup.findOne({name: 'Product Group'});
+    const response = await request(app).post(InventoryUris.PRODUCT_URI)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        group: productGroup,
+        name: 'Product OneP',
+        code: 'Code OneP',
+        shortName: 'POP',
+        brand: 'FBOP',
+        location: 'Rack 1P',
+        barcode: '876543218',
+        unit: 'NumberP',
+        reorderLevel: 1000,
+        colors: [ 'BlackP', 'WhiteP' ],
+        hasBatch: false,
+      });
+    expect(response.status).toBe(HTTP_OK);
+
+    const response2 = await request(app).put(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: ' Product One ',
+        code: ' Code One ',
+        shortName: ' PO ',
+        brand: ' FBO ',
+        location: ' Rack 1 ',
+        barcode: ' 87654321 ',
+        unit: ' Number ',
+        reorderLevel: reOrderLevelValue,
+        colors: [ ' Black ', ' White ' ],
         hasBatch: true,
       });
     expect(response2.status).toBe(HTTP_OK);

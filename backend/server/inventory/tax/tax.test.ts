@@ -80,6 +80,34 @@ describe(`${InventoryUris.TAX_URI} tests`, () => {
 
   });
 
+  it('Should save tax with after trim.', async() => {
+
+    const tPercentage = 18;
+    const response = await request(app).post(InventoryUris.TAX_URI)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: ' CGST-9 ',
+        groupName: ' CGST ',
+        effectiveFrom: [ {
+          startDate: ' 2018-01-01 ',
+          endDate: ' 2020-12-31 ',
+          percentage: tPercentage
+        } ]
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const response1 = await request(app).get(`${InventoryUris.TAX_URI}/${response.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response1.status).toBe(HTTP_OK);
+    const tax1: TaxEntity = response1.body;
+    expect(tax1.name).toBe('CGST-9');
+    expect(tax1.groupName).toBe('CGST');
+    expect(tax1.effectiveFrom.length).toBe(1);
+    expect(tax1.effectiveFrom[0].percentage).toBe(tPercentage);
+    expect(tax1.effectiveFrom[0].startDate).toBe('2018-01-01');
+    expect(tax1.effectiveFrom[0].endDate).toBe('2020-12-31');
+
+  });
+
   it('Should  save tax with 2 effective from', async() => {
 
     const tPercentage1 = 18;
@@ -532,6 +560,46 @@ describe(`${InventoryUris.TAX_URI} tests`, () => {
         effectiveFrom: [ {
           startDate: '2018-01-01',
           endDate: '2020-12-31',
+          percentage: tPercentage
+        } ]
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const response1 = await request(app).get(`${InventoryUris.TAX_URI}/${response2.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response1.status).toBe(HTTP_OK);
+    const tax1: TaxEntity = response1.body;
+    expect(tax1.name).toBe('CGST-9');
+    expect(tax1.groupName).toBe('CGST');
+    expect(tax1.effectiveFrom.length).toBe(1);
+    expect(tax1.effectiveFrom[0].percentage).toBe(tPercentage);
+    expect(tax1.effectiveFrom[0].startDate).toBe('2018-01-01');
+    expect(tax1.effectiveFrom[0].endDate).toBe('2020-12-31');
+
+  });
+
+  it('Should update tax after trim', async() => {
+
+    const tPercentage = 18;
+    const response2 = await request(app).post(InventoryUris.TAX_URI)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'CGST-9-1',
+        groupName: 'CGST-1',
+        effectiveFrom: [ {
+          startDate: '2019-01-01',
+          endDate: '2021-12-31',
+          percentage: tPercentage - 1
+        } ]
+      });
+    expect(response2.status).toBe(HTTP_OK);
+    const response = await request(app).put(`${InventoryUris.TAX_URI}/${response2.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: ' CGST-9 ',
+        groupName: ' CGST ',
+        effectiveFrom: [ {
+          startDate: ' 2018-01-01 ',
+          endDate: ' 2020-12-31 ',
           percentage: tPercentage
         } ]
       });

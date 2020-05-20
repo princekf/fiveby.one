@@ -63,22 +63,30 @@ const taxSchemaDef: SchemaDef<TaxS> = {
   groupName: {
     type: String,
     required: true,
+    trim: true,
+    index: true,
   },
   name: {
     type: String,
     required: true,
     unique: true,
+    trim: true,
+    index: true,
   },
   effectiveFrom: {
     type: [
       {
         startDate: {
           type: String,
-          required: true
+          required: true,
+          trim: true,
+          index: true,
         },
         endDate: {
           type: String,
-          required: true
+          required: true,
+          trim: true,
+          index: true,
         },
         percentage: {
           type: Number,
