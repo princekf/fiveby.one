@@ -18,7 +18,14 @@
     "eslint-plugin-promise": "4.2.1",
     "eslint-plugin-react": "7.19.0",
     "eslint-plugin-standard": "4.0.1",
-    "typescript": "3.8.3"
+    "typescript": "3.8.3",
+    "husky": "4.2.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn lint",
+      "pre-push": "yarn lint"
+    }
   },
   "scripts": {
     "install": "yarn install:shared && yarn build:shared && yarn install:backend && yarn install:frontend",
