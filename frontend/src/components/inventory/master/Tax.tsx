@@ -4,18 +4,26 @@ import { getAuthHeaders } from '../../../session';
 import { Button, Col, Input, Row, Table, DatePicker, InputNumber, Form, Popconfirm, Space, message } from 'antd';
 import './Style.scss';
 import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import {Constants, Tax, InventoryUris} from 'fivebyone';
+import { Constants, Tax as TaxEntity, InventoryUris } from 'fivebyone';
 import { FormInstance } from 'antd/lib/form';
+import moment from 'moment';
 const { HTTP_OK } = Constants;
 const { RangePicker } = DatePicker;
+
+interface TaxItem {
+  key: string;
+  _id: string;
+  groupName: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  percentage: number;
+  children?: TaxItem[];
+}
 
 const layout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },
-};
-const layout1 = {
-  labelCol: { span: 24 },
-  wrapperCol: { span: 24 },
 };
 
 const tailLayout = {
@@ -24,125 +32,157 @@ const tailLayout = {
     span: 12,
   },
 };
-
-interface TaxS {
-  taxs: TaxS[];
-  selectedTax: Tax;
+interface TaxState {
+  selectedTax: TaxEntity;
 }
-
-
-const dateFormatList = [ 'DD/MM/YYYY', 'DD/MM/YY' ];
-
-export class TaxComponent extends Component<TaxS, {}> {
+export class TaxComponent extends Component<TaxState, {}> {
 
   formRef = React.createRef<FormInstance>();
 
   state = {
-    taxs: new Array<Tax>(0),
-    taxTree: [],
     selectedTax: {
-      key: '',
-      _id: '',
-      groupName: '',
-      name: '',
-      effectiveFrom: [ {
-        startDate: null,
-        endDate: null,
-        percentage: null
-      } ]
+      _id: null,
+      name: null,
+    },
+    taxTree: []
+  }
+
+  private handleTaxFormSubmit = async(values: any): Promise<void> => {
+
+    const hideLodingMessage = message.loading('Updating tax into server...');
+    const ERROR_MESSAGE_DISPLAY_TIME = 5;
+    values.effectiveFrom.forEach((obj: any) => {
+
+      obj.startDate = obj.dates[0].format(Constants.DATE_FORMAT);
+      obj.endDate = obj.dates[1].format(Constants.DATE_FORMAT);
+      delete obj.dates;
+
+    });
+
+    try {
+
+      let response;
+      if (values._id) {
+
+        response = await axios.put<TaxEntity>(`${InventoryUris.TAX_URI}/${values._id}`, values, { headers: getAuthHeaders() });
+
+      } else {
+
+        response = await axios.post<TaxEntity>(InventoryUris.TAX_URI, values, { headers: getAuthHeaders() });
+
+      }
+
+      if (response.status !== HTTP_OK) {
+
+        message.error('Tax update failed, pelase try again', ERROR_MESSAGE_DISPLAY_TIME);
+
+      }
+
+
+    } catch (error) {
+
+      message.error('Tax update failed, pelase try again', ERROR_MESSAGE_DISPLAY_TIME);
+
+    } finally {
+
+      hideLodingMessage();
+      await this.getTaxes();
+
     }
-  }
 
-  private generateFormOne = () => {
+  };
 
-    return (
-      <Col span={12} style={{ padding: '0 15px',
-        boxSizing: 'border-box'}}>
-        <Form.Item name='_id' label='Hidden ID Field.'
-          style={{ display: 'none' }}
-        >
-          <Input placeholder='Hidden field.' />
-        </Form.Item>
-        <Form.Item
-          name='name'
-          label='Name'
-        >
-          <Input placeholder='Enter tax name' />
-        </Form.Item>
-        <Form.Item
-          name='groupName'
-          label='Group Name'
-        >
-          <Input placeholder='Enter tax group name' />
-        </Form.Item>
-        <Form.Item
-          name='printName'
-          label='Print Name'
-        >
-          <Input placeholder='Enter print name' />
-        </Form.Item>
-      </Col>
+  private getTaxes = async(): Promise<void> => {
 
-    );
+    const hideLodingMessage = message.loading('Fetching units from server...');
+    try {
 
-  }
+      const response = await axios.get<TaxEntity[]>(InventoryUris.TAX_URI, { headers: getAuthHeaders() });
+      const taxes: TaxEntity[] = response.data;
 
-  private generateFormTwo = () => {
+      const taxTree: TaxItem[] = [];
+      taxes.forEach((taxObj: TaxEntity) => {
 
-    return (
-      <Col span={12} style={{ padding: '0 15px',
-        boxSizing: 'border-box'}}>
-        <Form.Item name='taxLedger' label='Tax Ledger'>
-          <Input placeholder='Enter tax ledger' />
-        </Form.Item>
-        <Form.Item name='salesLedger'label='Sales Ledger'>
-          <Input placeholder='Enter sales ledger' />
-        </Form.Item>
-        <Form.Item name='purchaseLedger' label='Purchase Ledger'>
-          <Input placeholder='Enter purchase ledger' />
-        </Form.Item>
-      </Col>
-    );
+        const treeObj: TaxItem = {
+          key: taxObj._id,
+          _id: taxObj._id,
+          groupName: taxObj.groupName,
+          name: taxObj.name,
+          startDate: taxObj.effectiveFrom[0].startDate,
+          endDate: taxObj.effectiveFrom[0].endDate,
+          percentage: taxObj.effectiveFrom[0].percentage,
 
-  }
+        };
+        if (taxObj.effectiveFrom.length > 1) {
 
-  private generateFormThree = () => {
+          treeObj.children = [];
 
-    return (
-      <>
-        <h4 className='text' style={{width: 'auto'}}>Tax Rate and Effective Rate</h4>
-        <Form.Item
-          {...layout1} name='date' label='Effective From'
-          style={{display: 'block'}}
-        >
-          <RangePicker format={dateFormatList} />
-        </Form.Item>
+        }
+        taxObj.effectiveFrom.slice(1).forEach((effectiveFromO: any) => {
 
-        <Form.Item
-          {...layout1} name='taxRate' label='Tax Rate'
-          style={{display: 'block',
-            marginLeft: '10px'}}
-        >
-          <InputNumber min={1} max={100000} />
-        </Form.Item>
+          const treeObjChild: TaxItem = {
+            key: taxObj._id + effectiveFromO.startDate,
+            _id: taxObj._id,
+            groupName: '',
+            name: '',
+            startDate: effectiveFromO.startDate,
+            endDate: effectiveFromO.endDate,
+            percentage: effectiveFromO.percentage,
+          };
 
-        <Form.Item style={{display: 'flex',
-          width: '150px',
-          paddingTop: '30px'}}>
-          <Button shape='circle' icon={<MinusCircleOutlined />} style={{margin: '0 10px'}}></Button>
-          <Button shape='circle' icon={<PlusCircleOutlined />}></Button>
-        </Form.Item>
-      </>
-    );
+          treeObj.children?.push(treeObjChild);
 
-  }
+        });
 
+        taxTree.push(treeObj);
+
+      });
+      await this.setState({ taxTree });
+
+    } finally {
+
+      hideLodingMessage();
+
+    }
+
+  };
+
+  private handleTaxRowEvents = (record: any): any => {
+
+    const { formRef } = this;
+    return {
+      onClick: async() => {
+
+        const response = await axios.get<TaxEntity>(`${InventoryUris.TAX_URI}/${record._id}`, { headers: getAuthHeaders() });
+        const tax: TaxEntity = response.data;
+        const convertedObj = { ...tax };
+        tax.effectiveFrom.forEach((effObj: any) => {
+
+          effObj.dates = [];
+          effObj.dates[0] = moment(effObj.startDate, Constants.DATE_FORMAT);
+          effObj.dates[1] = moment(effObj.endDate, Constants.DATE_FORMAT);
+
+        });
+        this.setState({ selectedTax: convertedObj });
+        if (formRef.current) {
+
+          formRef.current.setFieldsValue(convertedObj);
+
+        }
+
+      }
+    };
+
+  };
 
   private handleTaxFormReset = (): void => {
 
     if (this.formRef.current) {
 
       this.formRef.current.resetFields();
+      this.formRef.current.setFieldsValue({
+        effectiveFrom: [ {} ]
+      });
 
     }
 
@@ -157,7 +197,7 @@ export class TaxComponent extends Component<TaxS, {}> {
     const ERROR_MESSAGE_DISPLAY_TIME = 5;
     try {
 
-      const response = await axios['delete']<Tax[]>(`${InventoryUris.TAX_URI}/${selectedID}`, { headers: getAuthHeaders() });
+      const response = await axios['delete'](`${InventoryUris.TAX_URI}/${selectedID}`, { headers: getAuthHeaders() });
       if (response.status !== HTTP_OK) {
 
         message.error('Tax delete failed, pelase try again', ERROR_MESSAGE_DISPLAY_TIME);
@@ -166,9 +206,13 @@ export class TaxComponent extends Component<TaxS, {}> {
       if (this.formRef.current) {
 
         this.formRef.current.resetFields();
+        this.formRef.current.setFieldsValue({
+          effectiveFrom: [ {} ]
+        });
+        this.setState({ selectedTax: {} });
 
       }
-      await this.getTaxs();
+      await this.getTaxes();
 
     } catch (err) {
 
@@ -180,65 +224,103 @@ export class TaxComponent extends Component<TaxS, {}> {
 
     }
 
-  }
-
-  private getTaxs = async(): Promise<void> => {
-
-    const hideLodingMessage = message.loading('Fetching taxs from server...');
-    try {
-
-      const taxMap: any = {};
-      const taxTree: any = [];
-
-      const response = await axios.get<Tax[]>(InventoryUris.TAX_URI, { headers: getAuthHeaders() });
-      const taxs = response.data;
-      taxs.forEach((item: Tax) => {
-
-        taxMap.key = item._id;
-        taxMap._id = item._id;
-        taxMap.groupName = item.groupName;
-        taxMap.name = item.name;
-        taxTree.push(taxMap);
-
-      });
-
-      await this.setState({ taxTree });
-
-    } finally {
-
-      hideLodingMessage();
-
-    }
-
   };
 
   async componentDidMount() {
 
-    await this.getTaxs();
+    await this.getTaxes();
+    const {formRef} = this;
+    if (formRef.current) {
+
+      formRef.current.setFieldsValue({
+        effectiveFrom: [ {} ]
+      });
+
+    }
 
   }
 
-  private generateFormButtons = () => {
+  private renderEffectiveFrom = () => {
+
+    const rules = [ {
+      required: true,
+      message: 'Effective dates and percentage are required.'
+    } ];
+    return (
+      <Form.List name='effectiveFrom'>
+        {(fields, { add, remove }) => {
+
+          return (
+            <div>
+              {fields.map((field) => {
+
+                return <Row gutter={24} style={{ margin: '0' }} key={field.key}>
+                  <Col span={12}>
+                    <Form.Item name={[ field.name, 'dates' ]} label='Effective Date Range' rules={rules}>
+                      <RangePicker format={Constants.DATE_FORMAT} showTime={false} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={6}>
+                    <Form.Item name={[ field.name, 'percentage' ]} label='Tax rate' rules={rules}>
+                      <InputNumber placeholder='Tax rate' />
+
+                    </Form.Item>
+                  </Col>
+                  <Col span={6}>
+
+                    {fields.length > 1 ? <MinusCircleOutlined onClick={() => {
+
+                      remove(field.name);
+
+                    }} /> : null}
+                  </Col>
+                </Row>;
+
+              }
+              )}
+              <Form.Item>
+                <Button
+                  type='dashed'
+                  onClick={() => {
+
+                    add();
+
+                  }}
+                  style={{ width: '60%' }}
+                >
+                  <PlusCircleOutlined /> Add field
+                </Button>
+              </Form.Item>
+            </div>
+          );
+
+        }}
+      </Form.List>
+    );
+
+  };
+
+  private renderButtonPanel = () => {
 
     return (
-      <Form.Item {...tailLayout} style={{width: '100%'}}>
+      <Form.Item {...tailLayout}>
         <Space size='large'>
           <Button type='primary' htmlType='submit'>
-            Submit
+                Submit
           </Button>
           <Popconfirm
-            title={`Are you sure delete the tax ${this.state.selectedTax.name}?`}
+            title={`Are you sure delete the unit ${this.state.selectedTax.name}?`}
             okText='Yes'
             cancelText='No'
             onConfirm={this.handleTaxDelete}
             disabled={!this.state.selectedTax._id}
           >
             <Button type='primary' htmlType='button' disabled={!this.state.selectedTax._id}>
-              Delete
+                  Delete
             </Button>
           </Popconfirm>
           <Button type='primary' htmlType='reset' onClick={this.handleTaxFormReset}>
-            Reset
+                Reset
           </Button>
         </Space>
       </Form.Item>
@@ -246,71 +328,45 @@ export class TaxComponent extends Component<TaxS, {}> {
 
   };
 
-  private handleTaxRowEvents = (record: any): any => {
+  private renderTaxForm = () => {
 
-    const { formRef } = this;
-    return {
-      onClick: () => {
+    return (
+      <Form {...layout} name='tax-form' size='small' onFinish={this.handleTaxFormSubmit} ref={this.formRef} >
+        <Form.Item name='_id' label='Hidden ID Field.' style={{ display: 'none' }} >
+          <Input placeholder='Hidden field.' />
+        </Form.Item>
+        <Row gutter={24} style={{ margin: '0' }}>
+          <Col span={12}>
+            <Form.Item name='groupName' label='Group Name'
+              rules={[
+                {
+                  required: true,
+                  message: 'Tax group name is required',
+                },
+              ]}
+            >
+              <Input placeholder='Group name of tax' />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item name='name' label='Name'
+              rules={[
+                {
+                  required: true,
+                  message: 'Tax name is required',
+                },
+              ]}
+            >
+              <Input placeholder='Name of tax' />
+            </Form.Item>
+          </Col>
+        </Row>
 
-        const selectedItem = {
-          _id: record._id,
-          name: record.name,
-          groupName: record.groupName,
-          effectiveFrom: [ {
-            startDate: Date,
-            endDate: Date,
-            percentage: record.times
-          } ]
-        };
+        {this.renderEffectiveFrom()}
 
-        this.setState({ selectedTax: selectedItem });
-
-        if (formRef.current) {
-
-          formRef.current.setFieldsValue(selectedItem);
-
-        }
-
-      }
-    };
-
-  }
-
-  private handleTaxUpdate = async(values: any): Promise<void> => {
-
-    const hideLodingMessage = message.loading('Updating tax into server...');
-    const ERROR_MESSAGE_DISPLAY_TIME = 5;
-
-    try {
-
-      let response;
-      if (values._id) {
-
-        response = await axios.put<Tax>(`${InventoryUris.TAX_URI}/${values._id}`, values, { headers: getAuthHeaders() });
-
-      } else {
-
-        // Save fresh tax
-        response = await axios.post<Tax>(InventoryUris.TAX_URI, values, { headers: getAuthHeaders() });
-
-      }
-      if (response.status !== HTTP_OK) {
-
-        message.error('Tax update failed, pelase try again', ERROR_MESSAGE_DISPLAY_TIME);
-
-      }
-
-      await this.getTaxs();
-
-    } catch (error) {
-
-      message.error('Tax update failed, pelase try again', ERROR_MESSAGE_DISPLAY_TIME);
-
-    } finally {
-
-      hideLodingMessage();
-
-    }
+        {this.renderButtonPanel()}
+      </Form>
+    );
 
   };
 
@@ -318,34 +374,15 @@ export class TaxComponent extends Component<TaxS, {}> {
 
     return (
       <>
-        <Form
-          {...layout}
-          name='advanced_search'
-          size='small' onFinish={this.handleTaxUpdate} ref={this.formRef}
-          style={{ margin: 'auto',
-            width: '100%'}}
-        >
-          <Row style={{ display: 'flex'}}>
-            <Col span={24} style={{ display: 'flex'}}>
-              {this.generateFormOne()}
-              {this.generateFormTwo()}
-            </Col>
-            <Col span={24} className='box' style={{display: 'flex',
-              paddingLeft: '15px',
-              margin: '10px 0'}}>
-              {this.generateFormThree()}
-            </Col>
-            {this.generateFormButtons()}
-            <Col span={24}>
-              <Table<Tax> dataSource={this.state.taxTree} size='small' key='_id'
-                pagination={false} onRow={this.handleTaxRowEvents}>
-                <Table.Column<Tax> key='name' title='Name' dataIndex='name' />
-                <Table.Column<Tax> key='groupName' title='Group Name' dataIndex='groupName' />
-              </Table>
-            </Col>
-          </Row>
-        </Form>
-
+        {this.renderTaxForm()}
+        <Table<TaxItem> dataSource={this.state.taxTree} size='small' key='key'
+          pagination={false} onRow={this.handleTaxRowEvents}>
+          <Table.Column<TaxItem> key='groupName' title='Group Name' dataIndex='groupName' />
+          <Table.Column<TaxItem> key='name' title='Name' dataIndex='name' />
+          <Table.Column<TaxItem> key='startDate' title='From Date' dataIndex='startDate' />
+          <Table.Column<TaxItem> key='endDate' title='To Date' dataIndex='endDate' />
+          <Table.Column<TaxItem> key='percentage' title='Tax Rate' dataIndex='percentage' />
+        </Table>
       </>
     );
 

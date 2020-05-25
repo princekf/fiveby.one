@@ -537,6 +537,48 @@ describe(`${InventoryUris.TAX_URI} tests`, () => {
 
   });
 
+
+  it('Should list if taxes with more than one effectiveFrom', async() => {
+
+    const tPercentage = 18;
+    const response = await request(app).post(InventoryUris.TAX_URI)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'CGST-9',
+        groupName: 'CGST',
+        effectiveFrom: [ {
+          startDate: '2018-01-01',
+          endDate: '2020-12-31',
+          percentage: tPercentage
+        },
+        {
+          startDate: '2021-01-01',
+          endDate: '2022-12-31',
+          percentage: tPercentage
+        } ]
+      });
+
+    expect(response.status).toBe(HTTP_OK);
+    const response1 = await request(app).get(`${InventoryUris.TAX_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(response1.status).toBe(HTTP_OK);
+    const taxes: TaxEntity[] = response1.body;
+    expect(taxes.length).toBe(1);
+    const [ tax1 ] = taxes;
+    expect(tax1.name).toBe('CGST-9');
+    expect(tax1.groupName).toBe('CGST');
+    const effectiveFromLength = 2;
+    expect(tax1.effectiveFrom.length).toBe(effectiveFromLength);
+    expect(tax1.effectiveFrom[0].percentage).toBe(tPercentage);
+    expect(tax1.effectiveFrom[0].startDate).toBe('2018-01-01');
+    expect(tax1.effectiveFrom[0].endDate).toBe('2020-12-31');
+
+    expect(tax1.effectiveFrom[1].percentage).toBe(tPercentage);
+    expect(tax1.effectiveFrom[1].startDate).toBe('2021-01-01');
+    expect(tax1.effectiveFrom[1].endDate).toBe('2022-12-31');
+
+  });
+
   it('Should update tax with valid values', async() => {
 
     const tPercentage = 18;
@@ -1386,7 +1428,7 @@ describe(`${InventoryUris.TAX_URI} tests`, () => {
 
   });
 
-  it('Should gat a single tax with valid id', async() => {
+  it('Should get a single tax with valid id', async() => {
 
     const tPercentage1 = 18;
 
@@ -1416,7 +1458,7 @@ describe(`${InventoryUris.TAX_URI} tests`, () => {
 
   });
 
-  it('Should handle gat a single tax with invalid id', async() => {
+  it('Should handle get a single tax with invalid id', async() => {
 
     const tPercentage1 = 18;
 
