@@ -1637,4 +1637,39 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
 
   });
 
+  it('Party should either vendor, or customer or both.', async() => {
+
+    const response = await request(app).post(InventoryUris.PARTY_URI)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'John Honai',
+        code: 'JNHN',
+        mobile: '+91123456789',
+        email: 'john.honai@fiveby.one',
+        isCustomer: false,
+        isVendor: false,
+        adresses: [
+          {
+            type: 'billing',
+            addressLine1: '36-B, Orchid Villa',
+            addressLine2: 'Harihar Nagar',
+            addressLine3: 'Pathalam',
+            addressLine4: 'Kochi',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '682001',
+            landMark: 'Behind EMS Library'
+          }
+        ],
+        registrationNumbers: [
+          {
+            name: 'GST Number',
+            value: 'AABBCCDDEEFF'
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_BAD_REQUEST);
+
+  });
+
 });

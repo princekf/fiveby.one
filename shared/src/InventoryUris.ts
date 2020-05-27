@@ -16,4 +16,6 @@ export class InventoryUris {
 
   public static PARTY_URI = '/api/inventory/party';
 
+  public static PURCHASE_URI = '/api/inventory/purchase';
+
 }

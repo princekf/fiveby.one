@@ -6,7 +6,6 @@ import * as path from 'path';
 dotenv.config();
 
 // Import controllers
-import itemsController from './items/items.controller';
 import usersController from './users/users.controller';
 import productController from './inventory/product/product.controller';
 import taxController from './inventory/tax/tax.controller';
@@ -16,12 +15,12 @@ import locationController from './inventory/location/location.controller';
 import unitController from './inventory/unit/unit.controller';
 import colorController from './inventory/color/color.controller';
 import partyController from './inventory/party/party.controller';
+import purchaseController from './inventory/purchase/purchase.controller';
 import { InventoryUris } from 'fivebyone';
 // Create the express application
 const app = express();
 
 // Assign controllers to routes
-app.use('/api/items', itemsController);
 app.use('/api/users', usersController);
 app.use(InventoryUris.PRODUCT_URI, productController);
 app.use(InventoryUris.TAX_URI, taxController);
@@ -31,6 +30,7 @@ app.use(InventoryUris.LOCATION_URI, locationController);
 app.use(InventoryUris.UNIT_URI, unitController);
 app.use(InventoryUris.COLOR_URI, colorController);
 app.use(InventoryUris.PARTY_URI, partyController);
+app.use(InventoryUris.PURCHASE_URI, purchaseController);
 
 // Declare the path to frontend's static assets
 app.use(express['static'](path.resolve('..', 'frontend', 'build')));

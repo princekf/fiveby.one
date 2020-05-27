@@ -3,6 +3,7 @@ import {Router as expressRouter} from 'express';
 import { authorize } from '../../config';
 import Party from './party.model';
 import {Constants, PartyS} from 'fivebyone';
+import { PartyUtil } from './party.util';
 
 const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
 
@@ -57,10 +58,13 @@ const updateParty = async(request: any, response: any) => {
   try {
 
     const {id} = request.params;
+    const party = await Party.findById(id);
 
     const updateObject: PartyS = request.body;
+    const expectedObject = Object.assign(party, updateObject);
+    await PartyUtil.validateParty(expectedObject);
 
-    await Party.update({_id: id}, updateObject, { runValidators: true });
+    await Party.updateOne({_id: id}, updateObject, { runValidators: true });
     return response.status(HTTP_OK).json(updateObject);
 
   } catch (error) {

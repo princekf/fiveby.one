@@ -1,7 +1,8 @@
 import { Document, Schema, model } from 'mongoose';
 import { SchemaDef } from '../../../types';
 import {PartyS} from 'fivebyone';
-// Declare model interface
+import { PartyUtil } from './party.util';
+
 interface PartyDoc extends PartyS, Document {}
 
 const validateCode = (code2: string): boolean => {
@@ -116,7 +117,13 @@ const partySchemaDef: SchemaDef<PartyS> = {
   }
 };
 
-// Define model schema
-const partySchema = new Schema(partySchemaDef);
 
+const validateParty = async function<PartyDoc>() {
+
+  await PartyUtil.validateParty(this);
+
+};
+
+const partySchema = new Schema(partySchemaDef);
+partySchema.pre<PartyDoc>('save', validateParty);
 export default model<PartyDoc>('Party', partySchema);

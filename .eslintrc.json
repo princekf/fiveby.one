@@ -31,7 +31,7 @@
         "accessor-pairs": "error",
         "block-scoped-var": "error",
         "class-methods-use-this": ["error", { "exceptMethods": ["render"] }],
-        "complexity": ["error", 10],
+        "complexity": ["error", 20],
         "consistent-return": "error",
         "curly": "error",
         "default-param-last": ["error"],

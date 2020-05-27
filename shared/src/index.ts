@@ -12,6 +12,8 @@ import { Unit, UnitS } from './entity/inventory/Unit';
 export { Unit, UnitS };
 import {Party, PartyS} from './entity/inventory/Party';
 export {Party, PartyS};
+import {Purchase, PurchaseS} from './entity/inventory/Purchase';
+export {Purchase, PurchaseS};
 
 export const Greeter = (name: string) => {
 
