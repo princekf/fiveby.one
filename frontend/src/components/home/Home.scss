@@ -23,6 +23,11 @@
   .ant-layout-sider-zero-width-trigger {
     display: none;
   }
+  .ant-layout-sider{
+    max-width: 250px !important;
+    width: 250px !important;
+    flex: 0 0 250px !important;
+  }
 }
 .menu {
   height: 100vh;
