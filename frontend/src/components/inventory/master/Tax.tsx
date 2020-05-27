@@ -28,8 +28,8 @@ const layout = {
 
 const tailLayout = {
   wrapperCol: {
-    offset: 12,
-    span: 12,
+    offset: 8,
+    span: 16,
   },
 };
 interface TaxState {
@@ -240,6 +240,46 @@ export class TaxComponent extends Component<TaxState, {}> {
 
   }
 
+  private taxInputFieldHeading = () => {
+
+    return (
+      <Row gutter={24} style={{ margin: '0',
+        marginBottom: '24px' }} >
+        <Col span={12}>
+          <label style={{fontSize: '14px'}}>Date Range</label>
+        </Col>
+        <Col span={6}>
+          <label style={{fontSize: '14px'}}>Tax rate</label>
+        </Col>
+        <Col span={6}>
+          <label style={{fontSize: '14px'}}>Remove</label>
+        </Col>
+      </Row>
+    );
+
+  }
+
+  private addTaxButton = (add: any) => {
+
+    return (
+      <Form.Item style={{display: 'flex',
+        justifyContent: 'flex-end'}}>
+        <Button
+          type='dashed'
+          onClick={() => {
+
+            add();
+
+          }}
+          style={{ width: '60%' }}
+        >
+          <PlusCircleOutlined /> Add tax details
+        </Button>
+      </Form.Item>
+    );
+
+  }
+
   private renderEffectiveFrom = () => {
 
     const rules = [ {
@@ -247,55 +287,51 @@ export class TaxComponent extends Component<TaxState, {}> {
       message: 'Effective dates and percentage are required.'
     } ];
     return (
-      <Form.List name='effectiveFrom'>
-        {(fields, { add, remove }) => {
+      <Col style={{border: '1px solid #010c17',
+        marginBottom: '10px',
+        padding: '10px',
+        boxSizing: 'border-box'}}>
+        <Form.List name='effectiveFrom'>
+          {(fields, { add, remove }) => {
 
-          return (
-            <div>
-              {fields.map((field) => {
+            return (
+              <div>
+                {this.taxInputFieldHeading()}
+                {fields.map((field) => {
 
-                return <Row gutter={24} style={{ margin: '0' }} key={field.key}>
-                  <Col span={12}>
-                    <Form.Item name={[ field.name, 'dates' ]} label='Effective Date Range' rules={rules}>
-                      <RangePicker format={Constants.DATE_FORMAT} showTime={false} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={6}>
-                    <Form.Item name={[ field.name, 'percentage' ]} label='Tax rate' rules={rules}>
-                      <InputNumber placeholder='Tax rate' />
+                  return <>
+                    <Row gutter={24} style={{ margin: '0' }} key={field.key}>
+                      <Col span={12}>
+                        <Form.Item name={[ field.name, 'dates' ]} rules={rules}>
+                          <RangePicker format={Constants.DATE_FORMAT} showTime={false} />
+                        </Form.Item>
+                      </Col>
+                      <Col span={6}>
+                        <Form.Item name={[ field.name, 'percentage' ]} rules={rules}>
+                          <InputNumber placeholder='Tax rate' />
 
-                    </Form.Item>
-                  </Col>
-                  <Col span={6}>
+                        </Form.Item>
+                      </Col>
+                      <Col span={6}>
 
-                    {fields.length > 1 ? <MinusCircleOutlined onClick={() => {
+                        {fields.length > 1 ? <MinusCircleOutlined onClick={() => {
 
-                      remove(field.name);
+                          remove(field.name);
 
-                    }} /> : null}
-                  </Col>
-                </Row>;
+                        }} /> : null}
+                      </Col>
+                    </Row>
+                  </>;
 
-              }
-              )}
-              <Form.Item>
-                <Button
-                  type='dashed'
-                  onClick={() => {
+                }
+                )}
+                {this.addTaxButton(add)}
+              </div>
+            );
 
-                    add();
-
-                  }}
-                  style={{ width: '60%' }}
-                >
-                  <PlusCircleOutlined /> Add field
-                </Button>
-              </Form.Item>
-            </div>
-          );
-
-        }}
-      </Form.List>
+          }}
+        </Form.List>
+      </Col>
     );
 
   };

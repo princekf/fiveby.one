@@ -84,11 +84,39 @@ const finance = [
 
 export class SilderComponent extends Component {
 
+  rootSubmenuKeys = [ 'sub1', 'sub2' ];
+
+  state = {
+    openKeys: [ 'sub1' ],
+  };
+
+  onOpenChange = (openKeys: any) => {
+
+    const latestOpenKey = openKeys.find((key: any) => {
+
+      return this.state.openKeys.indexOf(key) === -1;
+
+    });
+    if (this.rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
+
+      this.setState({ openKeys });
+
+    } else {
+
+      this.setState({
+        openKeys: latestOpenKey ? [ latestOpenKey ] : [],
+      });
+
+    }
+
+  };
+
   render() {
 
     return (
       <div>
-        <Menu theme='dark' defaultSelectedKeys={[ '0' ]} mode='inline' >
+        <Menu theme='dark' defaultSelectedKeys={[ '0' ]} mode='inline' openKeys={this.state.openKeys}
+          onOpenChange={this.onOpenChange} >
           <SubMenu key='sub1' icon={<MailOutlined />} title='Inventory'>
             {inventory.map((value) => {
 
