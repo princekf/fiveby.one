@@ -240,6 +240,46 @@ export class TaxComponent extends Component<TaxState, {}> {
 
   }
 
+  private taxInputFieldHeading = () => {
+
+    return (
+      <Row gutter={24} style={{ margin: '0',
+        marginBottom: '24px' }} >
+        <Col span={12}>
+          <label style={{fontSize: '14px'}}>Date Range</label>
+        </Col>
+        <Col span={6}>
+          <label style={{fontSize: '14px'}}>Tax rate</label>
+        </Col>
+        <Col span={6}>
+          <label style={{fontSize: '14px'}}>Remove</label>
+        </Col>
+      </Row>
+    );
+
+  }
+
+  private addTaxButton = (add: any) => {
+
+    return (
+      <Form.Item style={{display: 'flex',
+        justifyContent: 'flex-end'}}>
+        <Button
+          type='dashed'
+          onClick={() => {
+
+            add();
+
+          }}
+          style={{ width: '60%' }}
+        >
+          <PlusCircleOutlined /> Add tax details
+        </Button>
+      </Form.Item>
+    );
+
+  }
+
   private renderEffectiveFrom = () => {
 
     const rules = [ {
@@ -247,28 +287,22 @@ export class TaxComponent extends Component<TaxState, {}> {
       message: 'Effective dates and percentage are required.'
     } ];
     return (
-      <Col style={{border:'1px solid #010c17', marginBottom:'10px',padding:'10px',boxSizing:'border-box'}}>
+      <Col style={{border: '1px solid #010c17',
+        marginBottom: '10px',
+        padding: '10px',
+        boxSizing: 'border-box'}}>
         <Form.List name='effectiveFrom'>
           {(fields, { add, remove }) => {
 
             return (
               <div>
-                <Row gutter={24} style={{ margin: '0',marginBottom:'24px' }} >
-                  <Col span={12}>
-                    <label style={{fontSize: '14px'}}>Date Range</label>
-                  </Col>
-                  <Col span={6}>
-                    <label style={{fontSize: '14px'}}>Tax rate</label>
-                  </Col>
-                  <Col span={6}>
-                    <label style={{fontSize: '14px'}}>Remove</label>
-                  </Col>
-                </Row>
+                {this.taxInputFieldHeading()}
                 {fields.map((field) => {
+
                   return <>
                     <Row gutter={24} style={{ margin: '0' }} key={field.key}>
                       <Col span={12}>
-                        <Form.Item name={[ field.name, 'dates' ]}  rules={rules}>
+                        <Form.Item name={[ field.name, 'dates' ]} rules={rules}>
                           <RangePicker format={Constants.DATE_FORMAT} showTime={false} />
                         </Form.Item>
                       </Col>
@@ -287,22 +321,11 @@ export class TaxComponent extends Component<TaxState, {}> {
                         }} /> : null}
                       </Col>
                     </Row>
-                  </>
+                  </>;
+
                 }
                 )}
-                <Form.Item style={{display:'flex',justifyContent:'flex-end'}}>
-                  <Button
-                    type='dashed'
-                    onClick={() => {
-
-                      add();
-
-                    }}
-                    style={{ width: '60%' }}
-                  >
-                    <PlusCircleOutlined /> Add tax details
-                  </Button>
-                </Form.Item>
+                {this.addTaxButton(add)}
               </div>
             );
 
