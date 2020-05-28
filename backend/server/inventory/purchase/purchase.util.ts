@@ -178,9 +178,9 @@ export class PurchaseUtil {
 
   };
 
-  public static validatePurchase = (purchase: PurchaseEntity) => {
+  public static validatePurchase = async(purchase: PurchaseEntity) => {
 
-    PurchaseUtil.validatePrimaryValues(purchase);
+    await PurchaseUtil.validatePrimaryValues(purchase);
 
     let grandT = purchase.totalAmount;
     grandT -= purchase.totalDiscount;
@@ -229,7 +229,7 @@ export class PurchaseUtil {
 
       const pItemObj = purchase.purchaseItems[index];
       PurchaseUtil.validatePurchaseItemValues(pItemObj);
-      PurchaseUtil.validatePurchaseItemValues2(pItemObj);
+      await PurchaseUtil.validatePurchaseItemValues2(pItemObj);
       PurchaseUtil.validatePurchaseItemValuesDates(pItemObj, purchase);
 
     }

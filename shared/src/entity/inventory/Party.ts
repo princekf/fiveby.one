@@ -20,7 +20,7 @@ export interface PartyS {
   email: string;
   isCustomer: boolean;
   isVendor: boolean;
-  adresses: Address[];
+  addresses: Address[];
   registrationNumbers: RegistrationNumber[];
 }
 export interface Party extends PartyS {

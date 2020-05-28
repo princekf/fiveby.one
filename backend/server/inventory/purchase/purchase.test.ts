@@ -77,7 +77,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -115,7 +115,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -2760,7 +2760,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',

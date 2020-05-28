@@ -63,7 +63,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -94,16 +94,16 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.email).toBe('john.honai@fiveby.one');
     expect(party1.isCustomer).toBe(true);
     expect(party1.isVendor).toBe(false);
-    expect(party1.adresses.length).toBe(1);
-    expect(party1.adresses[0].type).toBe('billing');
-    expect(party1.adresses[0].addressLine1).toBe('36-B, Orchid Villa');
-    expect(party1.adresses[0].addressLine2).toBe('Harihar Nagar');
-    expect(party1.adresses[0].addressLine3).toBe('Pathalam');
-    expect(party1.adresses[0].addressLine4).toBe('Kochi');
-    expect(party1.adresses[0].state).toBe('Kerala');
-    expect(party1.adresses[0].country).toBe('India');
-    expect(party1.adresses[0].pinCode).toBe('682001');
-    expect(party1.adresses[0].landMark).toBe('Behind EMS Library');
+    expect(party1.addresses.length).toBe(1);
+    expect(party1.addresses[0].type).toBe('billing');
+    expect(party1.addresses[0].addressLine1).toBe('36-B, Orchid Villa');
+    expect(party1.addresses[0].addressLine2).toBe('Harihar Nagar');
+    expect(party1.addresses[0].addressLine3).toBe('Pathalam');
+    expect(party1.addresses[0].addressLine4).toBe('Kochi');
+    expect(party1.addresses[0].state).toBe('Kerala');
+    expect(party1.addresses[0].country).toBe('India');
+    expect(party1.addresses[0].pinCode).toBe('682001');
+    expect(party1.addresses[0].landMark).toBe('Behind EMS Library');
     expect(party1.registrationNumbers.length).toBe(1);
     expect(party1.registrationNumbers[0].name).toBe('GST Number');
     expect(party1.registrationNumbers[0].value).toBe('AABBCCDDEEFF');
@@ -121,7 +121,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             addressLine1: '36-B, Orchid Villa',
             addressLine2: 'Harihar Nagar',
@@ -143,16 +143,16 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.email).toBe('john.honai@fiveby.one');
     expect(party1.isCustomer).toBe(true);
     expect(party1.isVendor).toBe(false);
-    expect(party1.adresses.length).toBe(1);
-    expect(!party1.adresses[0].type).toBe(true);
-    expect(party1.adresses[0].addressLine1).toBe('36-B, Orchid Villa');
-    expect(party1.adresses[0].addressLine2).toBe('Harihar Nagar');
-    expect(!party1.adresses[0].addressLine3).toBe(true);
-    expect(!party1.adresses[0].addressLine4).toBe(true);
-    expect(party1.adresses[0].state).toBe('Kerala');
-    expect(party1.adresses[0].country).toBe('India');
-    expect(party1.adresses[0].pinCode).toBe('682001');
-    expect(!party1.adresses[0].landMark).toBe(true);
+    expect(party1.addresses.length).toBe(1);
+    expect(!party1.addresses[0].type).toBe(true);
+    expect(party1.addresses[0].addressLine1).toBe('36-B, Orchid Villa');
+    expect(party1.addresses[0].addressLine2).toBe('Harihar Nagar');
+    expect(!party1.addresses[0].addressLine3).toBe(true);
+    expect(!party1.addresses[0].addressLine4).toBe(true);
+    expect(party1.addresses[0].state).toBe('Kerala');
+    expect(party1.addresses[0].country).toBe('India');
+    expect(party1.addresses[0].pinCode).toBe('682001');
+    expect(!party1.addresses[0].landMark).toBe(true);
     expect(party1.registrationNumbers.length).toBe(0);
 
   });
@@ -168,7 +168,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             addressLine1: '36-B, Orchid Villa',
             addressLine2: 'Harihar Nagar',
@@ -191,7 +191,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             addressLine1: '36-B, Orchid Villa',
             addressLine2: 'Harihar Nagar',
@@ -215,7 +215,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             addressLine1: '36-B, Orchid Villa',
             addressLine2: 'Harihar Nagar',
@@ -236,7 +236,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one2',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             addressLine1: '36-B, Orchid Villa',
             addressLine2: 'Harihar Nagar',
@@ -260,7 +260,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             addressLine1: '36-B, Orchid Villa',
             addressLine2: 'Harihar Nagar',
@@ -283,7 +283,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             addressLine1: '36-B, Orchid Villa',
             addressLine2: 'Harihar Nagar',
@@ -303,7 +303,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai2@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             addressLine1: '36-B, Orchid Villa',
             addressLine2: 'Harihar Nagar',
@@ -328,7 +328,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: []
+        addresses: []
       });
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
@@ -359,7 +359,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -402,26 +402,26 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.isCustomer).toBe(true);
     expect(party1.isVendor).toBe(false);
     const addressLength = 2;
-    expect(party1.adresses.length).toBe(addressLength);
-    expect(party1.adresses[0].type).toBe('billing');
-    expect(party1.adresses[0].addressLine1).toBe('36-B, Orchid Villa');
-    expect(party1.adresses[0].addressLine2).toBe('Harihar Nagar');
-    expect(party1.adresses[0].addressLine3).toBe('Pathalam');
-    expect(party1.adresses[0].addressLine4).toBe('Kochi');
-    expect(party1.adresses[0].state).toBe('Kerala');
-    expect(party1.adresses[0].country).toBe('India');
-    expect(party1.adresses[0].pinCode).toBe('682001');
-    expect(party1.adresses[0].landMark).toBe('Behind EMS Library');
+    expect(party1.addresses.length).toBe(addressLength);
+    expect(party1.addresses[0].type).toBe('billing');
+    expect(party1.addresses[0].addressLine1).toBe('36-B, Orchid Villa');
+    expect(party1.addresses[0].addressLine2).toBe('Harihar Nagar');
+    expect(party1.addresses[0].addressLine3).toBe('Pathalam');
+    expect(party1.addresses[0].addressLine4).toBe('Kochi');
+    expect(party1.addresses[0].state).toBe('Kerala');
+    expect(party1.addresses[0].country).toBe('India');
+    expect(party1.addresses[0].pinCode).toBe('682001');
+    expect(party1.addresses[0].landMark).toBe('Behind EMS Library');
 
-    expect(party1.adresses[1].type).toBe('delivery');
-    expect(party1.adresses[1].addressLine1).toBe('36-C, Orchid Villa');
-    expect(party1.adresses[1].addressLine2).toBe('Harihar Valley');
-    expect(party1.adresses[1].addressLine3).toBe('Chekuthanmukku');
-    expect(party1.adresses[1].addressLine4).toBe('Kothamangalam');
-    expect(party1.adresses[1].state).toBe('Kerala');
-    expect(party1.adresses[1].country).toBe('India');
-    expect(party1.adresses[1].pinCode).toBe('682001');
-    expect(party1.adresses[1].landMark).toBe('Behind EMS Library');
+    expect(party1.addresses[1].type).toBe('delivery');
+    expect(party1.addresses[1].addressLine1).toBe('36-C, Orchid Villa');
+    expect(party1.addresses[1].addressLine2).toBe('Harihar Valley');
+    expect(party1.addresses[1].addressLine3).toBe('Chekuthanmukku');
+    expect(party1.addresses[1].addressLine4).toBe('Kothamangalam');
+    expect(party1.addresses[1].state).toBe('Kerala');
+    expect(party1.addresses[1].country).toBe('India');
+    expect(party1.addresses[1].pinCode).toBe('682001');
+    expect(party1.addresses[1].landMark).toBe('Behind EMS Library');
     expect(party1.registrationNumbers.length).toBe(1);
     expect(party1.registrationNumbers[0].name).toBe('GST Number');
     expect(party1.registrationNumbers[0].value).toBe('AABBCCDDEEFF');
@@ -438,7 +438,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -485,26 +485,26 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.isCustomer).toBe(true);
     expect(party1.isVendor).toBe(false);
     const addressLength = 2;
-    expect(party1.adresses.length).toBe(addressLength);
-    expect(party1.adresses[0].type).toBe('billing');
-    expect(party1.adresses[0].addressLine1).toBe('36-B, Orchid Villa');
-    expect(party1.adresses[0].addressLine2).toBe('Harihar Nagar');
-    expect(party1.adresses[0].addressLine3).toBe('Pathalam');
-    expect(party1.adresses[0].addressLine4).toBe('Kochi');
-    expect(party1.adresses[0].state).toBe('Kerala');
-    expect(party1.adresses[0].country).toBe('India');
-    expect(party1.adresses[0].pinCode).toBe('682001');
-    expect(party1.adresses[0].landMark).toBe('Behind EMS Library');
+    expect(party1.addresses.length).toBe(addressLength);
+    expect(party1.addresses[0].type).toBe('billing');
+    expect(party1.addresses[0].addressLine1).toBe('36-B, Orchid Villa');
+    expect(party1.addresses[0].addressLine2).toBe('Harihar Nagar');
+    expect(party1.addresses[0].addressLine3).toBe('Pathalam');
+    expect(party1.addresses[0].addressLine4).toBe('Kochi');
+    expect(party1.addresses[0].state).toBe('Kerala');
+    expect(party1.addresses[0].country).toBe('India');
+    expect(party1.addresses[0].pinCode).toBe('682001');
+    expect(party1.addresses[0].landMark).toBe('Behind EMS Library');
 
-    expect(party1.adresses[1].type).toBe('delivery');
-    expect(party1.adresses[1].addressLine1).toBe('36-C, Orchid Villa');
-    expect(party1.adresses[1].addressLine2).toBe('Harihar Valley');
-    expect(party1.adresses[1].addressLine3).toBe('Chekuthanmukku');
-    expect(party1.adresses[1].addressLine4).toBe('Kothamangalam');
-    expect(party1.adresses[1].state).toBe('Kerala');
-    expect(party1.adresses[1].country).toBe('India');
-    expect(party1.adresses[1].pinCode).toBe('682001');
-    expect(party1.adresses[1].landMark).toBe('Behind EMS Library');
+    expect(party1.addresses[1].type).toBe('delivery');
+    expect(party1.addresses[1].addressLine1).toBe('36-C, Orchid Villa');
+    expect(party1.addresses[1].addressLine2).toBe('Harihar Valley');
+    expect(party1.addresses[1].addressLine3).toBe('Chekuthanmukku');
+    expect(party1.addresses[1].addressLine4).toBe('Kothamangalam');
+    expect(party1.addresses[1].state).toBe('Kerala');
+    expect(party1.addresses[1].country).toBe('India');
+    expect(party1.addresses[1].pinCode).toBe('682001');
+    expect(party1.addresses[1].landMark).toBe('Behind EMS Library');
     const regLength = 2;
     expect(party1.registrationNumbers.length).toBe(regLength);
     expect(party1.registrationNumbers[0].name).toBe('GST Number');
@@ -525,7 +525,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one0',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing0',
             addressLine1: '36-B, Orchid Villa0',
@@ -555,7 +555,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -586,16 +586,16 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.email).toBe('john.honai@fiveby.one');
     expect(party1.isCustomer).toBe(true);
     expect(party1.isVendor).toBe(false);
-    expect(party1.adresses.length).toBe(1);
-    expect(party1.adresses[0].type).toBe('billing');
-    expect(party1.adresses[0].addressLine1).toBe('36-B, Orchid Villa');
-    expect(party1.adresses[0].addressLine2).toBe('Harihar Nagar');
-    expect(party1.adresses[0].addressLine3).toBe('Pathalam');
-    expect(party1.adresses[0].addressLine4).toBe('Kochi');
-    expect(party1.adresses[0].state).toBe('Kerala');
-    expect(party1.adresses[0].country).toBe('India');
-    expect(party1.adresses[0].pinCode).toBe('682001');
-    expect(party1.adresses[0].landMark).toBe('Behind EMS Library');
+    expect(party1.addresses.length).toBe(1);
+    expect(party1.addresses[0].type).toBe('billing');
+    expect(party1.addresses[0].addressLine1).toBe('36-B, Orchid Villa');
+    expect(party1.addresses[0].addressLine2).toBe('Harihar Nagar');
+    expect(party1.addresses[0].addressLine3).toBe('Pathalam');
+    expect(party1.addresses[0].addressLine4).toBe('Kochi');
+    expect(party1.addresses[0].state).toBe('Kerala');
+    expect(party1.addresses[0].country).toBe('India');
+    expect(party1.addresses[0].pinCode).toBe('682001');
+    expect(party1.addresses[0].landMark).toBe('Behind EMS Library');
     expect(party1.registrationNumbers.length).toBe(1);
     expect(party1.registrationNumbers[0].name).toBe('GST Number');
     expect(party1.registrationNumbers[0].value).toBe('AABBCCDDEEFF');
@@ -612,7 +612,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one0',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing0',
             addressLine1: '36-B, Orchid Villa0',
@@ -642,7 +642,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -676,7 +676,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one0',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing0',
             addressLine1: '36-B, Orchid Villa0',
@@ -706,7 +706,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -740,7 +740,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one0',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing0',
             addressLine1: '36-B, Orchid Villa0',
@@ -770,7 +770,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one1',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing1',
             addressLine1: '36-B, Orchid Villa1',
@@ -800,7 +800,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one0',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing0',
             addressLine1: '36-B, Orchid Villa0',
@@ -834,7 +834,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one0',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing0',
             addressLine1: '36-B, Orchid Villa0',
@@ -864,7 +864,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -898,7 +898,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one0',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing0',
             addressLine1: '36-B, Orchid Villa0',
@@ -928,7 +928,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -962,7 +962,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one0',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing0',
             addressLine1: '36-B, Orchid Villa0',
@@ -992,7 +992,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [],
+        addresses: [],
         registrationNumbers: [
           {
             name: 'GST Number',
@@ -1014,7 +1014,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one0',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing0',
             addressLine1: '36-B, Orchid Villa0',
@@ -1044,7 +1044,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: null,
+        addresses: null,
         registrationNumbers: [
           {
             name: 'GST Number',
@@ -1066,7 +1066,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one0',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing0',
             addressLine1: '36-B, Orchid Villa0',
@@ -1096,7 +1096,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -1139,26 +1139,26 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.isCustomer).toBe(true);
     expect(party1.isVendor).toBe(false);
     const addressLength = 2;
-    expect(party1.adresses.length).toBe(addressLength);
-    expect(party1.adresses[0].type).toBe('billing');
-    expect(party1.adresses[0].addressLine1).toBe('36-B, Orchid Villa');
-    expect(party1.adresses[0].addressLine2).toBe('Harihar Nagar');
-    expect(party1.adresses[0].addressLine3).toBe('Pathalam');
-    expect(party1.adresses[0].addressLine4).toBe('Kochi');
-    expect(party1.adresses[0].state).toBe('Kerala');
-    expect(party1.adresses[0].country).toBe('India');
-    expect(party1.adresses[0].pinCode).toBe('682001');
-    expect(party1.adresses[0].landMark).toBe('Behind EMS Library');
+    expect(party1.addresses.length).toBe(addressLength);
+    expect(party1.addresses[0].type).toBe('billing');
+    expect(party1.addresses[0].addressLine1).toBe('36-B, Orchid Villa');
+    expect(party1.addresses[0].addressLine2).toBe('Harihar Nagar');
+    expect(party1.addresses[0].addressLine3).toBe('Pathalam');
+    expect(party1.addresses[0].addressLine4).toBe('Kochi');
+    expect(party1.addresses[0].state).toBe('Kerala');
+    expect(party1.addresses[0].country).toBe('India');
+    expect(party1.addresses[0].pinCode).toBe('682001');
+    expect(party1.addresses[0].landMark).toBe('Behind EMS Library');
 
-    expect(party1.adresses[1].type).toBe('delivery');
-    expect(party1.adresses[1].addressLine1).toBe('36-C, Orchid Villa');
-    expect(party1.adresses[1].addressLine2).toBe('Harihar Valley');
-    expect(party1.adresses[1].addressLine3).toBe('Monvila');
-    expect(party1.adresses[1].addressLine4).toBe('Trivandrum');
-    expect(party1.adresses[1].state).toBe('Kerala');
-    expect(party1.adresses[1].country).toBe('India');
-    expect(party1.adresses[1].pinCode).toBe('689007');
-    expect(party1.adresses[1].landMark).toBe('Near AKG Library');
+    expect(party1.addresses[1].type).toBe('delivery');
+    expect(party1.addresses[1].addressLine1).toBe('36-C, Orchid Villa');
+    expect(party1.addresses[1].addressLine2).toBe('Harihar Valley');
+    expect(party1.addresses[1].addressLine3).toBe('Monvila');
+    expect(party1.addresses[1].addressLine4).toBe('Trivandrum');
+    expect(party1.addresses[1].state).toBe('Kerala');
+    expect(party1.addresses[1].country).toBe('India');
+    expect(party1.addresses[1].pinCode).toBe('689007');
+    expect(party1.addresses[1].landMark).toBe('Near AKG Library');
     expect(party1.registrationNumbers.length).toBe(1);
     expect(party1.registrationNumbers[0].name).toBe('GST Number');
     expect(party1.registrationNumbers[0].value).toBe('AABBCCDDEEFF');
@@ -1175,7 +1175,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one0',
         isCustomer: false,
         isVendor: true,
-        adresses: [
+        addresses: [
           {
             type: 'billing0',
             addressLine1: '36-B, Orchid Villa0',
@@ -1205,7 +1205,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -1252,26 +1252,26 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.isCustomer).toBe(true);
     expect(party1.isVendor).toBe(false);
     const addressLength = 2;
-    expect(party1.adresses.length).toBe(addressLength);
-    expect(party1.adresses[0].type).toBe('billing');
-    expect(party1.adresses[0].addressLine1).toBe('36-B, Orchid Villa');
-    expect(party1.adresses[0].addressLine2).toBe('Harihar Nagar');
-    expect(party1.adresses[0].addressLine3).toBe('Pathalam');
-    expect(party1.adresses[0].addressLine4).toBe('Kochi');
-    expect(party1.adresses[0].state).toBe('Kerala');
-    expect(party1.adresses[0].country).toBe('India');
-    expect(party1.adresses[0].pinCode).toBe('682001');
-    expect(party1.adresses[0].landMark).toBe('Behind EMS Library');
+    expect(party1.addresses.length).toBe(addressLength);
+    expect(party1.addresses[0].type).toBe('billing');
+    expect(party1.addresses[0].addressLine1).toBe('36-B, Orchid Villa');
+    expect(party1.addresses[0].addressLine2).toBe('Harihar Nagar');
+    expect(party1.addresses[0].addressLine3).toBe('Pathalam');
+    expect(party1.addresses[0].addressLine4).toBe('Kochi');
+    expect(party1.addresses[0].state).toBe('Kerala');
+    expect(party1.addresses[0].country).toBe('India');
+    expect(party1.addresses[0].pinCode).toBe('682001');
+    expect(party1.addresses[0].landMark).toBe('Behind EMS Library');
 
-    expect(party1.adresses[1].type).toBe('delivery');
-    expect(party1.adresses[1].addressLine1).toBe('36-C, Orchid Villa');
-    expect(party1.adresses[1].addressLine2).toBe('Harihar Valley');
-    expect(party1.adresses[1].addressLine3).toBe('Monvila');
-    expect(party1.adresses[1].addressLine4).toBe('Trivandrum');
-    expect(party1.adresses[1].state).toBe('Kerala');
-    expect(party1.adresses[1].country).toBe('India');
-    expect(party1.adresses[1].pinCode).toBe('689007');
-    expect(party1.adresses[1].landMark).toBe('Near AKG Library');
+    expect(party1.addresses[1].type).toBe('delivery');
+    expect(party1.addresses[1].addressLine1).toBe('36-C, Orchid Villa');
+    expect(party1.addresses[1].addressLine2).toBe('Harihar Valley');
+    expect(party1.addresses[1].addressLine3).toBe('Monvila');
+    expect(party1.addresses[1].addressLine4).toBe('Trivandrum');
+    expect(party1.addresses[1].state).toBe('Kerala');
+    expect(party1.addresses[1].country).toBe('India');
+    expect(party1.addresses[1].pinCode).toBe('689007');
+    expect(party1.addresses[1].landMark).toBe('Near AKG Library');
     const regLength = 2;
     expect(party1.registrationNumbers.length).toBe(regLength);
     expect(party1.registrationNumbers[0].name).toBe('GST Number');
@@ -1300,7 +1300,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -1349,26 +1349,26 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.isCustomer).toBe(true);
     expect(party1.isVendor).toBe(false);
     const addressLength = 2;
-    expect(party1.adresses.length).toBe(addressLength);
-    expect(party1.adresses[0].type).toBe('billing');
-    expect(party1.adresses[0].addressLine1).toBe('36-B, Orchid Villa');
-    expect(party1.adresses[0].addressLine2).toBe('Harihar Nagar');
-    expect(party1.adresses[0].addressLine3).toBe('Pathalam');
-    expect(party1.adresses[0].addressLine4).toBe('Kochi');
-    expect(party1.adresses[0].state).toBe('Kerala');
-    expect(party1.adresses[0].country).toBe('India');
-    expect(party1.adresses[0].pinCode).toBe('682001');
-    expect(party1.adresses[0].landMark).toBe('Behind EMS Library');
+    expect(party1.addresses.length).toBe(addressLength);
+    expect(party1.addresses[0].type).toBe('billing');
+    expect(party1.addresses[0].addressLine1).toBe('36-B, Orchid Villa');
+    expect(party1.addresses[0].addressLine2).toBe('Harihar Nagar');
+    expect(party1.addresses[0].addressLine3).toBe('Pathalam');
+    expect(party1.addresses[0].addressLine4).toBe('Kochi');
+    expect(party1.addresses[0].state).toBe('Kerala');
+    expect(party1.addresses[0].country).toBe('India');
+    expect(party1.addresses[0].pinCode).toBe('682001');
+    expect(party1.addresses[0].landMark).toBe('Behind EMS Library');
 
-    expect(party1.adresses[1].type).toBe('delivery');
-    expect(party1.adresses[1].addressLine1).toBe('36-C, Orchid Villa');
-    expect(party1.adresses[1].addressLine2).toBe('Harihar Valley');
-    expect(party1.adresses[1].addressLine3).toBe('Monvila');
-    expect(party1.adresses[1].addressLine4).toBe('Trivandrum');
-    expect(party1.adresses[1].state).toBe('Kerala');
-    expect(party1.adresses[1].country).toBe('India');
-    expect(party1.adresses[1].pinCode).toBe('689007');
-    expect(party1.adresses[1].landMark).toBe('Near AKG Library');
+    expect(party1.addresses[1].type).toBe('delivery');
+    expect(party1.addresses[1].addressLine1).toBe('36-C, Orchid Villa');
+    expect(party1.addresses[1].addressLine2).toBe('Harihar Valley');
+    expect(party1.addresses[1].addressLine3).toBe('Monvila');
+    expect(party1.addresses[1].addressLine4).toBe('Trivandrum');
+    expect(party1.addresses[1].state).toBe('Kerala');
+    expect(party1.addresses[1].country).toBe('India');
+    expect(party1.addresses[1].pinCode).toBe('689007');
+    expect(party1.addresses[1].landMark).toBe('Near AKG Library');
     const regLength = 2;
     expect(party1.registrationNumbers.length).toBe(regLength);
     expect(party1.registrationNumbers[0].name).toBe('GST Number');
@@ -1388,7 +1388,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -1435,26 +1435,26 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.isCustomer).toBe(true);
     expect(party1.isVendor).toBe(false);
     const addressLength = 2;
-    expect(party1.adresses.length).toBe(addressLength);
-    expect(party1.adresses[0].type).toBe('billing');
-    expect(party1.adresses[0].addressLine1).toBe('36-B, Orchid Villa');
-    expect(party1.adresses[0].addressLine2).toBe('Harihar Nagar');
-    expect(party1.adresses[0].addressLine3).toBe('Pathalam');
-    expect(party1.adresses[0].addressLine4).toBe('Kochi');
-    expect(party1.adresses[0].state).toBe('Kerala');
-    expect(party1.adresses[0].country).toBe('India');
-    expect(party1.adresses[0].pinCode).toBe('682001');
-    expect(party1.adresses[0].landMark).toBe('Behind EMS Library');
+    expect(party1.addresses.length).toBe(addressLength);
+    expect(party1.addresses[0].type).toBe('billing');
+    expect(party1.addresses[0].addressLine1).toBe('36-B, Orchid Villa');
+    expect(party1.addresses[0].addressLine2).toBe('Harihar Nagar');
+    expect(party1.addresses[0].addressLine3).toBe('Pathalam');
+    expect(party1.addresses[0].addressLine4).toBe('Kochi');
+    expect(party1.addresses[0].state).toBe('Kerala');
+    expect(party1.addresses[0].country).toBe('India');
+    expect(party1.addresses[0].pinCode).toBe('682001');
+    expect(party1.addresses[0].landMark).toBe('Behind EMS Library');
 
-    expect(party1.adresses[1].type).toBe('delivery');
-    expect(party1.adresses[1].addressLine1).toBe('36-C, Orchid Villa');
-    expect(party1.adresses[1].addressLine2).toBe('Harihar Valley');
-    expect(party1.adresses[1].addressLine3).toBe('Monvila');
-    expect(party1.adresses[1].addressLine4).toBe('Trivandrum');
-    expect(party1.adresses[1].state).toBe('Kerala');
-    expect(party1.adresses[1].country).toBe('India');
-    expect(party1.adresses[1].pinCode).toBe('689007');
-    expect(party1.adresses[1].landMark).toBe('Near AKG Library');
+    expect(party1.addresses[1].type).toBe('delivery');
+    expect(party1.addresses[1].addressLine1).toBe('36-C, Orchid Villa');
+    expect(party1.addresses[1].addressLine2).toBe('Harihar Valley');
+    expect(party1.addresses[1].addressLine3).toBe('Monvila');
+    expect(party1.addresses[1].addressLine4).toBe('Trivandrum');
+    expect(party1.addresses[1].state).toBe('Kerala');
+    expect(party1.addresses[1].country).toBe('India');
+    expect(party1.addresses[1].pinCode).toBe('689007');
+    expect(party1.addresses[1].landMark).toBe('Near AKG Library');
     const regLength = 2;
     expect(party1.registrationNumbers.length).toBe(regLength);
     expect(party1.registrationNumbers[0].name).toBe('GST Number');
@@ -1474,7 +1474,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -1531,7 +1531,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -1586,7 +1586,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: true,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',
@@ -1648,7 +1648,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
         email: 'john.honai@fiveby.one',
         isCustomer: false,
         isVendor: false,
-        adresses: [
+        addresses: [
           {
             type: 'billing',
             addressLine1: '36-B, Orchid Villa',

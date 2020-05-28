@@ -58,7 +58,7 @@ const partySchemaDef: SchemaDef<PartyS> = {
   isVendor: {
     type: Boolean,
   },
-  adresses: {
+  addresses: {
     type: [ {
       type: {
         type: String,
@@ -98,7 +98,7 @@ const partySchemaDef: SchemaDef<PartyS> = {
       },
       message: () => {
 
-        return 'Adress is required.';
+        return 'Address is required.';
 
       }
     },
