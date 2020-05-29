@@ -5,6 +5,7 @@ import './Sales.scss';
 import { SelectProps } from 'antd/lib/select';
 import { getAuthHeaders } from '../../../session';
 import moment from 'moment';
+import { Product as ProductEntity, ProductSale as ProductSaleEntity} from 'fivebyone';
 
 const columns = [
   {
@@ -125,7 +126,7 @@ const PartyDetails = function() {
 interface SaleState {
   options: SelectProps<object>['options'];
   selectedProductId: string;
-  seleProducts: App.ProductSale[];
+  seleProducts: ProductSaleEntity[];
 }
 
 export class SalesReturn extends React.Component<{}, SaleState> {
@@ -133,10 +134,10 @@ export class SalesReturn extends React.Component<{}, SaleState> {
   state = {
     options: [],
     selectedProductId: '',
-    seleProducts: Array<App.ProductSale>(0),
+    seleProducts: Array<ProductSaleEntity>(0),
   };
 
-  products: App.Product[] = [];
+  products: ProductEntity[] = [];
 
   private handleSearch = (value: string) => {
 
@@ -152,7 +153,7 @@ export class SalesReturn extends React.Component<{}, SaleState> {
 
   private onProductSelect = (value: string) => {
 
-    const existingP: App.ProductSale = this.state.seleProducts.find((saleP) => {
+    const existingP: ProductSaleEntity = this.state.seleProducts.find((saleP) => {
 
       return saleP.productId === value;
 
@@ -167,22 +168,24 @@ export class SalesReturn extends React.Component<{}, SaleState> {
 
     } else {
 
-      const selectedProduct: App.Product = this.products.find((product) => {
+      const selectedProduct: ProductEntity = this.products.find((product) => {
 
         return product._id === value;
 
       })!;
-      const productSale: App.ProductSale = {
+      const productSale: ProductSaleEntity = {
         ...selectedProduct,
         _id: '',
         name: selectedProduct?.name,
         barcode: selectedProduct?.barcode,
         productId: selectedProduct?._id,
-        price: selectedProduct?.price,
+        // Price: selectedProduct?.price,
+        price: 1,
         quantity: 1,
         discount: 0,
         tax: 0,
-        total: selectedProduct?.price,
+        // Total: selectedProduct?.price,
+        total: 1,
       };
       this.setState({ seleProducts: [ ...this.state.seleProducts, productSale ] });
 
@@ -215,7 +218,8 @@ export class SalesReturn extends React.Component<{}, SaleState> {
             >
               <span>{productF.name}</span>
               <span>{productF.barcode}</span>
-              <span>{productF.price}</span>
+              {/* <span>{productF.price}</span> */}
+              <span>1</span>
             </div>
           ,
         };
@@ -226,7 +230,7 @@ export class SalesReturn extends React.Component<{}, SaleState> {
 
   public async componentDidMount() {
 
-    const response = await axios.get<App.Product[]>('/api/products', { headers: getAuthHeaders() });
+    const response = await axios.get<ProductEntity[]>('/api/products', { headers: getAuthHeaders() });
     this.products = response.data;
 
   }

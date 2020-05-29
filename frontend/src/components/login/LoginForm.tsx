@@ -4,6 +4,7 @@ import { Button, Form, Input, message } from 'antd';
 import { setSession } from '../../session';
 
 import './LoginForm.scss';
+import { AuthUris } from 'fivebyone';
 
 const layout = {
   labelCol: {
@@ -87,7 +88,7 @@ export class LoginForm extends React.Component<Props, {}> {
       this.setState({
         isRequesting: true,
       });
-      const response = await axios.post<{ token: string; expiry: string }>('/api/users/login', {
+      const response = await axios.post<{ token: string; expiry: string }>(`${AuthUris.USER_URI}/login`, {
         email,
         password,
       });
