@@ -5,6 +5,7 @@ import { AutoComplete, Button, Col, Input, Layout, Row, Table, DatePicker } from
 import Select, { SelectProps } from 'antd/lib/select';
 import { getAuthHeaders } from '../../../session';
 import moment from 'moment';
+import {Product as ProductEntity, ProductSale as PoductSaleEntity} from 'fivebyone';
 
 const { Option } = Select;
 
@@ -114,7 +115,7 @@ const PartyDetails = function() {
 interface SaleState {
   options: SelectProps<object>['options'];
   selectedProductId: string;
-  seleProducts: App.ProductSale[];
+  seleProducts: PoductSaleEntity[];
 }
 
 export class ExcessShortDamage extends Component {
@@ -122,10 +123,10 @@ export class ExcessShortDamage extends Component {
   state = {
     options: [],
     selectedProductId: '',
-    seleProducts: Array<App.ProductSale>(0),
+    seleProducts: Array<PoductSaleEntity>(0),
   };
 
-  products: App.Product[] = [];
+  products: ProductEntity[] = [];
 
   private handleSearch = (value: string) => {
 
@@ -141,7 +142,7 @@ export class ExcessShortDamage extends Component {
 
   private onProductSelect = (value: string) => {
 
-    const existingP: App.ProductSale = this.state.seleProducts.find((saleP) => {
+    const existingP: PoductSaleEntity = this.state.seleProducts.find((saleP) => {
 
       return saleP.productId === value;
 
@@ -156,22 +157,24 @@ export class ExcessShortDamage extends Component {
 
     } else {
 
-      const selectedProduct: App.Product = this.products.find((product) => {
+      const selectedProduct: ProductEntity = this.products.find((product) => {
 
         return product._id === value;
 
       })!;
-      const productSale: App.ProductSale = {
+      const productSale: PoductSaleEntity = {
         ...selectedProduct,
         _id: '',
         name: selectedProduct?.name,
         barcode: selectedProduct?.barcode,
         productId: selectedProduct?._id,
-        price: selectedProduct?.price,
+        // Price: selectedProduct?.price,
+        price: 1,
         quantity: 1,
         discount: 0,
         tax: 0,
-        total: selectedProduct?.price,
+        // Total: selectedProduct?.price,
+        total: 1,
       };
       this.setState({ seleProducts: [ ...this.state.seleProducts, productSale ] });
 
@@ -204,7 +207,8 @@ export class ExcessShortDamage extends Component {
             >
               <span>{productF.name}</span>
               <span>{productF.barcode}</span>
-              <span>{productF.price}</span>
+              {/* <span>{productF.price}</span> */}
+              <span>1</span>
             </div>
           ,
         };
@@ -215,7 +219,7 @@ export class ExcessShortDamage extends Component {
 
   public async componentDidMount() {
 
-    const response = await axios.get<App.Product[]>('/api/products', { headers: getAuthHeaders() });
+    const response = await axios.get<ProductEntity[]>('/api/products', { headers: getAuthHeaders() });
     this.products = response.data;
 
   }

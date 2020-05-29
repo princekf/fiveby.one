@@ -16,6 +16,8 @@ import {Party, PartyS} from './entity/inventory/Party';
 export {Party, PartyS};
 import {Purchase, PurchaseS} from './entity/inventory/Purchase';
 export {Purchase, PurchaseS};
+import {ProductSale, ProductSaleS} from './entity/inventory/ProductSale';
+export {ProductSale, ProductSaleS};
 import {User, UserS} from './entity/auth/User';
 export {User, UserS};
 

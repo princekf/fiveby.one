@@ -5,6 +5,7 @@ import './Sales.scss';
 import { SelectProps } from 'antd/lib/select';
 import { getAuthHeaders } from '../../../session';
 import moment from 'moment';
+import { ProductSale as ProductSaleEntity} from 'fivebyone';
 
 const columns = [
   {
@@ -170,7 +171,7 @@ const SavedSalesArea = function() {
 interface SaleState {
   options: SelectProps<object>['options'];
   selectedProductId: string;
-  seleProducts: App.ProductSale[];
+  seleProducts: ProductSaleEntity[];
 }
 
 export class Sales extends React.Component<{}, SaleState> {
@@ -178,10 +179,10 @@ export class Sales extends React.Component<{}, SaleState> {
   state = {
     options: [],
     selectedProductId: '',
-    seleProducts: Array<App.ProductSale>(0),
+    seleProducts: Array<ProductSaleEntity>(0),
   };
 
-  products: App.Product[] = [];
+  products: ProductSaleEntity[] = [];
 
   private handleSearch = (value: string) => {
 
@@ -197,7 +198,7 @@ export class Sales extends React.Component<{}, SaleState> {
 
   private onProductSelect = (value: string) => {
 
-    const existingP: App.ProductSale = this.state.seleProducts.find((saleP) => {
+    const existingP: ProductSaleEntity = this.state.seleProducts.find((saleP) => {
 
       return saleP.productId === value;
 
@@ -212,12 +213,12 @@ export class Sales extends React.Component<{}, SaleState> {
 
     } else {
 
-      const selectedProduct: App.Product = this.products.find((product) => {
+      const selectedProduct: ProductSaleEntity = this.products.find((product) => {
 
         return product._id === value;
 
       })!;
-      const productSale: App.ProductSale = {
+      const productSale: ProductSaleEntity = {
         ...selectedProduct,
         _id: '',
         name: selectedProduct?.name,
@@ -272,7 +273,7 @@ export class Sales extends React.Component<{}, SaleState> {
 
   public async componentDidMount() {
 
-    const response = await axios.get<App.Product[]>('/api/products', { headers: getAuthHeaders() });
+    const response = await axios.get<ProductSaleEntity[]>('/api/products', { headers: getAuthHeaders() });
     this.products = response.data;
 
   }
