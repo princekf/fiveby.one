@@ -6,7 +6,7 @@ import * as path from 'path';
 dotenv.config();
 
 // Import controllers
-import usersController from './users/users.controller';
+import usersController from './auth/user/user.controller';
 import productController from './inventory/product/product.controller';
 import taxController from './inventory/tax/tax.controller';
 import productGroupController from './inventory/productGroup/productGroup.controller';
@@ -16,12 +16,12 @@ import unitController from './inventory/unit/unit.controller';
 import colorController from './inventory/color/color.controller';
 import partyController from './inventory/party/party.controller';
 import purchaseController from './inventory/purchase/purchase.controller';
-import { InventoryUris } from 'fivebyone';
+import { InventoryUris, AuthUris } from 'fivebyone';
 // Create the express application
 const app = express();
 
 // Assign controllers to routes
-app.use('/api/users', usersController);
+app.use(AuthUris.USER_URI, usersController);
 app.use(InventoryUris.PRODUCT_URI, productController);
 app.use(InventoryUris.TAX_URI, taxController);
 app.use(InventoryUris.PRODUCT_GROUP_URI, productGroupController);

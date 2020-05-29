@@ -2,6 +2,8 @@ import {Constants} from './Constants';
 export {Constants};
 import {InventoryUris} from './InventoryUris';
 export {InventoryUris};
+import {AuthUris} from './AuthUris';
+export {AuthUris};
 import {TaxS, Tax} from './entity/inventory/Tax';
 export {TaxS, Tax};
 import {ProductS, Product} from './entity/inventory/Product';
@@ -14,6 +16,8 @@ import {Party, PartyS} from './entity/inventory/Party';
 export {Party, PartyS};
 import {Purchase, PurchaseS} from './entity/inventory/Purchase';
 export {Purchase, PurchaseS};
+import {User, UserS} from './entity/auth/User';
+export {User, UserS};
 
 export const Greeter = (name: string) => {
 

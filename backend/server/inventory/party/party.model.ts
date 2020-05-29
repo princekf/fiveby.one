@@ -77,12 +77,15 @@ const partySchemaDef: SchemaDef<PartyS> = {
       },
       state: {
         type: String,
+        index: true,
       },
       country: {
         type: String,
+        index: true,
       },
       pinCode: {
         type: String,
+        index: true,
       },
       landMark: {
         type: String,

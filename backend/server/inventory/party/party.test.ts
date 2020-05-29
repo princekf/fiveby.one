@@ -3,7 +3,7 @@ import * as MMS from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import * as request from 'supertest';
 import app from '../../app';
-import User from '../../users/user.model';
+import User from '../../auth/user/user.model';
 import Party from './party.model';
 import {Constants, Party as PartyEntity, InventoryUris} from 'fivebyone';
 

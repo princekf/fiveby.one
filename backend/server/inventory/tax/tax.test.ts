@@ -3,7 +3,7 @@ import * as MMS from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import * as request from 'supertest';
 import app from '../../app';
-import User from '../../users/user.model';
+import User from '../../auth/user/user.model';
 import Tax from './tax.model';
 import {Constants, Tax as TaxEntity, InventoryUris} from 'fivebyone';
 

@@ -2,7 +2,7 @@ import * as bodyParser from 'body-parser';
 import { Router as expressRouter } from 'express';
 import * as passport from 'passport';
 import { Strategy } from 'passport-local';
-import { authorize } from '../config';
+import { authorize } from '../../config';
 import User from './user.model';
 import {Constants} from 'fivebyone';
 

@@ -1,8 +1,8 @@
 import { pbkdf2Sync, randomBytes } from 'crypto';
 import { sign } from 'jsonwebtoken';
 import { Document, Schema, model } from 'mongoose';
-import { SchemaDef } from '../../types';
-import {Constants} from 'fivebyone';
+import { SchemaDef } from '../../../types';
+import {Constants, UserS} from 'fivebyone';
 
 const {SECOND_IN_MILLIE} = Constants;
 
@@ -10,26 +10,25 @@ const ITERATIONS = 100000;
 const KEY_LENGTH = 512;
 const EXPIRY_IN_MINUTES = 30;
 const BYTE_SIZE = 16;
-interface User {
-  // _id: any;
-  email: string;
+interface UserM extends UserS{
   hash: string;
   salt: string;
 }
 // Declare the model interface
-interface UserDoc extends User, Document {
+interface UserDoc extends UserM, Document {
   setPassword(password: string): void;
   isPasswordValid(password: string): boolean;
   generateJwt(): { token: string; expiry: Date };
 }
 
-const userSchemaDef: SchemaDef<User> = {
+const userSchemaDef: SchemaDef<UserM> = {
 
   email: {
     type: String,
-    // Important! We want users to be unique
     unique: true,
     required: true,
+    trim: true,
+    index: true,
   },
   hash: {
     type: String,
@@ -38,6 +37,49 @@ const userSchemaDef: SchemaDef<User> = {
   salt: {
     type: String,
     required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+    index: true,
+  },
+  mobile: {
+    type: String,
+    trim: true,
+    index: true,
+  },
+  addressLine1: {
+    type: String,
+    trim: true,
+    index: true,
+  },
+  addressLine2: {
+    type: String,
+    trim: true,
+  },
+  addressLine3: {
+    type: String,
+    trim: true,
+  },
+  addressLine4: {
+    type: String,
+    trim: true,
+  },
+  state: {
+    type: String,
+    trim: true,
+    index: true,
+  },
+  country: {
+    type: String,
+    trim: true,
+    index: true,
+  },
+  pinCode: {
+    type: String,
+    trim: true,
+    index: true,
   },
 };
 
