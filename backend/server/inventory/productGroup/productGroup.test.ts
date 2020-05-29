@@ -5,7 +5,7 @@ import * as request from 'supertest';
 import app from '../../app';
 import User from '../../auth/user/user.model';
 import ProductGroup from './productGroup.model';
-import {Constants, ProductGroup as ProductGroupEntity, InventoryUris} from 'fivebyone';
+import {Constants, ProductGroup as ProductGroupEntity, InventoryUris, AuthUris} from 'fivebyone';
 
 const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
 
@@ -23,12 +23,13 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
     });
     const user = new User();
     user.email = 'test@email.com';
-    user.setPassword('test-password');
+    user.name = 'Test User';
+    user.setPassword('Simple_123@');
     await user.save();
-    const response = await request(app).post('/api/users/login')
+    const response = await request(app).post(`${AuthUris.USER_URI}/login`)
       .send({
         email: 'test@email.com',
-        password: 'test-password',
+        password: 'Simple_123@',
       });
     const {body: {token}} = response;
     serverToken = token;

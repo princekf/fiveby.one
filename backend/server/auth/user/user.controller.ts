@@ -1,13 +1,12 @@
 import * as bodyParser from 'body-parser';
-import { Router as expressRouter } from 'express';
+import { Router as expressRouter} from 'express';
 import * as passport from 'passport';
 import { Strategy } from 'passport-local';
 import { authorize } from '../../config';
 import User from './user.model';
-import {Constants} from 'fivebyone';
+import { Constants, User as UserS } from 'fivebyone';
 
-const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
-
+const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
 passport.use(
   new Strategy(
     {
@@ -41,28 +40,7 @@ passport.use(
 
 const router = expressRouter();
 
-router.route('/register').post(bodyParser.json(), async(request, response) => {
-
-  try {
-
-    const user = new User();
-    user.email = request.body.email;
-    // Set the password hash with the method created in the model
-    user.setPassword(request.body.password);
-    await user.save();
-    // Returns a new token upon registering a user
-    const tokenSignature = user.generateJwt();
-    return response.status(HTTP_OK).json(tokenSignature);
-
-  } catch (error) {
-
-    return response.status(HTTP_BAD_REQUEST).send(error);
-
-  }
-
-});
-
-router.route('/login').post(bodyParser.json(), (request, response) => {
+const doLogin = (request: any, response: any) => {
 
   // Use passport to authenticate user login
   passport.authenticate('local', (error, user) => {
@@ -80,14 +58,112 @@ router.route('/login').post(bodyParser.json(), (request, response) => {
 
   })(request, response);
 
-});
+};
 
-// This is an example of a protected route. Notice that we call `authorize` in the first place!
-router.route('/profile').get(authorize, async(request: any, response) => {
+const getUser = async(request: any, response: any) => {
 
-  const user = await User.findById(request.user._id);
-  return response.status(HTTP_OK).json(user);
+  try {
 
-});
+    const user = await User.findById(request.params.id);
+    if (!user) {
+
+      return response.status(HTTP_BAD_REQUEST).send('No user with the specified id.');
+
+    }
+    return response.status(HTTP_OK).json(user);
+
+  } catch (error) {
+
+    return response.status(HTTP_BAD_REQUEST).send(error);
+
+  }
+
+};
+
+const saveUser = async(request: any, response: any) => {
+
+  try {
+
+    const user = new User(request.body);
+    try {
+
+      user.setPassword(request.body.password);
+
+    } catch (error) {
+    }
+    await user.save();
+    return response.status(HTTP_OK).json(user);
+
+  } catch (error) {
+
+    return response.status(HTTP_BAD_REQUEST).send(error);
+
+  }
+
+};
+
+const listAllUsers = async(request: any, response: any) => {
+
+  const users = await User.find();
+  return response.status(HTTP_OK).json(users);
+
+};
+
+const updateUser = async(request: any, response: any) => {
+
+  try {
+
+    const { id } = request.params;
+    const updateUserObject: UserS = request.body;
+    delete updateUserObject.email;
+
+    /*
+     * Const isExists = await UserUtil.isEmailExists( updateUserObject.email);
+     * if (isExists) {
+     */
+
+    //   Return response.status(HTTP_BAD_REQUEST).send('Cannot update user email');
+
+    // }
+
+    await User.updateOne({ _id: id }, updateUserObject, { runValidators: true });
+    return response.status(HTTP_OK).json(updateUserObject);
+
+  } catch (error) {
+
+    return response.status(HTTP_BAD_REQUEST).send(error);
+
+  }
+
+};
+
+const deleteUser = async(request: any, response: any) => {
+
+  try {
+
+    const { id } = request.params;
+    const resp = await User.deleteOne({ _id: id });
+    if (resp.deletedCount === 0) {
+
+      return response.status(HTTP_BAD_REQUEST).send('No user is deleted.');
+
+    }
+
+    return response.status(HTTP_OK).json('User deleted successfully.');
+
+  } catch (error) {
+
+    return response.status(HTTP_BAD_REQUEST).send(error);
+
+  }
+
+};
+
+router.route('/login').post(bodyParser.json(), doLogin);
+router.route('/:id').get(authorize, getUser);
+router.route('/').get(authorize, listAllUsers);
+router.route('/:id').put(authorize, bodyParser.json(), updateUser);
+router.route('/').post(authorize, bodyParser.json(), saveUser);
+router.route('/:id')['delete'](authorize, bodyParser.json(), deleteUser);
 
 export default router;

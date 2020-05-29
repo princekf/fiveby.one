@@ -10,8 +10,9 @@ const populateDatabase = async() => {
 
       console.warn(chalk.yellow('No users or items in the database, creating sample data...'));
       const user = new User();
+      user.name = 'Test User';
       user.email = 'testerp@xpeditions.in';
-      user.setPassword('Simple_123');
+      user.setPassword('Simple_123@');
       await user.save();
       console.warn(chalk.green('Sample user successfuly created!'));
 

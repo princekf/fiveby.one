@@ -3,6 +3,7 @@ import { sign } from 'jsonwebtoken';
 import { Document, Schema, model } from 'mongoose';
 import { SchemaDef } from '../../../types';
 import {Constants, UserS} from 'fivebyone';
+import { UserUtil } from './UserUtil';
 
 const {SECOND_IN_MILLIE} = Constants;
 
@@ -21,6 +22,20 @@ interface UserDoc extends UserM, Document {
   generateJwt(): { token: string; expiry: Date };
 }
 
+const validateEmail = (email: string): boolean => {
+
+  const emailRegEx = /^(?<name>[a-zA-Z0-9_\-\.]+)@(?<domain>[a-zA-Z0-9_\-\.]+)\.(?<extn>[a-zA-Z]{2,5})$/ugm;
+  return emailRegEx.test(email);
+
+};
+
+const validateMobile = (mobile: string): boolean => {
+
+  const mobileRegEx = /^(?<mobileNum>\+\d{1,3}[- ]?)?\d{10}$/ugm;
+  return mobileRegEx.test(mobile);
+
+};
+
 const userSchemaDef: SchemaDef<UserM> = {
 
   email: {
@@ -29,6 +44,14 @@ const userSchemaDef: SchemaDef<UserM> = {
     required: true,
     trim: true,
     index: true,
+    validate: {
+      validator: validateEmail,
+      message: (props) => {
+
+        return `${props.value} is not a valid email.`;
+
+      }
+    }
   },
   hash: {
     type: String,
@@ -48,6 +71,15 @@ const userSchemaDef: SchemaDef<UserM> = {
     type: String,
     trim: true,
     index: true,
+    validate: {
+      validator: validateMobile,
+      message: (props) => {
+
+        return `${props.value} is not a valid mobile number.`;
+
+      }
+    }
+
   },
   addressLine1: {
     type: String,
@@ -100,6 +132,11 @@ class UserClass {
   // Create a salt and hash from the password
   public setPassword(password: string) {
 
+    if (!UserUtil.validatePassword(password)) {
+
+      throw new Error('Password should have mininum 6 character, one upper case, one lower case, one digit, and one special character');
+
+    }
     this.salt = randomBytes(BYTE_SIZE).toString('hex');
     this.hash = pbkdf2Sync(password, this.salt, ITERATIONS, KEY_LENGTH, 'sha512').toString('hex');
 
