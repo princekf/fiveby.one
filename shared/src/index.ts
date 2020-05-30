@@ -20,6 +20,10 @@ import {ProductSale, ProductSaleS} from './entity/inventory/ProductSale';
 export {ProductSale, ProductSaleS};
 import {User, UserS} from './entity/auth/User';
 export {User, UserS};
+import {Permission, PermissionS} from './entity/auth/Permission';
+export {Permission, PermissionS};
+import {Company, CompanyS} from './entity/auth/Company';
+export {Company, CompanyS};
 
 export const Greeter = (name: string) => {
 
