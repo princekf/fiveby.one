@@ -37,9 +37,7 @@ export class Vendor extends Component<PState, {}> {
     partys: [],
     selectedParty: {
       _id: null,
-      name: null,
-      isCustomer: true,
-      isVendor: false
+      name: null
     }
   }
 
@@ -105,7 +103,7 @@ export class Vendor extends Component<PState, {}> {
       const response = await Axios['delete'](`${InventoryUris.PARTY_URI}/${selectedID}`, { headers: getAuthHeaders() });
       if (response.status !== HTTP_OK) {
 
-        message.error('Party delete failed, pelase try again', ERROR_MESSAGE_DISPLAY_TIME);
+        message.error('Party delete failed, please try again', ERROR_MESSAGE_DISPLAY_TIME);
 
       }
       if (this.formRef.current) {
@@ -123,7 +121,7 @@ export class Vendor extends Component<PState, {}> {
 
     } catch (err) {
 
-      message.error('Party delete failed, pelase try again', ERROR_MESSAGE_DISPLAY_TIME);
+      message.error('Party delete failed, please try again', ERROR_MESSAGE_DISPLAY_TIME);
 
     } finally {
 
@@ -188,8 +186,6 @@ export class Vendor extends Component<PState, {}> {
         const party: Party = response.data;
         const convertedObj = { ...party };
         this.setState({ selectedParty: convertedObj });
-        this.state.selectedParty.isCustomer = convertedObj.isCustomer;
-        this.state.selectedParty.isVendor = convertedObj.isVendor;
         if (formRef.current) {
 
           formRef.current.setFieldsValue(convertedObj);
@@ -415,7 +411,7 @@ export class Vendor extends Component<PState, {}> {
 
                       remove(field.name);
 
-                    }}> Delete Registration Row</Button> : null}
+                    }}> Delete registration row</Button> : null}
                   </Form.Item>
                   <hr />
                 </div>;
