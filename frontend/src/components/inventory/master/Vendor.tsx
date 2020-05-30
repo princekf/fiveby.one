@@ -469,7 +469,7 @@ export class Vendor extends Component<PState, {}> {
 
     return (
 
-      <Form {...layout} layout='horizontal' size='large' ref={this.formRef} onFinish={this.handlePartySubmit}>
+      <Form {...layout} layout='horizontal' size='small' ref={this.formRef} onFinish={this.handlePartySubmit}>
         <Form.Item name='_id' label='Hidden ID Field.' style={{ display: 'none' }} >
           <Input placeholder='Hidden field.' />
         </Form.Item>
