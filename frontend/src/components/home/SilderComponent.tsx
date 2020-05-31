@@ -57,26 +57,31 @@ const inventory = [
     name: 'Vendor',
     link: '/vendor'
   },
+  {
+    key: 11,
+    name: 'Unit',
+    link: '/unit'
+  },
 ];
 
 const finance = [
   {
-    key: 11,
+    key: 12,
     name: 'Cost Center',
     link: '/cost'
   },
   {
-    key: 12,
+    key: 13,
     name: 'Ledger',
     link: '/ledger'
   },
   {
-    key: 13,
+    key: 14,
     name: 'Ledger Group',
     link: '/ledgergroup'
   },
   {
-    key: 14,
+    key: 15,
     name: 'Ledger Property',
     link: '/ledgerproperty'
   }
@@ -143,6 +148,11 @@ export class SilderComponent extends Component {
 
             })}
           </SubMenu>
+          <Menu.Item key='16'>
+            <AppstoreOutlined />
+            <span>User</span>
+            <Link to='/user' />
+          </Menu.Item>
         </Menu>
       </div>
     );
