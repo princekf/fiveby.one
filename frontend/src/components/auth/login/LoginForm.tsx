@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { Button, Form, Input, message } from 'antd';
-import { setSession } from '../../session';
+import { setSession } from '../../../session';
 
 import './LoginForm.scss';
 import { AuthUris } from 'fivebyone';

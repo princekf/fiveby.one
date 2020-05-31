@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal } from 'antd';
 
-import { isSessionValid } from '../../session';
+import { isSessionValid } from '../../../session';
 import './LoginForm.scss';
 import LoginForm from './LoginForm';
 

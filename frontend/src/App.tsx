@@ -1,11 +1,11 @@
 import React from 'react';
 import { Redirect, Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import './App.scss';
-import LoginPage from './components/login/LoginPage';
+import LoginPage from './components/auth/login/LoginPage';
 import { clearSession, isSessionValid } from './session';
 import HomeContainer from './components/home/HomeContainer';
 import { Modal, Spin } from 'antd';
-import LoginForm from './components/login/LoginForm';
+import LoginForm from './components/auth/login/LoginForm';
 import TestContainer from './components/test/Test';
 import { Constants } from 'fivebyone';
 
