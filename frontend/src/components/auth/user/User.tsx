@@ -87,12 +87,12 @@ export class UserComponent extends Component<UState, {}> {
           <Input placeholder='Enter user email'/>
         </Form.Item>
         <Popover content={
-          <div>
+          <div style={{display:'flex', flexDirection:'column'}} >
             <p>1. Minimum 6 characters</p>
             <p>2. Minimum 1 Uppercase character</p>
             <p>3. Minimum 1 Lowercase character</p>
             <p>4. Minimum 1 Special character</p>
-            <Button type='primary' onClick={this.generatePassword} >Generate password</Button>
+            <Button type='primary' style={{margin:'0 auto'}} onClick={this.generatePassword} >Generate password</Button>
           </div>} title='Password Policy' trigger='focus'>
           <Form.Item name='password'label='Password' rules={[ {
             required: true,
