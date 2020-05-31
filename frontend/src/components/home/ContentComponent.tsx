@@ -17,6 +17,7 @@ import CostCenter from '../finance/CostCenter';
 import Ledger from '../finance/Ledger';
 import LedgerGroup from '../finance/LedgerGroup';
 import LedgerProperty from '../finance/LedgerProperty';
+import UserComponent from '../auth/user/User';
 
 const { Content } = Layout;
 
@@ -52,6 +53,7 @@ export class ContentComponent extends Component {
             <Route path='/ledger' component={Ledger} />
             <Route path='/ledgergroup' component={LedgerGroup} />
             <Route path='/ledgerproperty' component={LedgerProperty} />
+            <Route path='/user' component={UserComponent} />
           </Content>
         </Content>
       </div>

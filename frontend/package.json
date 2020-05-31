@@ -28,6 +28,7 @@
     "antd": "4.2.0",
     "axios": "0.19.2",
     "fivebyone": "link:../shared/",
+    "generate-password": "1.5.1",
     "node-sass": "4.14.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
