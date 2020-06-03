@@ -156,7 +156,7 @@ export class UserComponent extends Component<UState, {}> {
             onConfirm={this.handleUserDelete}
             disabled={!this.state.selectedUser._id}
           >
-            <Button type='primary' htmlType='button'>
+            <Button type='primary' htmlType='button' disabled={!this.state.selectedUser._id}>
               Delete
             </Button>
           </Popconfirm>
@@ -287,7 +287,7 @@ export class UserComponent extends Component<UState, {}> {
   private handleUserDelete = async(): Promise<void> => {
 
     const selectedID = this.formRef.current?.getFieldValue('_id');
-    const hideLodingMessage = message.loading('Deleting tax from server...');
+    const hideLodingMessage = message.loading('Deleting user from server...');
     const ERROR_MESSAGE_DISPLAY_TIME = 5;
     try {
 

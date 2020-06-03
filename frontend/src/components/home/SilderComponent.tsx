@@ -6,6 +6,32 @@ import './Home.scss';
 
 const { SubMenu } = Menu;
 
+const authentication = [
+  {
+    key: 111,
+    name: 'User',
+    link: '/user'
+  },
+  {
+    key: 112,
+    name: 'Company',
+    link: '/company'
+  },
+  {
+    key: 113,
+    name: 'Company Branch',
+    link: '/companyBranch'
+  },
+
+  /*
+   * {
+   *   key: 15,
+   *   name: 'Ledger Property',
+   *   link: '/ledgerproperty'
+   * }
+   */
+];
+
 const inventory = [
   {
     key: 1,
@@ -122,7 +148,20 @@ export class SilderComponent extends Component {
       <div>
         <Menu theme='dark' defaultSelectedKeys={[ '0' ]} mode='inline' openKeys={this.state.openKeys}
           onOpenChange={this.onOpenChange} >
-          <SubMenu key='sub1' icon={<MailOutlined />} title='Inventory'>
+          <SubMenu key='sub1' icon={<MailOutlined />} title='Authentication'>
+            {authentication.map((value) => {
+
+              return (
+                <Menu.Item key={value.key}>
+                  <AppstoreOutlined />
+                  <span>{value.name}</span>
+                  <Link to={value.link} />
+                </Menu.Item>
+              );
+
+            })}
+          </SubMenu>
+          <SubMenu key='sub2' icon={<MailOutlined />} title='Inventory'>
             {inventory.map((value) => {
 
               return (
@@ -135,7 +174,7 @@ export class SilderComponent extends Component {
 
             })}
           </SubMenu>
-          <SubMenu key='sub2' icon={<MailOutlined />} title='Finance'>
+          <SubMenu key='sub3' icon={<MailOutlined />} title='Finance'>
             {finance.map((value) => {
 
               return (
@@ -148,11 +187,6 @@ export class SilderComponent extends Component {
 
             })}
           </SubMenu>
-          <Menu.Item key='16'>
-            <AppstoreOutlined />
-            <span>User</span>
-            <Link to='/user' />
-          </Menu.Item>
         </Menu>
       </div>
     );
