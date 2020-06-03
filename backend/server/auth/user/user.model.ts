@@ -2,16 +2,16 @@ import { pbkdf2Sync, randomBytes } from 'crypto';
 import { sign } from 'jsonwebtoken';
 import { Document, Schema, model } from 'mongoose';
 import { SchemaDef } from '../../../types';
-import {Constants, UserS} from 'fivebyone';
-import { UserUtil } from './UserUtil';
+import { Constants, UserS } from 'fivebyone';
+import { UserUtil } from './user.util';
 
-const {SECOND_IN_MILLIE} = Constants;
+const { SECOND_IN_MILLIE } = Constants;
 
 const ITERATIONS = 100000;
 const KEY_LENGTH = 512;
 const EXPIRY_IN_MINUTES = 30;
 const BYTE_SIZE = 16;
-interface UserM extends UserS{
+interface UserM extends UserS {
   hash: string;
   salt: string;
 }
@@ -37,7 +37,14 @@ const validateMobile = (mobile: string): boolean => {
 };
 
 const userSchemaDef: SchemaDef<UserM> = {
-
+  company: {
+    type: Schema.Types.ObjectId,
+    ref: 'Company',
+    required: true,
+    trim: true,
+    index: true,
+    sparse: true,
+  },
   email: {
     type: String,
     unique: true,

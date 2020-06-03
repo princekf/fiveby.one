@@ -1,10 +1,11 @@
 import * as bodyParser from 'body-parser';
-import { Router as expressRouter} from 'express';
+import { Router as expressRouter } from 'express';
 import * as passport from 'passport';
 import { Strategy } from 'passport-local';
 import { authorize } from '../../config';
 import User from './user.model';
-import { Constants, User as UserS } from 'fivebyone';
+import Company from '../company/company.model';
+import { Constants, User as UserS, Company as CompanyEntity } from 'fivebyone';
 
 const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
 passport.use(
@@ -38,6 +39,28 @@ passport.use(
   ),
 );
 
+const isValidCompany = async(company: CompanyEntity): Promise<boolean> => {
+
+  if (!company) {
+
+    return false;
+
+  }
+  if (company && company._id) {
+
+    const companyData: CompanyEntity = await Company.findById(company._id);
+
+    if (companyData === null) {
+
+      return false;
+
+    }
+
+  }
+  return true;
+
+};
+
 const router = expressRouter();
 
 const doLogin = (request: any, response: any) => {
@@ -64,7 +87,7 @@ const getUser = async(request: any, response: any) => {
 
   try {
 
-    const user = await User.findById(request.params.id);
+    const user = await User.findById(request.params.id).populate('company');
     if (!user) {
 
       return response.status(HTTP_BAD_REQUEST).send('No user with the specified id.');
@@ -91,6 +114,13 @@ const saveUser = async(request: any, response: any) => {
 
     } catch (error) {
     }
+    const isValid: boolean = await isValidCompany(user.company);
+
+    if (!isValid) {
+
+      return response.status(HTTP_BAD_REQUEST).send('Company should be valid.');
+
+    }
     await user.save();
     return response.status(HTTP_OK).json(user);
 
@@ -104,7 +134,7 @@ const saveUser = async(request: any, response: any) => {
 
 const listAllUsers = async(request: any, response: any) => {
 
-  const users = await User.find();
+  const users = await User.find().populate('company');
   return response.status(HTTP_OK).json(users);
 
 };
@@ -125,7 +155,13 @@ const updateUser = async(request: any, response: any) => {
     //   Return response.status(HTTP_BAD_REQUEST).send('Cannot update user email');
 
     // }
+    const isValid: boolean = await isValidCompany(updateUserObject.company);
 
+    if (!isValid) {
+
+      return response.status(HTTP_BAD_REQUEST).send('Company should be valid.');
+
+    }
     await User.updateOne({ _id: id }, updateUserObject, { runValidators: true });
     return response.status(HTTP_OK).json(updateUserObject);
 

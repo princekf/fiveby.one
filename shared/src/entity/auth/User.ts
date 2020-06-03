@@ -1,4 +1,7 @@
+import { Company } from '../auth/Company';
+
 export interface UserS {
+  company: Company;
   name: string;
   mobile: string;
   email: string;

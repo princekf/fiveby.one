@@ -5,10 +5,23 @@ import * as request from 'supertest';
 import app from '../../app';
 import User from '../../auth/user/user.model';
 import Unit from './unit.model';
-import {Constants, Unit as UnitEntity, InventoryUris, ProductGroup as ProductGroupEntity, AuthUris} from 'fivebyone';
+import Company from '../../auth/company/company.model';
+import { Constants, Unit as UnitEntity, InventoryUris, ProductGroup as ProductGroupEntity, AuthUris, CompanyS as CompanyI } from 'fivebyone';
 
-const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
-
+const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
+const companyInputJSON: CompanyI = {
+  name: 'Mercedes Benz',
+  email: 'care@diamler.org',
+  addressLine1: 'Annai Nagar',
+  addressLine2: 'MGR Street',
+  addressLine3: 'Near Bakery road',
+  addressLine4: 'Chennai',
+  state: 'Tamil Nadu',
+  country: 'India',
+  pincode: '223344',
+  contact: '9656444108',
+  phone: '7907919930',
+};
 describe(`${InventoryUris.UNIT_URI} tests`, () => {
 
   const mongod = new MMS.MongoMemoryServer();
@@ -16,24 +29,36 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
   const kilogramDecimalPlaces = 3;
   const THOUSAND = 1000;
 
-  // Connect to mongoose mock, create a test user and get the access token
-  beforeAll(async() => {
+  const createTestUser = async() => {
 
     const uri = await mongod.getConnectionString();
     await mongoose.connect(uri, {
       useNewUrlParser: true,
     });
+    const company = new Company(companyInputJSON);
+    await company.save();
+    await request(app).post(AuthUris.COMPANY_URI)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send(companyInputJSON);
     const user = new User();
     user.email = 'test@email.com';
     user.name = 'Test User';
+    user.company = company;
     user.setPassword('Simple_123@');
     await user.save();
+
+  };
+
+  // Connect to mongoose mock, create a test user and get the access token
+  beforeAll(async() => {
+
+    await createTestUser();
     const response = await request(app).post(`${AuthUris.USER_URI}/login`)
       .send({
         email: 'test@email.com',
         password: 'Simple_123@',
       });
-    const {body: {token}} = response;
+    const { body: { token } } = response;
     serverToken = token;
 
   });
@@ -210,7 +235,7 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
     expect(response2.status).toBe(HTTP_OK);
     const savedUnit2: UnitEntity = response2.body;
 
-    await Unit.deleteOne({_id: savedUnit2._id});
+    await Unit.deleteOne({ _id: savedUnit2._id });
 
     const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
       .set('Authorization', `Bearer ${serverToken}`)
@@ -344,7 +369,7 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         decimalPlaces: 0,
       });
     expect(response2.status).toBe(HTTP_OK);
-    await Unit.deleteOne({_id: response2.body.id});
+    await Unit.deleteOne({ _id: response2.body.id });
 
     const response = await request(app).get(`${InventoryUris.UNIT_URI}/${response2.body.id}`)
       .set('Authorization', `Bearer ${serverToken}`);
@@ -586,7 +611,7 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response4.status).toBe(HTTP_OK);
     const savedUnit4: UnitEntity = response4.body;
-    await Unit.deleteOne({_id: response.body._id});
+    await Unit.deleteOne({ _id: response.body._id });
 
     const response3 = await request(app).put(`${InventoryUris.UNIT_URI}/${response2.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
@@ -793,7 +818,7 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         decimalPlaces: 0,
       });
     expect(response2.status).toBe(HTTP_OK);
-    await Unit.deleteOne({_id: response2.body.id});
+    await Unit.deleteOne({ _id: response2.body.id });
     const response3 = await request(app)['delete'](`${InventoryUris.UNIT_URI}/${response2.body.id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_BAD_REQUEST);
@@ -826,7 +851,7 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
     expect(savedUnit2.ancestors.length).toBe(1);
     expect(savedUnit2.baseUnit.name).toBe('Gram');
 
-    await Unit.deleteOne({_id: response2.body._id});
+    await Unit.deleteOne({ _id: response2.body._id });
     const response4 = await request(app).get(`${InventoryUris.UNIT_URI}/${response1.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     const unitAfterDeleteChild: UnitEntity = response4.body;

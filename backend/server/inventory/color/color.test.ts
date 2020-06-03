@@ -6,10 +6,23 @@ import app from '../../app';
 import User from '../../auth/user/user.model';
 import Product from '../product/product.model';
 import ProductGroup from '../productGroup/productGroup.model';
-import {Constants, ProductGroup as ProductGroupEntity, AuthUris} from 'fivebyone';
+import Company from '../../auth/company/company.model';
+import {Constants, ProductGroup as ProductGroupEntity, AuthUris, CompanyS as CompanyI} from 'fivebyone';
 
 const {HTTP_OK} = Constants;
-
+const companyInputJSON: CompanyI = {
+  name: 'Mercedes Benz',
+  email: 'care@diamler.org',
+  addressLine1: 'Annai Nagar',
+  addressLine2: 'MGR Street',
+  addressLine3: 'Near Bakery road',
+  addressLine4: 'Chennai',
+  state: 'Tamil Nadu',
+  country: 'India',
+  pincode: '223344',
+  contact: '9656444108',
+  phone: '7907919930',
+};
 describe('/api/inventory/color tests', () => {
 
   const mongod = new MMS.MongoMemoryServer();
@@ -22,9 +35,12 @@ describe('/api/inventory/color tests', () => {
     await mongoose.connect(uri, {
       useNewUrlParser: true,
     });
+    const company = new Company(companyInputJSON);
+    await company.save();
     const user = new User();
     user.email = 'test@email.com';
     user.name = 'Test User';
+    user.company = company;
     user.setPassword('Simple_123@');
     await user.save();
     const response = await request(app).post(`${AuthUris.USER_URI}/login`)

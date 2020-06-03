@@ -5,33 +5,57 @@ import * as request from 'supertest';
 import app from '../../app';
 import User from '../../auth/user/user.model';
 import Tax from './tax.model';
-import {Constants, Tax as TaxEntity, InventoryUris, AuthUris} from 'fivebyone';
+import Company from '../../auth/company/company.model';
+import { Constants, Tax as TaxEntity, InventoryUris, AuthUris, CompanyS as CompanyI } from 'fivebyone';
 
-const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
+const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
+const companyInputJSON: CompanyI = {
+  name: 'Mercedes Benz',
+  email: 'care@diamler.org',
+  addressLine1: 'Annai Nagar',
+  addressLine2: 'MGR Street',
+  addressLine3: 'Near Bakery road',
+  addressLine4: 'Chennai',
+  state: 'Tamil Nadu',
+  country: 'India',
+  pincode: '223344',
+  contact: '9656444108',
+  phone: '7907919930',
+};
 
 describe(`${InventoryUris.TAX_URI} tests`, () => {
 
   const mongod = new MMS.MongoMemoryServer();
   let serverToken = '';
-
-  // Connect to mongoose mock, create a test user and get the access token
-  beforeAll(async() => {
+  const createTestUser = async() => {
 
     const uri = await mongod.getConnectionString();
     await mongoose.connect(uri, {
       useNewUrlParser: true,
     });
+    const company = new Company(companyInputJSON);
+    await company.save();
+    await request(app).post(AuthUris.COMPANY_URI)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send(companyInputJSON);
     const user = new User();
     user.email = 'test@email.com';
     user.name = 'Test User';
+    user.company = company;
     user.setPassword('Simple_123@');
     await user.save();
+
+  };
+  // Connect to mongoose mock, create a test user and get the access token
+  beforeAll(async() => {
+
+    await createTestUser();
     const response = await request(app).post(`${AuthUris.USER_URI}/login`)
       .send({
         email: 'test@email.com',
         password: 'Simple_123@',
       });
-    const {body: {token}} = response;
+    const { body: { token } } = response;
     serverToken = token;
 
   });

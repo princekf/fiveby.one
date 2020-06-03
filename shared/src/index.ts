@@ -24,6 +24,8 @@ import {Permission, PermissionS} from './entity/auth/Permission';
 export {Permission, PermissionS};
 import {Company, CompanyS} from './entity/auth/Company';
 export {Company, CompanyS};
+import {CompanyBranch, CompanyBranchS} from './entity/auth/CompanyBranch';
+export {CompanyBranch, CompanyBranchS};
 
 export const Greeter = (name: string) => {
 
