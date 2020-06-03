@@ -6,7 +6,8 @@ import app from '../../app';
 import User from '../../auth/user/user.model';
 import Unit from './unit.model';
 import Company from '../../auth/company/company.model';
-import { Constants, Unit as UnitEntity, InventoryUris, ProductGroup as ProductGroupEntity, AuthUris, CompanyS as CompanyI } from 'fivebyone';
+import CompanyBranchM from '../../auth/companyBranch/companyBranch.model';
+import { Constants, Unit as UnitEntity, InventoryUris, ProductGroup as ProductGroupEntity, AuthUris, CompanyS as CompanyI, CompanyBranchS, CompanyBranch } from 'fivebyone';
 
 const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
 const companyInputJSON: CompanyI = {
@@ -22,12 +23,40 @@ const companyInputJSON: CompanyI = {
   contact: '9656444108',
   phone: '7907919930',
 };
+const companyBranchInput: CompanyBranchS = {
+  company: null,
+  name: null,
+  addressLine1: 'Panvel - Kochi - Kanyakumari Highway',
+  addressLine2: 'Vikas Nagar',
+  addressLine3: 'Maradu',
+  addressLine4: 'Ernakulam',
+  contact: '7907919930',
+  phone: '9656444108',
+  email: 'contactUs@rajasreeKochi.com',
+  state: 'Kerala',
+  country: 'India',
+  pincode: '685588',
+  finYears: [ {
+    name: '2019-20',
+    startDate: '2019-02-01',
+    endDate: '2020-02-01'
+  } ]
+};
 describe(`${InventoryUris.UNIT_URI} tests`, () => {
 
   const mongod = new MMS.MongoMemoryServer();
   let serverToken = '';
   const kilogramDecimalPlaces = 3;
   const THOUSAND = 1000;
+
+  const createCompanyBranch = async(companyBrInput: CompanyBranchS): Promise<CompanyBranch> => {
+
+    const companyBranch = new CompanyBranchM(companyBrInput);
+    await companyBranch.save();
+    const companyBranchEntity: CompanyBranch = await CompanyBranchM.findOne({ name: companyBranch.name });
+    return companyBranchEntity;
+
+  };
 
   const createTestUser = async() => {
 
@@ -44,6 +73,10 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
     user.email = 'test@email.com';
     user.name = 'Test User';
     user.company = company;
+    companyBranchInput.company = company;
+    companyBranchInput.name = 'five.byOne';
+    const companyBranch = await createCompanyBranch(companyBranchInput);
+    user.companyBranches = [ companyBranch ];
     user.setPassword('Simple_123@');
     await user.save();
 

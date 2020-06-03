@@ -1,4 +1,5 @@
 import { Company } from '../auth/Company';
+import { CompanyBranch } from '../auth/CompanyBranch';
 
 export interface UserS {
   company: Company;
@@ -12,6 +13,7 @@ export interface UserS {
   state: string;
   country: string;
   pinCode: string;
+  companyBranches: CompanyBranch[];
 }
 
 export interface User extends UserS {

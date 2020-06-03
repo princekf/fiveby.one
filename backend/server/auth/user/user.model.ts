@@ -120,6 +120,27 @@ const userSchemaDef: SchemaDef<UserM> = {
     trim: true,
     index: true,
   },
+  companyBranches: {
+    type: [ {
+      type: Schema.Types.ObjectId,
+      ref: 'CompanyBranch',
+      required: true,
+      index: true,
+    } ],
+    required: true,
+    validate: {
+      validator: (companyBranches: []): boolean => {
+
+        return companyBranches && companyBranches.length > 0;
+
+      },
+      message: () => {
+
+        return 'Company Branches is required.';
+
+      }
+    }
+  }
 };
 
 // Declare the model schema
