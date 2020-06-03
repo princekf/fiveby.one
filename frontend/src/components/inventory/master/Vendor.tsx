@@ -531,7 +531,7 @@ export class Vendor extends Component<PState, {}> {
         })}
         {record.registrationNumbers.map((registerNum, index) => {
 
-          if (registerNum.name && registerNum.name !== '' || registerNum.value && registerNum.value !== '') {
+          if ((registerNum.name && registerNum.name !== '') || (registerNum.value && registerNum.value !== '')) {
 
             return <Col span={4} key={index}>
               <Card title={`Registration Details ${index + 1}`} bordered={false} hoverable style={{ height: '100%' }}>
