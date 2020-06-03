@@ -18,6 +18,8 @@ import Ledger from '../finance/Ledger';
 import LedgerGroup from '../finance/LedgerGroup';
 import LedgerProperty from '../finance/LedgerProperty';
 import UserComponent from '../auth/user/User';
+import CompanyComponent from '../auth/company/Company';
+import CompanyBranchComponent from '../auth/companyBranch/CompanyBranch';
 
 const { Content } = Layout;
 
@@ -54,6 +56,8 @@ export class ContentComponent extends Component {
             <Route path='/ledgergroup' component={LedgerGroup} />
             <Route path='/ledgerproperty' component={LedgerProperty} />
             <Route path='/user' component={UserComponent} />
+            <Route path='/company' component={CompanyComponent} />
+            <Route path='/companyBranch' component={CompanyBranchComponent} />
           </Content>
         </Content>
       </div>
