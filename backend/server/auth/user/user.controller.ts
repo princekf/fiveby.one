@@ -87,7 +87,8 @@ const getUser = async(request: any, response: any) => {
 
   try {
 
-    const user = await User.findById(request.params.id).populate('company');
+    const user = await User.findById(request.params.id).populate('company')
+      .populate('companyBranch');
     if (!user) {
 
       return response.status(HTTP_BAD_REQUEST).send('No user with the specified id.');
@@ -114,9 +115,9 @@ const saveUser = async(request: any, response: any) => {
 
     } catch (error) {
     }
-    const isValid: boolean = await isValidCompany(user.company);
+    const isValidCom: boolean = await isValidCompany(user.company);
 
-    if (!isValid) {
+    if (!isValidCom) {
 
       return response.status(HTTP_BAD_REQUEST).send('Company should be valid.');
 
@@ -146,23 +147,17 @@ const updateUser = async(request: any, response: any) => {
     const { id } = request.params;
     const updateUserObject: UserS = request.body;
     delete updateUserObject.email;
+    const isValidCom: boolean = await isValidCompany(updateUserObject.company);
 
-    /*
-     * Const isExists = await UserUtil.isEmailExists( updateUserObject.email);
-     * if (isExists) {
-     */
-
-    //   Return response.status(HTTP_BAD_REQUEST).send('Cannot update user email');
-
-    // }
-    const isValid: boolean = await isValidCompany(updateUserObject.company);
-
-    if (!isValid) {
+    if (!isValidCom) {
 
       return response.status(HTTP_BAD_REQUEST).send('Company should be valid.');
 
     }
-    await User.updateOne({ _id: id }, updateUserObject, { runValidators: true });
+    await User
+      .updateOne({ _id: id }, updateUserObject, { runValidators: true })
+      .populate('company')
+      .populate('companyBranch');
     return response.status(HTTP_OK).json(updateUserObject);
 
   } catch (error) {

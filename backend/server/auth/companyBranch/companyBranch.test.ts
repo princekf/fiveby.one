@@ -5,8 +5,8 @@ import * as request from 'supertest';
 import app from '../../app';
 import User from '../../auth/user/user.model';
 import Company from '../company/company.model';
-import CompanyBranch from './companyBranch.model';
-import { Constants, CompanyBranch as CompanyBranchEntity, Company as CompanyEntity, AuthUris, CompanyS, CompanyBranchS } from 'fivebyone';
+import CompanyBranchM from './companyBranch.model';
+import { Constants, CompanyBranch as CompanyBranchEntity, Company as CompanyEntity, AuthUris, CompanyS, CompanyBranchS, CompanyBranch } from 'fivebyone';
 
 
 const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
@@ -23,11 +23,38 @@ const companyInputJSON: CompanyS = {
   contact: '9656444108',
   phone: '7907919930'
 };
-
+const companyBrInput: CompanyBranchS = {
+  company: null,
+  name: null,
+  addressLine1: 'Panvel - Kochi - Kanyakumari Highway',
+  addressLine2: 'Vikas Nagar',
+  addressLine3: 'Maradu',
+  addressLine4: 'Ernakulam',
+  contact: '7907919930',
+  phone: '9656444108',
+  email: 'contactUs@rajasreeKochi.com',
+  state: 'Kerala',
+  country: 'India',
+  pincode: '685588',
+  finYears: [ {
+    name: '2019-20',
+    startDate: '2019-02-01',
+    endDate: '2020-02-01'
+  } ]
+};
 describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
 
   const mongod = new MMS.MongoMemoryServer();
   let serverToken = '';
+  const createCompanyBranch = async(companyBranchData: CompanyBranchS): Promise<CompanyBranch> => {
+
+    const companyBranch = new CompanyBranchM(companyBranchData);
+    await companyBranch.save();
+    const companyBranchEntity: CompanyBranch = await CompanyBranchM.findOne({ name: companyBranch.name });
+    return companyBranchEntity;
+
+  };
+
 
   const createTestUser = async() => {
 
@@ -44,6 +71,10 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
     user.email = 'test@email.com';
     user.name = 'Test User';
     user.company = company;
+    companyBrInput.company = company;
+    companyBrInput.name = 'five.byOne';
+    const companyBranch = await createCompanyBranch(companyBrInput);
+    user.companyBranches = [ companyBranch ];
     user.setPassword('Simple_123@');
     await user.save();
 
@@ -85,7 +116,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
   afterEach(async() => {
 
     await Company.remove({});
-    await CompanyBranch.remove({});
+    await CompanyBranchM.remove({});
 
   });
 
