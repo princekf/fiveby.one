@@ -2,7 +2,7 @@ import * as bodyParser from 'body-parser';
 import { Router as expressRouter } from 'express';
 import { AuthUtil } from '../../util/auth.util';
 import { UnitModel } from './unit.model';
-import Product from '../product/product.model';
+import { ProductModel } from '../product/product.model';
 import { Constants, Unit as UnitEntity, UnitS, Product as ProductEntity } from 'fivebyone';
 
 const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
@@ -160,8 +160,8 @@ const deleteUnit = async(request: any, response: any) => {
       return response.status(HTTP_BAD_REQUEST).send(new Error('Cannot delete base unit'));
 
     }
-
-    const products: ProductEntity[] = await Product.find({ unit: unitId });
+    const ProductSchema = ProductModel.createModel(sessionDetails.company);
+    const products: ProductEntity[] = await ProductSchema.find({ unit: unitId });
     if (products && products.length > 0) {
 
       return response.status(HTTP_BAD_REQUEST).send(new Error('Cant delete a unit which has products'));

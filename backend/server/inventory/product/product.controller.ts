@@ -1,11 +1,11 @@
 import * as bodyParser from 'body-parser';
-import {Router as expressRouter} from 'express';
-import { authorize } from '../../passport-util';
-import Product from './product.model';
+import { Router as expressRouter } from 'express';
+import { AuthUtil } from '../../util/auth.util';
+import { ProductModel } from './product.model';
 import ProductGroup from '../productGroup/productGroup.model';
-import {Constants, ProductS, ProductGroup as ProductGroupEntity, Product as ProductEntity} from 'fivebyone';
+import { Constants, ProductS, ProductGroup as ProductGroupEntity, Product as ProductEntity } from 'fivebyone';
 
-const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
+const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
 const router = expressRouter();
 
@@ -33,7 +33,14 @@ const isValidProduct = async(product: ProductEntity): Promise<boolean> => {
 
 const listProducts = async(_request: any, response: any) => {
 
-  const products = await Product.find().populate('group');
+  const sessionDetails = AuthUtil.findSessionDetails(_request);
+  if (!sessionDetails.company) {
+
+    return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+  }
+  const ProductSchema = ProductModel.createModel(sessionDetails.company);
+  const products = await ProductSchema.find().populate('group');
   return response.status(HTTP_OK).json(products);
 
 };
@@ -43,7 +50,14 @@ const getProduct = async(request: any, response: any) => {
 
   try {
 
-    const product = await Product.findById(request.params.id).populate('group');
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
+
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const ProductSchema = ProductModel.createModel(sessionDetails.company);
+    const product = await ProductSchema.findById(request.params.id).populate('group');
     if (!product) {
 
       return response.status(HTTP_BAD_REQUEST).send('No product with the specified id.');
@@ -63,7 +77,14 @@ const saveProduct = async(request: any, response: any) => {
 
   try {
 
-    const product = new Product(request.body);
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
+
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const ProductSchema = ProductModel.createModel(sessionDetails.company);
+    const product = new ProductSchema(request.body);
     // Should not save if product group is invalid
     const isValidGroup: boolean = await isValidProduct(product);
     if (!isValidGroup) {
@@ -93,15 +114,21 @@ const updateProduct = async(request: any, response: any) => {
   try {
 
     const productId = request.params.id;
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
 
-    const productE: ProductEntity = await Product.findById(productId);
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const ProductSchema = ProductModel.createModel(sessionDetails.company);
+    const productE: ProductEntity = await ProductSchema.findById(productId);
     if (!productE) {
 
       return response.status(HTTP_BAD_REQUEST).send(new Error('Invalid product Id'));
 
     }
 
-    const product = new Product(request.body);
+    const product = new ProductSchema(request.body);
     const isValidGroup: boolean = await isValidProduct(product);
     if (!isValidGroup) {
 
@@ -110,7 +137,7 @@ const updateProduct = async(request: any, response: any) => {
     }
     const updateObject: ProductS = request.body;
 
-    await Product.update({_id: productId}, updateObject);
+    await ProductSchema.update({ _id: productId }, updateObject);
     return response.status(HTTP_OK).json('Product updated successfully.');
 
   } catch (error) {
@@ -126,13 +153,20 @@ const deleteProduct = async(request: any, response: any) => {
   try {
 
     const productId = request.params.id;
-    const product: ProductEntity = await Product.findById(productId);
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
+
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const ProductSchema = ProductModel.createModel(sessionDetails.company);
+    const product: ProductEntity = await ProductSchema.findById(productId);
     if (!product) {
 
       return response.status(HTTP_BAD_REQUEST).send(new Error('Invalid product Id'));
 
     }
-    await Product.deleteOne({_id: productId});
+    await ProductSchema.deleteOne({ _id: productId });
     return response.status(HTTP_OK).json('Product deleted successfully.');
 
   } catch (error) {
@@ -143,10 +177,10 @@ const deleteProduct = async(request: any, response: any) => {
 
 };
 
-router.route('/').get(authorize, listProducts);
-router.route('/:id').get(authorize, getProduct);
-router.route('/').post(authorize, bodyParser.json(), saveProduct);
-router.route('/:id').put(authorize, bodyParser.json(), updateProduct);
-router.route('/:id')['delete'](authorize, deleteProduct);
+router.route('/').get(AuthUtil.authorize, listProducts);
+router.route('/:id').get(AuthUtil.authorize, getProduct);
+router.route('/').post(AuthUtil.authorize, bodyParser.json(), saveProduct);
+router.route('/:id').put(AuthUtil.authorize, bodyParser.json(), updateProduct);
+router.route('/:id')['delete'](AuthUtil.authorize, deleteProduct);
 
 export default router;
