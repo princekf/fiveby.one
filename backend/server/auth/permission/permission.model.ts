@@ -1,27 +1,32 @@
-import { Document, Schema, model } from 'mongoose';
-import { SchemaDef } from '../../../types';
+import { Document, Schema, Model, connection } from 'mongoose';
 import {PermissionS} from 'fivebyone';
 
 interface PermissionDoc extends PermissionS, Document {
 }
-const permissionSchemaDef: SchemaDef<PermissionS> = {
+export class PermissionModel {
 
-  name: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    index: true,
-  },
+  private static permissionSchema = new Schema<PermissionDoc>({
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      index: true,
+    },
 
-  description: {
-    type: String,
-    trim: true,
-    index: true,
+    description: {
+      type: String,
+      trim: true,
+      index: true,
+    }
+  });
+
+  public static createModel = (): Model<PermissionDoc, {}> => {
+
+    const mongoConnection = connection.useDb(process.env.COMMON_DB);
+    return mongoConnection.model('Permission', PermissionModel.permissionSchema);
+
   }
-};
 
-// Declare the model schema
-const permissionSchema = new Schema(permissionSchemaDef);
+}
 
-export default model<PermissionDoc>('Permission', permissionSchema);
