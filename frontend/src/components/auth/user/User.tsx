@@ -4,7 +4,6 @@ import { FormInstance } from 'antd/lib/form';
 import Axios from 'axios';
 import { getAuthHeaders } from '../../../session';
 import { AuthUris, User, Constants } from 'fivebyone';
-import generator from 'generate-password';
 const { HTTP_OK } = Constants;
 
 const layout = {
@@ -49,19 +48,35 @@ export class UserComponent extends Component<UState, {}> {
 
   private generatePassword = () => {
 
-    const generatePassword = generator.generate({
-      length: 6,
-      numbers: true,
-      uppercase: true,
-      lowercase: true,
-      symbols: true,
-      strict: true
-    });
+    const lower = 'abcdefghijklmnopqrstuvwxyz';
+    const upper = lower.toUpperCase();
+    const numeric = '0123456789_';
+    const punctuation = '!@#$%^&*()+~`|}{[]\:;?><,./-=';
+    const allTogether = lower + upper + numeric + punctuation;
+    let passowrd = lower.charAt(Math.ceil(lower.length * Math.random() * Math.random()));
+    passowrd += upper.charAt(Math.ceil(upper.length * Math.random() * Math.random()));
+    passowrd += numeric.charAt(Math.ceil(numeric.length * Math.random() * Math.random()));
+    passowrd += punctuation.charAt(Math.ceil(punctuation.length * Math.random() * Math.random()));
+    const SORT_CONST = 0.5;
+    // So total 10
+    const PASSWORD_LENGHT = 6;
+    for (let index = 0; index < PASSWORD_LENGHT; index++) {
+
+      passowrd += allTogether.charAt(Math.ceil(allTogether.length * Math.random() * Math.random()));
+
+    }
+    passowrd = passowrd.split('').sort(() => {
+
+      return SORT_CONST - Math.random();
+
+    })
+      .join('');
+
 
     if (this.formRef.current) {
 
       this.formRef.current.setFieldsValue({
-        password: generatePassword
+        password: passowrd
       });
 
     }

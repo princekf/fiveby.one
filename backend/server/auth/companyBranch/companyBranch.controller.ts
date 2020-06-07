@@ -1,11 +1,11 @@
 import * as bodyParser from 'body-parser';
 import { Router as expressRouter } from 'express';
-import { authorize } from '../../config';
-import Company from '../company/company.model';
-import CompanyBranch from './companyBranch.model';
+import {CompanyModel} from '../company/company.model';
+import {CompanyBranchModel} from './companyBranch.model';
 import { Constants, CompanyBranchS, CompanyBranch as CompanyBranchEntity, Company as CompanyEntity } from 'fivebyone';
+import { AuthUtil } from '../../util/auth.util';
 
-const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
+const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
 const router = expressRouter();
 
@@ -18,6 +18,7 @@ const isValidCompanyBranch = async(companyBranch: CompanyBranchEntity): Promise<
   }
   if (companyBranch.company) {
 
+    const Company = CompanyModel.createModel();
     const company: CompanyEntity = await Company.findById(companyBranch.company._id);
 
     if (company === null) {
@@ -31,8 +32,15 @@ const isValidCompanyBranch = async(companyBranch: CompanyBranchEntity): Promise<
 
 };
 
-const listCompanyBranches = async(_request: any, response: any) => {
+const listCompanyBranches = async(request: any, response: any) => {
 
+  const sessionDetails = AuthUtil.findSessionDetails(request);
+  if (!sessionDetails.company) {
+
+    return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+  }
+  const CompanyBranch = CompanyBranchModel.createModel(sessionDetails.company);
   const companyBranches = await CompanyBranch.find().populate('company');
   return response.status(HTTP_OK).json(companyBranches);
 
@@ -42,7 +50,16 @@ const getCompanyBranch = async(request: any, response: any) => {
 
   try {
 
-    const companyBranch = await CompanyBranch.findById(request.params.id).populate('company');
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
+
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const CompanyBranch = CompanyBranchModel.createModel(sessionDetails.company);
+    const Company = CompanyModel.createModel();
+    const companyBranch = await CompanyBranch.findById(request.params.id).populate({ path: 'company',
+      model: Company });
     if (!companyBranch) {
 
       return response.status(HTTP_BAD_REQUEST).send('No Company branch with the specified id.');
@@ -63,6 +80,13 @@ const saveCompanyBranch = async(request: any, response: any) => {
 
   try {
 
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
+
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const CompanyBranch = CompanyBranchModel.createModel(sessionDetails.company);
     const companyBranch = new CompanyBranch(request.body);
     // Should not save if companyBranch group is invalid
     const isValidCompany: boolean = await isValidCompanyBranch(companyBranch);
@@ -89,7 +113,13 @@ const updateCompanyBranch = async(request: any, response: any) => {
   try {
 
     const companyBranchId = request.params.id;
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
 
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const CompanyBranch = CompanyBranchModel.createModel(sessionDetails.company);
     const companyBr: CompanyBranchEntity = await CompanyBranch.findById(companyBranchId);
 
     if (!companyBr) {
@@ -125,6 +155,13 @@ const deleteCompanyBranch = async(request: any, response: any) => {
   try {
 
     const companyBranchId = request.params.id;
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
+
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const CompanyBranch = CompanyBranchModel.createModel(sessionDetails.company);
     const companyBranch: CompanyBranchEntity = await CompanyBranch.findById(companyBranchId);
     if (!companyBranch) {
 
@@ -143,10 +180,10 @@ const deleteCompanyBranch = async(request: any, response: any) => {
 };
 
 
-router.route('/:id').get(authorize, getCompanyBranch);
-router.route('/').get(authorize, listCompanyBranches);
-router.route('/').post(authorize, bodyParser.json(), saveCompanyBranch);
-router.route('/:id').put(authorize, bodyParser.json(), updateCompanyBranch);
-router.route('/:id')['delete'](authorize, deleteCompanyBranch);
+router.route('/:id').get(AuthUtil.authorize, getCompanyBranch);
+router.route('/').get(AuthUtil.authorize, listCompanyBranches);
+router.route('/').post(AuthUtil.authorize, bodyParser.json(), saveCompanyBranch);
+router.route('/:id').put(AuthUtil.authorize, bodyParser.json(), updateCompanyBranch);
+router.route('/:id')['delete'](AuthUtil.authorize, deleteCompanyBranch);
 
 export default router;

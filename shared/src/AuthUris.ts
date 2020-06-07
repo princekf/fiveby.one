@@ -8,4 +8,6 @@ export class AuthUris {
 
   public static COMPANY_BRANCH_URI = '/api/auth/companyBranch';
 
+  public static ADMIN_URI = '/api/auth/admin';
+
 }

@@ -1,6 +1,6 @@
 import * as bodyParser from 'body-parser';
 import { Router as expressRouter } from 'express';
-import { authorize } from '../../config';
+import { authorize } from '../../passport-util';
 import Permission from './permission.model';
 import { Constants, PermissionS, Permission as PermissionEntity } from 'fivebyone';
 

@@ -3,7 +3,7 @@ import * as MMS from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import * as request from 'supertest';
 import app from '../../app';
-import User from './user.model';
+import {UserModel} from './user.model';
 import Company from '../company/company.model';
 import CompanyBranchM from '../companyBranch/companyBranch.model';
 import {
@@ -69,6 +69,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
     });
     const company = new Company(companyInputJSON);
     await company.save();
+    const User = UserModel.createModel(process.env.COMMON_DB, null);
     const user = new User();
     user.name = 'Test User';
     user.email = 'test@email.com';
@@ -105,6 +106,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
 
   afterEach(async() => {
 
+    const User = UserModel.createModel(process.env.COMMON_DB, null);
     await User.remove({});
 
   });

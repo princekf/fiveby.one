@@ -1,6 +1,6 @@
 import * as bodyParser from 'body-parser';
 import {Router as expressRouter} from 'express';
-import { authorize } from '../../config';
+import { authorize } from '../../passport-util';
 import Party from './party.model';
 import {Constants, PartyS} from 'fivebyone';
 import { PartyUtil } from './party.util';

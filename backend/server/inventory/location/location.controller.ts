@@ -1,5 +1,5 @@
 import {Router as expressRouter} from 'express';
-import { authorize } from '../../config';
+import { authorize } from '../../passport-util';
 import Product from '../product/product.model';
 import {Constants} from 'fivebyone';
 

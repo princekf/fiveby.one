@@ -1,43 +1,42 @@
-import * as bodyParser from 'body-parser';
-import { Router as expressRouter } from 'express';
+import { Request, Response, Router as expressRouter } from 'express';
 import * as passport from 'passport';
-import { Strategy } from 'passport-local';
-import { authorize } from '../../config';
-import User from './user.model';
+import { Strategy as LocalStrategy } from 'passport-local';
+import { UserModel } from './user.model';
 import Company from '../company/company.model';
 import { Constants, User as UserS, Company as CompanyEntity } from 'fivebyone';
+import { AuthUtil } from '../../util/auth.util';
 
 const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
-passport.use(
-  new Strategy(
-    {
-      usernameField: 'email',
-    }, async(username, password, done) => {
 
-      try {
+const validateRequestedUser = async(request: any, email: string, password: string, done: any) => {
 
-        // Tries to find the user matching the given username
-        const user = await User.findOne({
-          email: username,
-        });
-        // Check if the password is valid
-        if (user && user.isPasswordValid(password)) {
+  // Get the company name from URL.
+  const companyName = request.get('COMPANY');
+  if (!companyName) {
 
-          return done(null, user);
+    return done('Login failed.', null);
 
-        }
-        // Throws an error if credentials are not valid
-        throw new Error('Invalid credentials');
+  }
+  const User = UserModel.createModel(companyName);
+  try {
 
-      } catch (error) {
+    const user = await User.findOne({ email });
+    if (user && user.isPasswordValid(password)) {
 
-        return done(error);
+      return done(null, user);
 
-      }
+    }
 
-    },
-  ),
-);
+  } catch (error) {
+  }
+  return done('Login failed.', null);
+
+};
+
+passport.use('user-login', new LocalStrategy({
+  usernameField: 'email',
+  passReqToCallback: true,
+}, validateRequestedUser));
 
 const isValidCompany = async(company: CompanyEntity): Promise<boolean> => {
 
@@ -65,21 +64,19 @@ const router = expressRouter();
 
 const doLogin = (request: any, response: any) => {
 
-  // Use passport to authenticate user login
-  passport.authenticate('local', (error, user) => {
+  if (!request.user) {
 
-    if (!user) {
+    return response.status(HTTP_BAD_REQUEST).json({'user': 'login failed.'});
 
-      return response.status(HTTP_BAD_REQUEST).json({
-        error: error.message,
-      });
-
-    }
-    // If login is valid generate a token and return it to the user
-    const tokenSignature = user.generateJwt();
-    return response.status(HTTP_OK).json(tokenSignature);
-
-  })(request, response);
+  }
+  const jwtToken = request.user.generateJwt();
+  response.cookie('jwt', jwtToken.token, {
+    httpOnly: true,
+    sameSite: true,
+    signed: true,
+    secure: true
+  });
+  return response.status(HTTP_OK).json(jwtToken);
 
 };
 
@@ -87,6 +84,7 @@ const getUser = async(request: any, response: any) => {
 
   try {
 
+    const User = UserModel.createModel(process.env.COMMON_DB);
     const user = await User.findById(request.params.id).populate('company')
       .populate('companyBranch');
     if (!user) {
@@ -104,17 +102,13 @@ const getUser = async(request: any, response: any) => {
 
 };
 
-const saveUser = async(request: any, response: any) => {
+const saveUser = async(request: Request, response: Response) => {
 
   try {
 
+    const User = UserModel.createModel(process.env.COMMON_DB);
     const user = new User(request.body);
-    try {
-
-      user.setPassword(request.body.password);
-
-    } catch (error) {
-    }
+    user.setPassword(request.body.password);
     const isValidCom: boolean = await isValidCompany(user.company);
 
     if (!isValidCom) {
@@ -135,6 +129,7 @@ const saveUser = async(request: any, response: any) => {
 
 const listAllUsers = async(request: any, response: any) => {
 
+  const User = UserModel.createModel(process.env.COMMON_DB);
   const users = await User.find().populate('company');
   return response.status(HTTP_OK).json(users);
 
@@ -154,6 +149,7 @@ const updateUser = async(request: any, response: any) => {
       return response.status(HTTP_BAD_REQUEST).send('Company should be valid.');
 
     }
+    const User = UserModel.createModel(process.env.COMMON_DB);
     await User
       .updateOne({ _id: id }, updateUserObject, { runValidators: true })
       .populate('company')
@@ -173,6 +169,7 @@ const deleteUser = async(request: any, response: any) => {
   try {
 
     const { id } = request.params;
+    const User = UserModel.createModel(process.env.COMMON_DB);
     const resp = await User.deleteOne({ _id: id });
     if (resp.deletedCount === 0) {
 
@@ -190,11 +187,11 @@ const deleteUser = async(request: any, response: any) => {
 
 };
 
-router.route('/login').post(bodyParser.json(), doLogin);
-router.route('/:id').get(authorize, getUser);
-router.route('/').get(authorize, listAllUsers);
-router.route('/:id').put(authorize, bodyParser.json(), updateUser);
-router.route('/').post(authorize, bodyParser.json(), saveUser);
-router.route('/:id')['delete'](authorize, bodyParser.json(), deleteUser);
+router.route('/login').post(passport.authenticate('user-login', {session: false}), doLogin);
+router.route('/:id').get(AuthUtil.authorize, getUser);
+router.route('/').get(AuthUtil.authorize, listAllUsers);
+router.route('/:id').put(AuthUtil.authorize, updateUser);
+router.route('/').post(AuthUtil.authorize, saveUser);
+router.route('/:id')['delete'](AuthUtil.authorize, deleteUser);
 
 export default router;

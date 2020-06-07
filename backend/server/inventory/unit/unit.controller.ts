@@ -1,6 +1,6 @@
 import * as bodyParser from 'body-parser';
 import {Router as expressRouter} from 'express';
-import { authorize } from '../../config';
+import { authorize } from '../../passport-util';
 import Unit from './unit.model';
 import Product from '../product/product.model';
 import {Constants, Unit as UnitEntity, UnitS, Product as ProductEntity } from 'fivebyone';

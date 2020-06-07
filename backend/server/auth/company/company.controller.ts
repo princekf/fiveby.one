@@ -1,8 +1,8 @@
 import * as bodyParser from 'body-parser';
 import { Router as expressRouter } from 'express';
-import { authorize } from '../../config';
-import Company from './company.model';
+import {CompanyModel} from './company.model';
 import { Constants, CompanyS } from 'fivebyone';
+import { AuthUtil } from '../../util/auth.util';
 
 const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
 
@@ -13,6 +13,7 @@ const getCompany = async(request: any, response: any) => {
 
   try {
 
+    const Company = CompanyModel.createModel();
     const company = await Company.findById(request.params.id);
     if (!company) {
 
@@ -33,6 +34,7 @@ const saveCompany = async(request: any, response: any) => {
 
   try {
 
+    const Company = CompanyModel.createModel();
     const company = new Company(request.body);
     await company.save();
     return response.status(HTTP_OK).json(company);
@@ -47,6 +49,7 @@ const saveCompany = async(request: any, response: any) => {
 
 const listAllCompany = async(request: any, response: any) => {
 
+  const Company = CompanyModel.createModel();
   const companyShowRooms = await Company.find();
   return response.status(HTTP_OK).json(companyShowRooms);
 
@@ -64,6 +67,7 @@ const updateCompany = async(request: any, response: any) => {
 
     }
     delete updateUserObject.email;
+    const Company = CompanyModel.createModel();
     await Company.updateOne({ _id: id }, updateUserObject, { runValidators: true });
     return response.status(HTTP_OK).json(updateUserObject);
 
@@ -80,6 +84,7 @@ const deleteCompany = async(request: any, response: any) => {
   try {
 
     const { id } = request.params;
+    const Company = CompanyModel.createModel();
     const resp = await Company.deleteOne({ _id: id });
     if (resp.deletedCount === 0) {
 
@@ -97,10 +102,10 @@ const deleteCompany = async(request: any, response: any) => {
 
 };
 
-router.route('/:id').get(authorize, getCompany);
-router.route('/').get(authorize, listAllCompany);
-router.route('/:id').put(authorize, bodyParser.json(), updateCompany);
-router.route('/').post(authorize, bodyParser.json(), saveCompany);
-router.route('/:id')['delete'](authorize, bodyParser.json(), deleteCompany);
+router.route('/:id').get(AuthUtil.authorize, getCompany);
+router.route('/').get(AuthUtil.authorize, listAllCompany);
+router.route('/:id').put(AuthUtil.authorize, bodyParser.json(), updateCompany);
+router.route('/').post(AuthUtil.authorize, bodyParser.json(), saveCompany);
+router.route('/:id')['delete'](AuthUtil.authorize, bodyParser.json(), deleteCompany);
 
 export default router;

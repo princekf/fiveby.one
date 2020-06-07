@@ -1,207 +1,107 @@
-import { pbkdf2Sync, randomBytes } from 'crypto';
-import { sign } from 'jsonwebtoken';
-import { Document, Schema, model } from 'mongoose';
-import { SchemaDef } from '../../../types';
-import { Constants, UserS } from 'fivebyone';
-import { UserUtil } from './user.util';
+import * as mongoose from 'mongoose';
+import { UserS } from 'fivebyone';
+import { CommonUtil } from '../../util/common.util';
+import { UserImpl } from './UserImpl';
 
-const { SECOND_IN_MILLIE } = Constants;
+const {Schema} = mongoose;
 
-const ITERATIONS = 100000;
-const KEY_LENGTH = 512;
-const EXPIRY_IN_MINUTES = 30;
-const BYTE_SIZE = 16;
 interface UserM extends UserS {
   hash: string;
   salt: string;
-}
-// Declare the model interface
-interface UserDoc extends UserM, Document {
   setPassword(password: string): void;
   isPasswordValid(password: string): boolean;
   generateJwt(): { token: string; expiry: Date };
 }
+// Declare the model interface
+interface UserDoc extends UserM, mongoose.Document {
+}
 
-const validateEmail = (email: string): boolean => {
+export class UserModel {
 
-  const emailRegEx = /^(?<name>[a-zA-Z0-9_\-\.]+)@(?<domain>[a-zA-Z0-9_\-\.]+)\.(?<extn>[a-zA-Z]{2,5})$/ugm;
-  return emailRegEx.test(email);
-
-};
-
-const validateMobile = (mobile: string): boolean => {
-
-  const mobileRegEx = /^(?<mobileNum>\+\d{1,3}[- ]?)?\d{10}$/ugm;
-  return mobileRegEx.test(mobile);
-
-};
-
-const userSchemaDef: SchemaDef<UserM> = {
-  company: {
-    type: Schema.Types.ObjectId,
-    ref: 'Company',
-    required: true,
-    trim: true,
-    index: true,
-    sparse: true,
-  },
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-    trim: true,
-    index: true,
-    validate: {
-      validator: validateEmail,
-      message: (props) => {
-
-        return `${props.value} is not a valid email.`;
-
-      }
-    }
-  },
-  hash: {
-    type: String,
-    required: true,
-  },
-  salt: {
-    type: String,
-    required: true,
-  },
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-    index: true,
-  },
-  mobile: {
-    type: String,
-    trim: true,
-    index: true,
-    validate: {
-      validator: validateMobile,
-      message: (props) => {
-
-        return `${props.value} is not a valid mobile number.`;
-
-      }
-    }
-
-  },
-  addressLine1: {
-    type: String,
-    trim: true,
-    index: true,
-  },
-  addressLine2: {
-    type: String,
-    trim: true,
-  },
-  addressLine3: {
-    type: String,
-    trim: true,
-  },
-  addressLine4: {
-    type: String,
-    trim: true,
-  },
-  state: {
-    type: String,
-    trim: true,
-    index: true,
-  },
-  country: {
-    type: String,
-    trim: true,
-    index: true,
-  },
-  pinCode: {
-    type: String,
-    trim: true,
-    index: true,
-  },
-  companyBranches: {
-    type: [ {
-      type: Schema.Types.ObjectId,
-      ref: 'CompanyBranch',
+  private static userSchema = new Schema<UserDoc>({
+    email: {
+      type: String,
+      unique: true,
       required: true,
+      trim: true,
       index: true,
-    } ],
-    required: true,
-    validate: {
-      validator: (companyBranches: []): boolean => {
+      validate: {
+        validator: CommonUtil.validateEmail,
+        message: (props) => {
 
-        return companyBranches && companyBranches.length > 0;
+          return `${props.value} is not a valid email.`;
 
-      },
-      message: () => {
-
-        return 'Company Branches is required.';
-
+        }
       }
+    },
+    hash: {
+      type: String,
+      required: true,
+    },
+    salt: {
+      type: String,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      index: true,
+    },
+    mobile: {
+      type: String,
+      trim: true,
+      index: true,
+      validate: {
+        validator: CommonUtil.validateMobile,
+        message: (props) => {
+
+          return `${props.value} is not a valid mobile number.`;
+
+        }
+      }
+
+    },
+    addressLine1: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    addressLine2: {
+      type: String,
+      trim: true,
+    },
+    addressLine3: {
+      type: String,
+      trim: true,
+    },
+    addressLine4: {
+      type: String,
+      trim: true,
+    },
+    state: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    country: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    pinCode: {
+      type: String,
+      trim: true,
+      index: true,
     }
-  }
-};
+  });
 
-// Declare the model schema
-const userSchema = new Schema(userSchemaDef);
+  public static createModel = (dbName: string): mongoose.Model<UserDoc, {}> => {
 
-// Define some public methods for our model
-class UserClass {
-
-  private id: string;
-
-  private email: string;
-
-  private salt: string;
-
-  private hash: string;
-
-  // Create a salt and hash from the password
-  public setPassword(password: string) {
-
-    if (!UserUtil.validatePassword(password)) {
-
-      throw new Error('Password should have mininum 6 character, one upper case, one lower case, one digit, and one special character');
-
-    }
-    this.salt = randomBytes(BYTE_SIZE).toString('hex');
-    this.hash = pbkdf2Sync(password, this.salt, ITERATIONS, KEY_LENGTH, 'sha512').toString('hex');
-
-  }
-
-  // Check if hashes match
-  public isPasswordValid(password: string): boolean {
-
-    const hash = pbkdf2Sync(password, this.salt, ITERATIONS, KEY_LENGTH, 'sha512').toString('hex');
-    return this.hash === hash;
-
-  }
-
-  // Generate access token for 30 minutes
-  public generateJwt(): { token: string; expiry: Date } {
-
-    const expiry = new Date();
-    expiry.setMinutes(expiry.getMinutes() + EXPIRY_IN_MINUTES);
-
-    const token = sign(
-      {
-        _id: this.id,
-        email: this.email,
-        exp: Math.round(expiry.getTime() / SECOND_IN_MILLIE),
-      }, process.env.AUTH_SHARED_SECRET,
-    );
-
-    return {
-      token,
-      expiry,
-    };
+    UserModel.userSchema.loadClass(UserImpl);
+    const mongoConnection = mongoose.connection.useDb(dbName);
+    return mongoConnection.model('User', UserModel.userSchema);
 
   }
 
 }
-
-// Important! Don't forget to use loadClass so your new methods will be included in the model
-userSchema.loadClass(UserClass);
-
-export default model<UserDoc>('User', userSchema);
