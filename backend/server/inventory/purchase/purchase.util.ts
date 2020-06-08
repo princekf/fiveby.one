@@ -1,36 +1,11 @@
 import moment = require('moment');
 import { Constants, Purchase as PurchaseEntity } from 'fivebyone';
-import Party from '../party/party.model';
-import Product from '../product/product.model';
+import {PartyModel} from '../party/party.model';
+import {ProductModel} from '../product/product.model';
 
 export class PurchaseUtil {
 
-  private static validatePrimaryValues = async(purchase: PurchaseEntity): Promise<void> => {
-
-    const purchaseM = moment(purchase.purchaseDate, Constants.DATE_FORMAT);
-    const invoiceM = moment(purchase.invoiceDate, Constants.DATE_FORMAT);
-    if (invoiceM.isAfter(purchaseM)) {
-
-      throw new Error('Invoice date is after purchase date.');
-
-    }
-    const orderM = moment(purchase.orderDate, Constants.DATE_FORMAT);
-    if (orderM.isAfter(purchaseM)) {
-
-      throw new Error('Order date is after purchase date.');
-
-    }
-    if (orderM.isAfter(invoiceM)) {
-
-      throw new Error('Order date is after invoice date.');
-
-    }
-    const party = await Party.findById(purchase.party);
-    if (!party.isVendor) {
-
-      throw new Error('party is not a vendor.');
-
-    }
+  private static validatePurchaseField = (purchase: any) => {
 
     if (purchase.grandTotal < 0) {
 
@@ -53,6 +28,38 @@ export class PurchaseUtil {
       throw new Error('Total amount cannot be less than zero.');
 
     }
+
+  }
+
+  private static validatePrimaryValues = async(purchase: PurchaseEntity, dbName: string): Promise<void> => {
+
+    const dataBaseName = dbName;
+    const purchaseM = moment(purchase.purchaseDate, Constants.DATE_FORMAT);
+    const invoiceM = moment(purchase.invoiceDate, Constants.DATE_FORMAT);
+    if (invoiceM.isAfter(purchaseM)) {
+
+      throw new Error('Invoice date is after purchase date.');
+
+    }
+    const orderM = moment(purchase.orderDate, Constants.DATE_FORMAT);
+    if (orderM.isAfter(purchaseM)) {
+
+      throw new Error('Order date is after purchase date.');
+
+    }
+    if (orderM.isAfter(invoiceM)) {
+
+      throw new Error('Order date is after invoice date.');
+
+    }
+    const Party = PartyModel.createModel(dataBaseName);
+    const party = await Party.findById(purchase.party);
+    if (!party.isVendor) {
+
+      throw new Error('party is not a vendor.');
+
+    }
+    PurchaseUtil.validatePurchaseField(purchase);
 
   };
 
@@ -91,8 +98,10 @@ export class PurchaseUtil {
 
   };
 
-  private static validatePurchaseItemValues2 = async(pItemObj: any) => {
+  private static validatePurchaseItemValues2 = async(pItemObj: any, dbName: string) => {
 
+    const dataBaseName = dbName;
+    const Product = ProductModel.createModel(dataBaseName);
     const product = await Product.findById(pItemObj.product);
     if (product.hasBatch) {
 
@@ -178,9 +187,10 @@ export class PurchaseUtil {
 
   };
 
-  public static validatePurchase = async(purchase: PurchaseEntity) => {
+  public static validatePurchase = async(purchase: PurchaseEntity, dbName: string) => {
 
-    await PurchaseUtil.validatePrimaryValues(purchase);
+    const dataBaseName = dbName;
+    await PurchaseUtil.validatePrimaryValues(purchase, dataBaseName);
 
     let grandT = purchase.totalAmount;
     grandT -= purchase.totalDiscount;
@@ -229,7 +239,7 @@ export class PurchaseUtil {
 
       const pItemObj = purchase.purchaseItems[index];
       PurchaseUtil.validatePurchaseItemValues(pItemObj);
-      await PurchaseUtil.validatePurchaseItemValues2(pItemObj);
+      await PurchaseUtil.validatePurchaseItemValues2(pItemObj, dataBaseName);
       PurchaseUtil.validatePurchaseItemValuesDates(pItemObj, purchase);
 
     }

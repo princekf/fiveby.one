@@ -2,14 +2,14 @@ import * as bodyParser from 'body-parser';
 import { Router as expressRouter } from 'express';
 import { AuthUtil } from '../../util/auth.util';
 import { ProductModel } from './product.model';
-import ProductGroup from '../productGroup/productGroup.model';
+import {ProductGroupModel} from '../productGroup/productGroup.model';
 import { Constants, ProductS, ProductGroup as ProductGroupEntity, Product as ProductEntity } from 'fivebyone';
 
 const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
 const router = expressRouter();
 
-const isValidProduct = async(product: ProductEntity): Promise<boolean> => {
+const isValidProduct = async(product: ProductEntity, session: any): Promise<boolean> => {
 
   if (!product.name) {
 
@@ -18,6 +18,8 @@ const isValidProduct = async(product: ProductEntity): Promise<boolean> => {
   }
   if (product.group) {
 
+    const sessionDetails = session;
+    const ProductGroup = ProductGroupModel.createModel(sessionDetails.company);
     const prdGrp: ProductGroupEntity = await ProductGroup.findById(product.group._id);
 
     if (prdGrp === null) {
@@ -86,7 +88,7 @@ const saveProduct = async(request: any, response: any) => {
     const ProductSchema = ProductModel.createModel(sessionDetails.company);
     const product = new ProductSchema(request.body);
     // Should not save if product group is invalid
-    const isValidGroup: boolean = await isValidProduct(product);
+    const isValidGroup: boolean = await isValidProduct(product, sessionDetails);
     if (!isValidGroup) {
 
       return response.status(HTTP_BAD_REQUEST).send('Product group should be valid.');
@@ -129,7 +131,7 @@ const updateProduct = async(request: any, response: any) => {
     }
 
     const product = new ProductSchema(request.body);
-    const isValidGroup: boolean = await isValidProduct(product);
+    const isValidGroup: boolean = await isValidProduct(product, sessionDetails);
     if (!isValidGroup) {
 
       return response.status(HTTP_BAD_REQUEST).send('Product group should be valid.');

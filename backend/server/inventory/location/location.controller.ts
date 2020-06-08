@@ -8,6 +8,7 @@ const {HTTP_OK, HTTP_UNAUTHORIZED} = Constants;
 const router = expressRouter();
 
 const listLocations = async(_request: any, response: any) => {
+
   const sessionDetails = AuthUtil.findSessionDetails(_request);
   if (!sessionDetails.company) {
 

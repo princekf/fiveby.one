@@ -16,6 +16,7 @@ const validateRequestedUser = async(email: string, password: string, done: any) 
   try {
 
     const user = await User.findOne({ email});
+
     if (user && user.isPasswordValid(password)) {
 
       return done(null, user);
@@ -23,6 +24,7 @@ const validateRequestedUser = async(email: string, password: string, done: any) 
     }
 
   } catch (error) {
+
   }
   return done('Login failed.', null);
 
@@ -80,18 +82,14 @@ const loginAdmin = (request: any, response: any) => {
     return response.status(HTTP_BAD_REQUEST).json({'user': 'login failed.'});
 
   }
-  const jwtToken = request.user.generateJwt();
-  response.cookie('jwt', jwtToken.token, {
-    httpOnly: true,
-    sameSite: true,
-    signed: true,
-    secure: true
-  });
-  return response.status(HTTP_OK).json(jwtToken);
+  const token = request.user.generateJwt();
+
+  return response.status(HTTP_OK).json(token);
 
 };
 
 router.route('/login').post(passport.authenticate('admin-login', {session: false}), loginAdmin);
+// Router.route('/company').post(createCompany);
 router.route('/').post(installAdminUser);
 
 export default router;
