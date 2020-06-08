@@ -1,7 +1,5 @@
-import { Document, Schema, model } from 'mongoose';
-import { SchemaDef } from '../../../types';
+import { Document, Schema, Model, connection } from 'mongoose';
 import {PartyS} from 'fivebyone';
-import { PartyUtil } from './party.util';
 
 interface PartyDoc extends PartyS, Document {}
 
@@ -16,117 +14,117 @@ const validateCode = (code2: string): boolean => {
 
 };
 
-const partySchemaDef: SchemaDef<PartyS> = {
-  name: {
-    type: String,
-    trim: true,
-    index: true,
-    required: true,
-  },
-  code: {
-    type: String,
-    trim: true,
-    index: true,
-    unique: true,
-    sparse: true,
-    validate: {
-      validator: validateCode,
-      message: (props) => {
+export class PartyModel {
 
-        return `${props.value} is not a valid code!`;
-
-      }
+  private static partySchema = new Schema<PartyDoc>({
+    name: {
+      type: String,
+      trim: true,
+      index: true,
+      required: true,
     },
-  },
-  mobile: {
-    trim: true,
-    index: true,
-    unique: true,
-    sparse: true,
-    type: String,
-  },
-  email: {
-    trim: true,
-    index: true,
-    unique: true,
-    sparse: true,
-    type: String,
-  },
-  isCustomer: {
-    type: Boolean,
-  },
-  isVendor: {
-    type: Boolean,
-  },
-  addresses: {
-    type: [ {
-      type: {
-        type: String,
-      },
-      addressLine1: {
-        type: String,
-      },
-      addressLine2: {
-        type: String,
-      },
-      addressLine3: {
-        type: String,
-      },
-      addressLine4: {
-        type: String,
-      },
-      state: {
-        type: String,
-        index: true,
-      },
-      country: {
-        type: String,
-        index: true,
-      },
-      pinCode: {
-        type: String,
-        index: true,
-      },
-      landMark: {
-        type: String,
-      },
-    } ],
-    required: true,
+    code: {
+      type: String,
+      trim: true,
+      index: true,
+      unique: true,
+      sparse: true,
+      validate: {
+        validator: validateCode,
+        message: (props) => {
 
-    validate: {
-      validator: (adrss: []): boolean => {
+          return `${props.value} is not a valid code!`;
 
-        return adrss && adrss.length > 0;
-
+        }
       },
-      message: () => {
-
-        return 'Address is required.';
-
-      }
     },
-  },
-  registrationNumbers: {
-    type: [
-      {
-        name: {
+    mobile: {
+      trim: true,
+      index: true,
+      unique: true,
+      sparse: true,
+      type: String,
+    },
+    email: {
+      trim: true,
+      index: true,
+      unique: true,
+      sparse: true,
+      type: String,
+    },
+    isCustomer: {
+      type: Boolean,
+    },
+    isVendor: {
+      type: Boolean,
+    },
+    addresses: {
+      type: [ {
+        type: {
           type: String,
         },
-        value: {
+        addressLine1: {
           type: String,
         },
-      }
-    ]
+        addressLine2: {
+          type: String,
+        },
+        addressLine3: {
+          type: String,
+        },
+        addressLine4: {
+          type: String,
+        },
+        state: {
+          type: String,
+          index: true,
+        },
+        country: {
+          type: String,
+          index: true,
+        },
+        pinCode: {
+          type: String,
+          index: true,
+        },
+        landMark: {
+          type: String,
+        },
+      } ],
+      required: true,
+
+      validate: {
+        validator: (adrss: []): boolean => {
+
+          return adrss && adrss.length > 0;
+
+        },
+        message: () => {
+
+          return 'Address is required.';
+
+        }
+      },
+    },
+    registrationNumbers: {
+      type: [
+        {
+          name: {
+            type: String,
+          },
+          value: {
+            type: String,
+          },
+        }
+      ]
+    }
+  });
+
+  public static createModel = (dbName: string): Model<PartyDoc, {}> => {
+
+    const mongoConnection = connection.useDb(dbName);
+    return mongoConnection.model('Party', PartyModel.partySchema);
+
   }
-};
 
-
-const validateParty = async function<PartyDoc>() {
-
-  await PartyUtil.validateParty(this);
-
-};
-
-const partySchema = new Schema(partySchemaDef);
-partySchema.pre<PartyDoc>('save', validateParty);
-export default model<PartyDoc>('Party', partySchema);
+}
