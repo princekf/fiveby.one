@@ -6,7 +6,7 @@ interface UnitDoc extends UnitS, Document { }
 export class UnitModel extends Document {
 
   // Define model schema
-  private static unitSchema = new Schema({
+  private static unitSchema = new Schema<UnitDoc>({
 
     name: {
       type: String,

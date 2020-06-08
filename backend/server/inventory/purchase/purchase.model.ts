@@ -7,7 +7,7 @@ interface PurchaseDoc extends PurchaseS, Document { }
 
 export class PurchaseModel {
 
-  private static purchaseSchema: Schema<PurchaseS> = new Schema({
+  private static purchaseSchema = new Schema<PurchaseDoc>({
     purchaseDate: {
       type: String,
       required: true,
