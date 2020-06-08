@@ -6,7 +6,7 @@ interface ProductGroupDoc extends ProductGroupS, Document { }
 
 export class ProductGroupModel {
 
-  private static productSchema = new Schema<ProductGroupDoc> ({
+  private static productSchema = new Schema<ProductGroupDoc>({
     name: {
       type: String,
       required: true,

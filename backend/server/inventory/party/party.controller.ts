@@ -93,7 +93,7 @@ const updateParty = async(request: any, response: any) => {
 
     const updateObject: PartyS = request.body;
     const expectedObject = Object.assign(party, updateObject);
-    await PartyUtil.validateParty(expectedObject);
+    await PartyUtil.validateParty(expectedObject, sessionDetails);
 
     await Party.updateOne({_id: id}, updateObject, { runValidators: true });
     return response.status(HTTP_OK).json(updateObject);

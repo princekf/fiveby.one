@@ -1,8 +1,8 @@
 import {Party as PartyEntity} from 'fivebyone';
-import Purchase from '../purchase/purchase.model';
+import {PurchaseModel} from '../purchase/purchase.model';
 export class PartyUtil {
 
-  public static validateParty = async(party: PartyEntity): Promise<void> => {
+  public static validateParty = async(party: PartyEntity, sessionDetails: any): Promise<void> => {
 
     if (!party.isCustomer && !party.isVendor) {
 
@@ -16,6 +16,7 @@ export class PartyUtil {
       return;
 
     }
+    const Purchase = PurchaseModel.createModel(sessionDetails.company);
     const purcahses = await Purchase.find({party});
     if (purcahses.length > 0 && !party.isVendor) {
 

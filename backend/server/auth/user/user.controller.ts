@@ -2,7 +2,7 @@ import { Request, Response, Router as expressRouter } from 'express';
 import * as passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { UserModel } from './user.model';
-import Company from '../company/company.model';
+import {CompanyModel} from '../company/company.model';
 import { Constants, User as UserS, Company as CompanyEntity } from 'fivebyone';
 import { AuthUtil } from '../../util/auth.util';
 
@@ -47,6 +47,7 @@ const isValidCompany = async(company: CompanyEntity): Promise<boolean> => {
   }
   if (company && company._id) {
 
+    const Company = CompanyModel.createModel();
     const companyData: CompanyEntity = await Company.findById(company._id);
 
     if (companyData === null) {
