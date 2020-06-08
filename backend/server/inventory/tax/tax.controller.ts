@@ -1,16 +1,23 @@
 import * as bodyParser from 'body-parser';
-import {Router as expressRouter} from 'express';
-import { authorize } from '../../passport-util';
-import Tax from './tax.model';
-import {Constants, TaxS} from 'fivebyone';
+import { Router as expressRouter } from 'express';
+import { AuthUtil } from '../../util/auth.util';
+import { TaxModel } from './tax.model';
+import { Constants, TaxS } from 'fivebyone';
 
-const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
+const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
 const router = expressRouter();
 
 const listTax = async(_request: any, response: any) => {
 
-  const taxes = await Tax.find();
+  const sessionDetails = AuthUtil.findSessionDetails(_request);
+  if (!sessionDetails.company) {
+
+    return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+  }
+  const TaxSchema = TaxModel.createModel(sessionDetails.company);
+  const taxes = await TaxSchema.find();
   return response.status(HTTP_OK).json(taxes);
 
 };
@@ -20,7 +27,14 @@ const getTax = async(request: any, response: any) => {
 
   try {
 
-    const tax = await Tax.findById(request.params.id);
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
+
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const TaxSchema = TaxModel.createModel(sessionDetails.company);
+    const tax = await TaxSchema.findById(request.params.id);
     if (!tax) {
 
       return response.status(HTTP_BAD_REQUEST).send('No tax with the specified id.');
@@ -40,7 +54,14 @@ const saveTax = async(request: any, response: any) => {
 
   try {
 
-    const tax = new Tax(request.body);
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
+
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const TaxSchema = TaxModel.createModel(sessionDetails.company);
+    const tax = new TaxSchema(request.body);
     await tax.save();
     return response.status(HTTP_OK).json(tax);
 
@@ -56,11 +77,16 @@ const updateTax = async(request: any, response: any) => {
 
   try {
 
-    const {id} = request.params;
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
 
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const { id } = request.params;
     const updateObject: TaxS = request.body;
-
-    await Tax.update({_id: id}, updateObject, { runValidators: true });
+    const TaxSchema = TaxModel.createModel(sessionDetails.company);
+    await TaxSchema.update({ _id: id }, updateObject, { runValidators: true });
     return response.status(HTTP_OK).json(updateObject);
 
   } catch (error) {
@@ -75,8 +101,15 @@ const deleteTax = async(request: any, response: any) => {
 
   try {
 
-    const {id} = request.params;
-    const resp = await Tax.deleteOne({_id: id});
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
+
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const TaxSchema = TaxModel.createModel(sessionDetails.company);
+    const { id } = request.params;
+    const resp = await TaxSchema.deleteOne({ _id: id });
     if (resp.deletedCount === 0) {
 
       return response.status(HTTP_BAD_REQUEST).send('No tax is deleted.');
@@ -93,10 +126,10 @@ const deleteTax = async(request: any, response: any) => {
 
 };
 
-router.route('/').get(authorize, listTax);
-router.route('/:id').get(authorize, getTax);
-router.route('/').post(authorize, bodyParser.json(), saveTax);
-router.route('/:id').put(authorize, bodyParser.json(), updateTax);
-router.route('/:id')['delete'](authorize, deleteTax);
+router.route('/').get(AuthUtil.authorize, listTax);
+router.route('/:id').get(AuthUtil.authorize, getTax);
+router.route('/').post(AuthUtil.authorize, bodyParser.json(), saveTax);
+router.route('/:id').put(AuthUtil.authorize, bodyParser.json(), updateTax);
+router.route('/:id')['delete'](AuthUtil.authorize, deleteTax);
 
 export default router;

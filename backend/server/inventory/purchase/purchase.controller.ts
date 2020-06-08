@@ -1,10 +1,10 @@
 import * as bodyParser from 'body-parser';
-import {Router as expressRouter} from 'express';
-import { authorize } from '../../passport-util';
-import Purchase from './purchase.model';
-import {Constants} from 'fivebyone';
+import { Router as expressRouter } from 'express';
+import { AuthUtil } from '../../util/auth.util';
+import { PurchaseModel } from './purchase.model';
+import { Constants } from 'fivebyone';
 
-const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
+const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
 const router = expressRouter();
 
@@ -12,13 +12,18 @@ const savePurchase = async(request: any, response: any) => {
 
   try {
 
-    const purchase = new Purchase(request.body);
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
+
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const PurchaseSchema = PurchaseModel.createModel(sessionDetails.company);
+    const purchase = new PurchaseSchema(request.body);
     await purchase.save();
     return response.status(HTTP_OK).json(purchase);
 
   } catch (error) {
-
-    // Console.log(error);
 
     return response.status(HTTP_BAD_REQUEST).send(error);
 
@@ -29,7 +34,14 @@ const getPurchase = async(request: any, response: any) => {
 
   try {
 
-    const purchase = await Purchase.findById(request.params.id)
+    const sessionDetails = AuthUtil.findSessionDetails(request);
+    if (!sessionDetails.company) {
+
+      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+
+    }
+    const PurchaseSchema = PurchaseModel.createModel(sessionDetails.company);
+    const purchase = await PurchaseSchema.findById(request.params.id)
       .populate('party')
       .populate('purchaseItems.product')
       .populate('purchaseItems.unit')
@@ -50,8 +62,8 @@ const getPurchase = async(request: any, response: any) => {
 };
 
 // Router.route('/').get(authorize, listTax);
-router.route('/:id').get(authorize, getPurchase);
-router.route('/').post(authorize, bodyParser.json(), savePurchase);
+router.route('/:id').get(AuthUtil.authorize, getPurchase);
+router.route('/').post(AuthUtil.authorize, bodyParser.json(), savePurchase);
 
 /*
  * Router.route('/:id').put(authorize, bodyParser.json(), updateTax);

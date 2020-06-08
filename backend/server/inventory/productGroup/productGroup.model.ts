@@ -1,39 +1,43 @@
-import { Document, Schema, model } from 'mongoose';
-import { SchemaDef } from '../../../types';
+import { Document, Schema, connection, Model } from 'mongoose';
 import { ProductGroupS } from 'fivebyone';
 
 // Declare model interface
-interface ProductGroupDoc extends ProductGroupS, Document {}
+interface ProductGroupDoc extends ProductGroupS, Document { }
 
-const productGroupSchemaDef: SchemaDef<ProductGroupS> = {
+export class ProductGroupModel {
 
-  name: {
-    type: String,
-    required: true,
-    unique: true,
-    index: true,
-    trim: true,
-  },
-  shortName: {
-    type: String,
-    required: false,
-    trim: true,
-    index: true,
-    sparse: true,
-  },
-  parent: {
-    type: Schema.Types.ObjectId,
-    ref: 'ProductGroup',
-    required: false,
-  },
-  ancestors: {
-    type: [ String ],
-    required: false,
-    index: true,
+  private static productSchema: Schema<ProductGroupS> = new Schema({
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+      trim: true,
+    },
+    shortName: {
+      type: String,
+      required: false,
+      trim: true,
+      index: true,
+      sparse: true,
+    },
+    parent: {
+      type: Schema.Types.ObjectId,
+      ref: 'ProductGroup',
+      required: false,
+    },
+    ancestors: {
+      type: [ String ],
+      required: false,
+      index: true,
+    }
+  });
+
+  public static createModel = (dbName: string): Model<ProductGroupDoc, {}> => {
+
+    const mongoConnection = connection.useDb(dbName);
+    return mongoConnection.model('ProductGroup', ProductGroupModel.productSchema);
+
   }
-};
 
-// Define model schema
-const productGroupSchema = new Schema(productGroupSchemaDef);
-
-export default model<ProductGroupDoc>('ProductGroup', productGroupSchema);
+}

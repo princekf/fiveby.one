@@ -1,10 +1,9 @@
-import { Document, Schema, model } from 'mongoose';
-import { SchemaDef } from '../../../types';
-import {TaxS, Constants} from 'fivebyone';
+import { Document, Schema, Model, connection } from 'mongoose';
+import { TaxS, Constants } from 'fivebyone';
 import moment = require('moment');
-const {DATE_FORMAT} = Constants;
+const { DATE_FORMAT } = Constants;
 // Declare model interface
-interface TaxDoc extends TaxS, Document {}
+interface TaxDoc extends TaxS, Document { }
 
 const validateEffectiveFrom = (effectiveFroms: []): boolean => {
 
@@ -57,50 +56,55 @@ const validateEffectiveFrom = (effectiveFroms: []): boolean => {
   return isInOrder;
 
 };
-const taxSchemaDef: SchemaDef<TaxS> = {
+export class TaxModel {
 
+  private static taxSchema: Schema<TaxS> = new Schema({
 
-  groupName: {
-    type: String,
-    required: true,
-    trim: true,
-    index: true,
-  },
-  name: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    index: true,
-  },
-  effectiveFrom: {
-    type: [
-      {
-        startDate: {
-          type: String,
-          required: true,
-          trim: true,
-          index: true,
-        },
-        endDate: {
-          type: String,
-          required: true,
-          trim: true,
-          index: true,
-        },
-        percentage: {
-          type: Number,
-          required: true,
-          min: 0,
+    groupName: {
+      type: String,
+      required: true,
+      trim: true,
+      index: true,
+    },
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      index: true,
+    },
+    effectiveFrom: {
+      type: [
+        {
+          startDate: {
+            type: String,
+            required: true,
+            trim: true,
+            index: true,
+          },
+          endDate: {
+            type: String,
+            required: true,
+            trim: true,
+            index: true,
+          },
+          percentage: {
+            type: Number,
+            required: true,
+            min: 0,
+          }
         }
-      }
-    ],
-    required: true,
-    validate: validateEffectiveFrom,
+      ],
+      required: true,
+      validate: validateEffectiveFrom,
+    }
+  });
+
+  public static createModel = (dbName: string): Model<TaxDoc, {}> => {
+
+    const mongoConnection = connection.useDb(dbName);
+    return mongoConnection.model('Tax', TaxModel.taxSchema);
+
   }
-};
 
-// Define model schema
-const taxSchema = new Schema(taxSchemaDef);
-
-export default model<TaxDoc>('Tax', taxSchema);
+}
