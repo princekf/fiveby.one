@@ -102,10 +102,10 @@ const deleteCompany = async(request: any, response: any) => {
 
 };
 
-router.route('/:id').get(AuthUtil.authorize, getCompany);
-router.route('/').get(AuthUtil.authorize, listAllCompany);
-router.route('/:id').put(AuthUtil.authorize, bodyParser.json(), updateCompany);
-router.route('/').post(AuthUtil.authorize, bodyParser.json(), saveCompany);
-router.route('/:id')['delete'](AuthUtil.authorize, bodyParser.json(), deleteCompany);
+router.route('/:id').get(AuthUtil.authorizeAdmin, getCompany);
+router.route('/').get(AuthUtil.authorizeAdmin, listAllCompany);
+router.route('/:id').put(AuthUtil.authorizeAdmin, bodyParser.json(), updateCompany);
+router.route('/').post(AuthUtil.authorizeAdmin, bodyParser.json(), saveCompany);
+router.route('/:id')['delete'](AuthUtil.authorizeAdmin, bodyParser.json(), deleteCompany);
 
 export default router;

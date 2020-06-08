@@ -20,6 +20,7 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
     const uri = await mongod.getConnectionString();
     await mongoose.connect(uri, {
       useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
 
     await request(app).post(`${AuthUris.ADMIN_URI}`)
@@ -46,7 +47,7 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
   afterAll(async() => {
 
     const AdminUser = AdminUserModel.createModel();
-    AdminUser.remove({});
+    await AdminUser.deleteMany({});
     await mongoose.disconnect();
     await mongod.stop();
 
@@ -79,29 +80,12 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
       .send(company);
     expect(response.status).toBe(HTTP_OK);
 
-    const getCompanyData = await request(app).get(`${AuthUris.COMPANY_URI}/${response.body._id}`)
+    const response2 = await request(app).get(`${AuthUris.COMPANY_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
-    expect(getCompanyData.status).toBe(HTTP_OK);
-    expect(getCompanyData.body.name).toBe(company.name);
-
+    expect(response2.status).toBe(HTTP_OK);
+    expect(response2.body.name).toBe(company.name);
 
   });
 
-  it('Should save a company with minimal values.', async() => {
-
-    const companyInputJSON: any = {
-      name: 'K and K Automobiles'
-    };
-    const response = await request(app).post(AuthUris.COMPANY_URI)
-      .set('Authorization', `Bearer ${serverToken}`);
-    expect(response.status).toBe(HTTP_OK);
-
-    const validResponse = await request(app).get(`${AuthUris.COMPANY_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
-    expect(validResponse.status).toBe(HTTP_OK);
-    const company: any = validResponse.body;
-    expect(company.name).toBe(companyInputJSON.name);
-
-  });
 
 });

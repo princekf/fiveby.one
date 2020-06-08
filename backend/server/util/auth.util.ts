@@ -18,6 +18,23 @@ export class AuthUtil {
 
     }));
 
+    const jwtOptionsAdmin = {
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.AUTH_SHARED_SECRET,
+      passReqToCallback: false,
+    };
+
+    passport.use('admin-jwt', new JWTStrategy(jwtOptionsAdmin, (jwtPayload: any, done: any) => {
+
+      if (jwtPayload.isAdmin) {
+
+        return done(null, jwtPayload);
+
+      }
+      return done('Permission denied.', false);
+
+    }));
+
   };
 
   public static findSessionDetails = (request: any) => {
@@ -38,6 +55,14 @@ export class AuthUtil {
   public static authorize = (_request: any, _response: any, next: any) => {
 
     passport.authenticate('user-jwt', { session: false});
+    next();
+
+  };
+
+
+  public static authorizeAdmin = (_request: any, _response: any, next: any) => {
+
+    passport.authenticate('admin-jwt', { session: false});
     next();
 
   };

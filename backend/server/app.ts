@@ -2,39 +2,27 @@ import * as dotenv from 'dotenv';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as path from 'path';
-import * as mongoose from 'mongoose';
 import { AuthUtil } from './util/auth.util';
 
 
 // Put dotenv in use before importing controllers
 dotenv.config();
-import {Routes} from './apiRoutes';
-
-
-const url = process.env.MONGODB_URI || 'mongodb://localhost:27017/';
+import { Routes } from './apiRoutes';
 
 class App {
 
   public app: express.Application;
 
-  /*
-   * Public routes: Routes = new Routes();
-   * Since database is defined at runtime, no need to provide the database name in mongo connection url.
-   */
-
   constructor() {
 
     this.app = express();
     this.config();
-    Routes.routes(this.app);
-    mongoose.connect(url, {
-      useNewUrlParser: true,
-    });
 
   }
 
-  private config(): void{
+  private config = (): void => {
 
+    Routes.routes(this.app);
     // Support application/json type post data
     this.app.use(bodyParser.json());
     // Support application/x-www-form-urlencoded post data

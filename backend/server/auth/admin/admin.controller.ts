@@ -1,7 +1,6 @@
 import { Request, Response, Router as expressRouter } from 'express';
 import * as passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import {Strategy as JWTStrategy, ExtractJwt} from 'passport-jwt';
 import {AdminUserModel} from './admin.model';
 import { Constants } from 'fivebyone';
 
@@ -33,23 +32,6 @@ const validateRequestedUser = async(email: string, password: string, done: any) 
 passport.use('admin-login', new LocalStrategy({
   usernameField: 'email',
 }, validateRequestedUser));
-
-const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.AUTH_SHARED_SECRET,
-  passReqToCallback: false,
-};
-
-passport.use('admin-jwt', new JWTStrategy(jwtOptions, (jwtPayload: any, done: any) => {
-
-  if (jwtPayload.isAdmin) {
-
-    return done(null, jwtPayload);
-
-  }
-  return done('Permission denied.', false);
-
-}));
 
 const installAdminUser = async(request: Request, response: Response) => {
 

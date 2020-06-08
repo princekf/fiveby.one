@@ -14,11 +14,12 @@
       "js"
     ],
     "transform": {
-      "^.+\\.(ts|tsx)$": "./node_modules/ts-jest/preprocessor.js"
+      "^.+\\.(ts|tsx)$": "ts-jest"
     },
     "testMatch": [
       "/**/*.test.ts"
     ],
+    "testEnvironment": "node",
     "collectCoverageFrom": [
       "**/*.ts",
       "!**/*.d.ts",
@@ -55,7 +56,7 @@
     "@types/passport": "1.0.3",
     "@types/passport-local": "1.0.33",
     "@types/supertest": "2.0.8",
-    "@types/webpack-node-externals": "^1.7.1",
+    "@types/webpack-node-externals": "1.7.1",
     "chalk": "4.0.0",
     "jest": "25.5.2",
     "mongodb-memory-server": "6.5.2",
