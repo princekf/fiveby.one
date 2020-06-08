@@ -21,9 +21,9 @@ export class PermissionModel {
     }
   });
 
-  public static createModel = (): Model<PermissionDoc, {}> => {
+  public static createModel = (dbName: string): Model<PermissionDoc, {}> => {
 
-    const mongoConnection = connection.useDb(process.env.COMMON_DB);
+    const mongoConnection = connection.useDb(dbName);
     return mongoConnection.model('Permission', PermissionModel.permissionSchema);
 
   }
