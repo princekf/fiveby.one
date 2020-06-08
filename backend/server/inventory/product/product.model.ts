@@ -5,7 +5,7 @@ import { ProductS } from 'fivebyone';
 interface ProductDoc extends ProductS, Document { }
 export class ProductModel {
 
-  private static productSchema = new Schema({
+  private static productSchema = new Schema<ProductDoc>({
 
 
     group: {

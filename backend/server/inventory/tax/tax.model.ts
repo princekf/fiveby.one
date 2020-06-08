@@ -58,7 +58,7 @@ const validateEffectiveFrom = (effectiveFroms: []): boolean => {
 };
 export class TaxModel {
 
-  private static taxSchema: Schema<TaxS> = new Schema({
+  private static taxSchema = new Schema<TaxDoc>({
 
     groupName: {
       type: String,
