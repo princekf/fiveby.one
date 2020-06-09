@@ -52,19 +52,4 @@ export class AuthUtil {
 
   };
 
-  public static authorize = (_request: any, _response: any, next: any) => {
-
-    passport.authenticate('user-jwt', { session: false});
-    next();
-
-  };
-
-
-  public static authorizeAdmin = (_request: any, _response: any, next: any) => {
-
-    passport.authenticate('admin-jwt', { session: false});
-    next();
-
-  };
-
 }

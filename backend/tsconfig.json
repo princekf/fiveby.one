@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "noImplicitAny": true,
-    "target": "es6",
+    "target": "es2017",
     "outDir": "build",
     "rootDir": "./",
     "sourceMap": true,

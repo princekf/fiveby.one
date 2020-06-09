@@ -4,7 +4,6 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import { UserModel } from './user.model';
 import {CompanyModel} from '../company/company.model';
 import { Constants, User as UserS, Company as CompanyEntity } from 'fivebyone';
-import { AuthUtil } from '../../util/auth.util';
 
 const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
 
@@ -189,10 +188,10 @@ const deleteUser = async(request: any, response: any) => {
 };
 
 router.route('/login').post(passport.authenticate('user-login', {session: false}), doLogin);
-router.route('/:id').get(AuthUtil.authorize, getUser);
-router.route('/').get(AuthUtil.authorize, listAllUsers);
-router.route('/:id').put(AuthUtil.authorize, updateUser);
-router.route('/').post(AuthUtil.authorize, saveUser);
-router.route('/:id')['delete'](AuthUtil.authorize, deleteUser);
+router.route('/:id').get(passport.authenticate('user-jwt', { session: false}), getUser);
+router.route('/').get(passport.authenticate('user-jwt', { session: false}), listAllUsers);
+router.route('/:id').put(passport.authenticate('user-jwt', { session: false}), updateUser);
+router.route('/').post(passport.authenticate('user-jwt', { session: false}), saveUser);
+router.route('/:id')['delete'](passport.authenticate('user-jwt', { session: false}), deleteUser);
 
 export default router;
