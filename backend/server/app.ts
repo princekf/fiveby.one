@@ -22,11 +22,12 @@ class App {
 
   private config = (): void => {
 
-    Routes.routes(this.app);
     // Support application/json type post data
     this.app.use(bodyParser.json());
     // Support application/x-www-form-urlencoded post data
     this.app.use(bodyParser.urlencoded({ extended: false }));
+
+    Routes.routes(this.app);
 
     AuthUtil.initPassports();
 

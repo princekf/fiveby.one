@@ -1,4 +1,3 @@
-import * as bodyParser from 'body-parser';
 import { Router as expressRouter } from 'express';
 import {CompanyModel} from './company.model';
 import { Constants, CompanyS } from 'fivebyone';
@@ -102,10 +101,10 @@ const deleteCompany = async(request: any, response: any) => {
 
 };
 
-router.route('/:id').get(AuthUtil.authorizeAdmin, getCompany);
 router.route('/').get(AuthUtil.authorizeAdmin, listAllCompany);
-router.route('/:id').put(AuthUtil.authorizeAdmin, bodyParser.json(), updateCompany);
-router.route('/').post(AuthUtil.authorizeAdmin, bodyParser.json(), saveCompany);
-router.route('/:id')['delete'](AuthUtil.authorizeAdmin, bodyParser.json(), deleteCompany);
+router.route('/:id').get(AuthUtil.authorizeAdmin, getCompany);
+router.route('/:id').put(AuthUtil.authorizeAdmin, updateCompany);
+router.route('/').post(AuthUtil.authorizeAdmin, saveCompany);
+router.route('/:id')['delete'](AuthUtil.authorizeAdmin, deleteCompany);
 
 export default router;
