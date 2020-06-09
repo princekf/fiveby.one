@@ -1,7 +1,7 @@
 import { Router as expressRouter } from 'express';
 import {CompanyModel} from './company.model';
 import { Constants, CompanyS } from 'fivebyone';
-import { AuthUtil } from '../../util/auth.util';
+import * as passport from 'passport';
 
 const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
 
@@ -101,10 +101,10 @@ const deleteCompany = async(request: any, response: any) => {
 
 };
 
-router.route('/').get(AuthUtil.authorizeAdmin, listAllCompany);
-router.route('/:id').get(AuthUtil.authorizeAdmin, getCompany);
-router.route('/:id').put(AuthUtil.authorizeAdmin, updateCompany);
-router.route('/').post(AuthUtil.authorizeAdmin, saveCompany);
-router.route('/:id')['delete'](AuthUtil.authorizeAdmin, deleteCompany);
+router.route('/').get(passport.authenticate('admin-jwt', { session: false}), listAllCompany);
+router.route('/:id').get(passport.authenticate('admin-jwt', { session: false}), getCompany);
+router.route('/:id').put(passport.authenticate('admin-jwt', { session: false}), updateCompany);
+router.route('/').post(passport.authenticate('admin-jwt', { session: false}), saveCompany);
+router.route('/:id')['delete'](passport.authenticate('admin-jwt', { session: false}), deleteCompany);
 
 export default router;
