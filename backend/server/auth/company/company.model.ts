@@ -1,8 +1,11 @@
 import { Document, Schema, Model, connection } from 'mongoose';
 import { CompanyS } from 'fivebyone';
 import { CommonUtil } from '../../util/common.util';
+import { CompanyImpl } from './CompanyImpl';
 
-interface CompanyDoc extends CompanyS, Document {
+export interface CompanyDoc extends CompanyS, Document {
+  code: string;
+  setCode(): void;
 }
 
 export class CompanyModel {
@@ -13,6 +16,13 @@ export class CompanyModel {
       required: true,
       trim: true,
       index: true,
+    },
+    code: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      index: true
     },
     addressLine1: {
       type: String,
@@ -95,6 +105,7 @@ export class CompanyModel {
 
   public static createModel = (): Model<CompanyDoc, {}> => {
 
+    CompanyModel.companySchema.loadClass(CompanyImpl);
     const mongoConnection = connection.useDb(process.env.COMMON_DB);
     return mongoConnection.model('Company', CompanyModel.companySchema);
 

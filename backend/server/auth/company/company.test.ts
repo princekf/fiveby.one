@@ -94,6 +94,7 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
     expect(company.country).toBe(companyResp.country);
     expect(company.pincode).toBe(companyResp.pincode);
     expect(company.contact).toBe(companyResp.contact);
+    expect(companyResp).toHaveProperty('code');
 
   });
 
@@ -153,17 +154,9 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
     const companyRes = await request(app).get(`${AuthUris.COMPANY_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(companyRes.status).toBe(HTTP_OK);
-    const companyResp: Company = companyRes.body;
-    expect(company.name).toBe(companyResp.name);
-    expect(company.email).toBe(companyResp.email);
-    expect(company.addressLine1).toBe(companyResp.addressLine1);
-    expect(company.addressLine2).toBe(companyResp.addressLine2);
-    expect(company.addressLine3).toBe(companyResp.addressLine3);
-    expect(company.addressLine4).toBe(companyResp.addressLine4);
-    expect(company.state).toBe(companyResp.state);
-    expect(company.country).toBe(companyResp.country);
-    expect(company.pincode).toBe(companyResp.pincode);
-    expect(company.contact).toBe(companyResp.contact);
+    const companyData: Company = companyRes.body;
+    expect(company.name).toBe(companyData.name);
+    expect(companyData).toHaveProperty('code');
 
   });
 
@@ -373,6 +366,7 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
     expect(getCompanyData.addressLine4).toBe(updateCompanyFields.addressLine4);
 
     expect(getCompanyData.pincode).toBe(updateCompanyFields.pincode);
+    expect(getCompanyData).toHaveProperty('code');
 
   });
 
@@ -601,6 +595,7 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
     expect(company.country).toBe(companyInputJSON.country);
     expect(company.pincode).toBe(companyInputJSON.pincode);
     expect(company.contact).toBe(companyInputJSON.contact);
+    expect(company).toHaveProperty('code');
 
   });
 
@@ -744,9 +739,14 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
       .set('Authorization', `Bearer ${serverToken}`);
     expect(validResponse.status).toBe(HTTP_OK);
 
-    const companies: Array<CompanyS> = validResponse.body;
+    const companies: Array<Company> = validResponse.body;
 
     expect(companies).toMatchObject([ companyInputJSON1, companyInputJSON2 ]);
+    companies.forEach((company) => {
+
+      expect(company).toHaveProperty('code');
+
+    });
 
   });
 

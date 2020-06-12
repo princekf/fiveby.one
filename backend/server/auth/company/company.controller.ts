@@ -1,7 +1,8 @@
 import { Router as expressRouter } from 'express';
-import {CompanyModel} from './company.model';
+import { CompanyModel, CompanyDoc } from './company.model';
 import { Constants, CompanyS } from 'fivebyone';
 import * as passport from 'passport';
+import { Model } from 'mongoose';
 
 const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
 
@@ -33,8 +34,9 @@ const saveCompany = async(request: any, response: any) => {
 
   try {
 
-    const Company = CompanyModel.createModel();
+    const Company: Model<CompanyDoc> = CompanyModel.createModel();
     const company = new Company(request.body);
+    await company.setCode();
     await company.save();
     return response.status(HTTP_OK).json(company);
 

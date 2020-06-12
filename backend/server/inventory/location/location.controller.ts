@@ -2,6 +2,7 @@ import {Router as expressRouter} from 'express';
 import {ProductModel} from '../product/product.model';
 import {Constants} from 'fivebyone';
 import { AuthUtil } from '../../util/auth.util';
+import passport = require('passport');
 
 const {HTTP_OK, HTTP_UNAUTHORIZED} = Constants;
 
@@ -21,7 +22,7 @@ const listLocations = async(_request: any, response: any) => {
 
 };
 
-router.route('/').get(AuthUtil.authorize, listLocations);
+router.route('/').get(passport.authenticate('user-jwt', { session: false}), listLocations);
 
 export default router;
 

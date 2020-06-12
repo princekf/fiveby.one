@@ -3,6 +3,7 @@ import { Router as expressRouter } from 'express';
 import {PermissionModel} from './permission.model';
 import { Constants, PermissionS, Permission as PermissionEntity } from 'fivebyone';
 import { AuthUtil } from '../../util/auth.util';
+import passport = require('passport');
 
 
 const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
@@ -136,10 +137,10 @@ const deletePermission = async(request: any, response: any) => {
 
 };
 
-router.route('/').get(AuthUtil.authorize, listAll);
-router.route('/:id').get(AuthUtil.authorize, getPermission);
-router.route('/').post(AuthUtil.authorize, bodyParser.json(), savePermission);
-router.route('/:id').put(AuthUtil.authorize, bodyParser.json(), updatePermission);
-router.route('/:id')['delete'](AuthUtil.authorize, deletePermission);
+router.route('/').get(passport.authenticate('user-jwt', { session: false}), listAll);
+router.route('/:id').get(passport.authenticate('user-jwt', { session: false}), getPermission);
+router.route('/').post(passport.authenticate('user-jwt', { session: false}), bodyParser.json(), savePermission);
+router.route('/:id').put(passport.authenticate('user-jwt', { session: false}), bodyParser.json(), updatePermission);
+router.route('/:id')['delete'](passport.authenticate('user-jwt', { session: false}), deletePermission);
 
 export default router;

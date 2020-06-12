@@ -6,7 +6,7 @@ import app from '../../app';
 import User from '../../auth/user/user.model';
 import Tax from './tax.model';
 import Company from '../../auth/company/company.model';
-import CompanyBranchM from '../../auth/companyBranch/companyBranch.model';
+import {CompanyBranchM} from '../../auth/companyBranch/companyBranch.model';
 import { Constants, Tax as TaxEntity, InventoryUris, AuthUris, CompanyS as CompanyI, CompanyBranchS, CompanyBranch } from 'fivebyone';
 
 const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;

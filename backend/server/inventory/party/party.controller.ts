@@ -5,6 +5,7 @@ import {PartyModel} from './party.model';
 import {Constants, PartyS} from 'fivebyone';
 import { PartyUtil } from './party.util';
 import { AuthUtil } from '../../util/auth.util';
+import passport = require('passport');
 
 const {HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED} = Constants;
 
@@ -135,10 +136,10 @@ const deleteParty = async(request: any, response: any) => {
 
 };
 
-router.route('/').get(AuthUtil.authorize, listParty);
-router.route('/:id').get(AuthUtil.authorize, getParty);
-router.route('/').post(AuthUtil.authorize, bodyParser.json(), saveParty);
-router.route('/:id').put(AuthUtil.authorize, bodyParser.json(), updateParty);
-router.route('/:id')['delete'](AuthUtil.authorize, deleteParty);
+router.route('/').get(passport.authenticate('user-jwt', { session: false}), listParty);
+router.route('/:id').get(passport.authenticate('user-jwt', { session: false}), getParty);
+router.route('/').post(passport.authenticate('user-jwt', { session: false}), bodyParser.json(), saveParty);
+router.route('/:id').put(passport.authenticate('user-jwt', { session: false}), bodyParser.json(), updateParty);
+router.route('/:id')['delete'](passport.authenticate('user-jwt', { session: false}), deleteParty);
 
 export default router;

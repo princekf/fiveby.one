@@ -4,6 +4,7 @@ import { AuthUtil } from '../../util/auth.util';
 import { ProductModel } from './product.model';
 import {ProductGroupModel} from '../productGroup/productGroup.model';
 import { Constants, ProductS, ProductGroup as ProductGroupEntity, Product as ProductEntity } from 'fivebyone';
+import passport = require('passport');
 
 const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
@@ -179,10 +180,10 @@ const deleteProduct = async(request: any, response: any) => {
 
 };
 
-router.route('/').get(AuthUtil.authorize, listProducts);
-router.route('/:id').get(AuthUtil.authorize, getProduct);
-router.route('/').post(AuthUtil.authorize, bodyParser.json(), saveProduct);
-router.route('/:id').put(AuthUtil.authorize, bodyParser.json(), updateProduct);
-router.route('/:id')['delete'](AuthUtil.authorize, deleteProduct);
+router.route('/').get(passport.authenticate('user-jwt', { session: false}), listProducts);
+router.route('/:id').get(passport.authenticate('user-jwt', { session: false}), getProduct);
+router.route('/').post(passport.authenticate('user-jwt', { session: false}), bodyParser.json(), saveProduct);
+router.route('/:id').put(passport.authenticate('user-jwt', { session: false}), bodyParser.json(), updateProduct);
+router.route('/:id')['delete'](passport.authenticate('user-jwt', { session: false}), deleteProduct);
 
 export default router;

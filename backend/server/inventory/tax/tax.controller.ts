@@ -3,6 +3,7 @@ import { Router as expressRouter } from 'express';
 import { AuthUtil } from '../../util/auth.util';
 import { TaxModel } from './tax.model';
 import { Constants, TaxS } from 'fivebyone';
+import passport = require('passport');
 
 const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
@@ -126,10 +127,10 @@ const deleteTax = async(request: any, response: any) => {
 
 };
 
-router.route('/').get(AuthUtil.authorize, listTax);
-router.route('/:id').get(AuthUtil.authorize, getTax);
-router.route('/').post(AuthUtil.authorize, bodyParser.json(), saveTax);
-router.route('/:id').put(AuthUtil.authorize, bodyParser.json(), updateTax);
-router.route('/:id')['delete'](AuthUtil.authorize, deleteTax);
+router.route('/').get(passport.authenticate('user-jwt', { session: false}), listTax);
+router.route('/:id').get(passport.authenticate('user-jwt', { session: false}), getTax);
+router.route('/').post(passport.authenticate('user-jwt', { session: false}), bodyParser.json(), saveTax);
+router.route('/:id').put(passport.authenticate('user-jwt', { session: false}), bodyParser.json(), updateTax);
+router.route('/:id')['delete'](passport.authenticate('user-jwt', { session: false}), deleteTax);
 
 export default router;

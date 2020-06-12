@@ -4,6 +4,7 @@ import {CompanyModel} from '../company/company.model';
 import {CompanyBranchModel} from './companyBranch.model';
 import { Constants, CompanyBranchS, CompanyBranch as CompanyBranchEntity, Company as CompanyEntity } from 'fivebyone';
 import { AuthUtil } from '../../util/auth.util';
+import passport = require('passport');
 
 const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
@@ -180,10 +181,10 @@ const deleteCompanyBranch = async(request: any, response: any) => {
 };
 
 
-router.route('/:id').get(AuthUtil.authorize, getCompanyBranch);
-router.route('/').get(AuthUtil.authorize, listCompanyBranches);
-router.route('/').post(AuthUtil.authorize, bodyParser.json(), saveCompanyBranch);
-router.route('/:id').put(AuthUtil.authorize, bodyParser.json(), updateCompanyBranch);
-router.route('/:id')['delete'](AuthUtil.authorize, deleteCompanyBranch);
+router.route('/:id').get(passport.authenticate('user-jwt', { session: false}), getCompanyBranch);
+router.route('/').get(passport.authenticate('user-jwt', { session: false}), listCompanyBranches);
+router.route('/').post(passport.authenticate('user-jwt', { session: false}), bodyParser.json(), saveCompanyBranch);
+router.route('/:id').put(passport.authenticate('user-jwt', { session: false}), bodyParser.json(), updateCompanyBranch);
+router.route('/:id')['delete'](passport.authenticate('user-jwt', { session: false}), deleteCompanyBranch);
 
 export default router;

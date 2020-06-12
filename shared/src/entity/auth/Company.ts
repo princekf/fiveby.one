@@ -14,4 +14,5 @@ export interface CompanyS {
 
 export interface Company extends CompanyS {
   _id: string;
+  code: string;
 }

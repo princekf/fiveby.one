@@ -3,6 +3,7 @@ import { Router as expressRouter } from 'express';
 import { AuthUtil } from '../../util/auth.util';
 import { PurchaseModel } from './purchase.model';
 import { Constants } from 'fivebyone';
+import passport = require('passport');
 
 const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
@@ -62,8 +63,8 @@ const getPurchase = async(request: any, response: any) => {
 };
 
 // Router.route('/').get(authorize, listTax);
-router.route('/:id').get(AuthUtil.authorize, getPurchase);
-router.route('/').post(AuthUtil.authorize, bodyParser.json(), savePurchase);
+router.route('/:id').get(passport.authenticate('user-jwt', { session: false}), getPurchase);
+router.route('/').post(passport.authenticate('user-jwt', { session: false}), bodyParser.json(), savePurchase);
 
 /*
  * Router.route('/:id').put(authorize, bodyParser.json(), updateTax);
