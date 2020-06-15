@@ -14,12 +14,12 @@ const savePurchase = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const PurchaseSchema = PurchaseModel.createModel(sessionDetails.company);
+    const PurchaseSchema = PurchaseModel.createModel(sessionDetails.companyCode);
     const purchase = new PurchaseSchema(request.body);
     await purchase.save();
     return response.status(HTTP_OK).json(purchase);
@@ -36,12 +36,12 @@ const getPurchase = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const PurchaseSchema = PurchaseModel.createModel(sessionDetails.company);
+    const PurchaseSchema = PurchaseModel.createModel(sessionDetails.companyCode);
     const purchase = await PurchaseSchema.findById(request.params.id)
       .populate('party')
       .populate('purchaseItems.product')

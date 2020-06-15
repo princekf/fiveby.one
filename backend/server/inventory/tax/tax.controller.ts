@@ -12,12 +12,12 @@ const router = expressRouter();
 const listTax = async(_request: any, response: any) => {
 
   const sessionDetails = AuthUtil.findSessionDetails(_request);
-  if (!sessionDetails.company) {
+  if (!sessionDetails.companyCode) {
 
     return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
   }
-  const TaxSchema = TaxModel.createModel(sessionDetails.company);
+  const TaxSchema = TaxModel.createModel(sessionDetails.companyCode);
   const taxes = await TaxSchema.find();
   return response.status(HTTP_OK).json(taxes);
 
@@ -29,12 +29,12 @@ const getTax = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const TaxSchema = TaxModel.createModel(sessionDetails.company);
+    const TaxSchema = TaxModel.createModel(sessionDetails.companyCode);
     const tax = await TaxSchema.findById(request.params.id);
     if (!tax) {
 
@@ -56,12 +56,12 @@ const saveTax = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const TaxSchema = TaxModel.createModel(sessionDetails.company);
+    const TaxSchema = TaxModel.createModel(sessionDetails.companyCode);
     const tax = new TaxSchema(request.body);
     await tax.save();
     return response.status(HTTP_OK).json(tax);
@@ -79,14 +79,14 @@ const updateTax = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
     const { id } = request.params;
     const updateObject: TaxS = request.body;
-    const TaxSchema = TaxModel.createModel(sessionDetails.company);
+    const TaxSchema = TaxModel.createModel(sessionDetails.companyCode);
     await TaxSchema.update({ _id: id }, updateObject, { runValidators: true });
     return response.status(HTTP_OK).json(updateObject);
 
@@ -103,12 +103,12 @@ const deleteTax = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const TaxSchema = TaxModel.createModel(sessionDetails.company);
+    const TaxSchema = TaxModel.createModel(sessionDetails.companyCode);
     const { id } = request.params;
     const resp = await TaxSchema.deleteOne({ _id: id });
     if (resp.deletedCount === 0) {

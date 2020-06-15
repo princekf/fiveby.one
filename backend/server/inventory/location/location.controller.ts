@@ -11,12 +11,12 @@ const router = expressRouter();
 const listLocations = async(_request: any, response: any) => {
 
   const sessionDetails = AuthUtil.findSessionDetails(_request);
-  if (!sessionDetails.company) {
+  if (!sessionDetails.companyCode) {
 
     return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
   }
-  const Product = ProductModel.createModel(sessionDetails.company);
+  const Product = ProductModel.createModel(sessionDetails.companyCode);
   const locations = await Product.distinct('location');
   return response.status(HTTP_OK).json(locations);
 

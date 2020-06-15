@@ -1,8 +1,9 @@
 import {Party as PartyEntity} from 'fivebyone';
 import {PurchaseModel} from '../purchase/purchase.model';
+import { UserSession } from '../../auth/user/UserImpl';
 export class PartyUtil {
 
-  public static validateParty = async(party: PartyEntity, sessionDetails: any): Promise<void> => {
+  public static validateParty = async(party: PartyEntity, sessionDetails: UserSession): Promise<void> => {
 
     if (!party.isCustomer && !party.isVendor) {
 
@@ -16,7 +17,7 @@ export class PartyUtil {
       return;
 
     }
-    const Purchase = PurchaseModel.createModel(sessionDetails.company);
+    const Purchase = PurchaseModel.createModel(sessionDetails.companyCode);
     const purcahses = await Purchase.find({party});
     if (purcahses.length > 0 && !party.isVendor) {
 

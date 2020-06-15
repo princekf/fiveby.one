@@ -11,12 +11,12 @@ const router = expressRouter();
 const listColors = async(_request: any, response: any) => {
 
   const sessionDetails = AuthUtil.findSessionDetails(_request);
-  if (!sessionDetails.company) {
+  if (!sessionDetails.companyCode) {
 
     return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
   }
-  const Product = ProductModel.createModel(sessionDetails.company);
+  const Product = ProductModel.createModel(sessionDetails.companyCode);
   const colors = await Product.distinct('colors');
   return response.status(HTTP_OK).json(colors.filter(Boolean));
 

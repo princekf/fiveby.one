@@ -7,6 +7,13 @@ const EXPIRY_IN_MINUTES = 30;
 const BYTE_SIZE = 16;
 const SECOND_IN_MILLIE = 1000;
 
+export interface UserSession {
+  _id: string;
+  email: string;
+  companyCode: string;
+  exp: number;
+}
+
 export class UserImpl {
 
   private id: string;
@@ -39,18 +46,23 @@ export class UserImpl {
   }
 
   // Generate access token for 30 minutes
-  public generateJwt(): { token: string; expiry: Date } {
+  public generateJwt(uSession: UserSession): { token: any; expiry: Date } {
 
+    if (!uSession.companyCode) {
+
+      return { token: null,
+        expiry: null };
+
+    }
     const expiry = new Date();
     expiry.setMinutes(expiry.getMinutes() + EXPIRY_IN_MINUTES);
-
-    const token = sign(
-      {
-        _id: this.id,
-        email: this.email,
-        exp: Math.round(expiry.getTime() / SECOND_IN_MILLIE),
-      }, process.env.AUTH_SHARED_SECRET,
-    );
+    const sessionKeys: UserSession = {
+      _id: this.id,
+      email: this.email,
+      companyCode: uSession.companyCode,
+      exp: Math.round(expiry.getTime() / SECOND_IN_MILLIE),
+    };
+    const token = sign(sessionKeys, process.env.AUTH_SHARED_SECRET);
 
     return {
       token,

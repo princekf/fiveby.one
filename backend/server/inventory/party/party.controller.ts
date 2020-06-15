@@ -14,12 +14,12 @@ const router = expressRouter();
 const listParty = async(_request: any, response: any) => {
 
   const sessionDetails = AuthUtil.findSessionDetails(_request);
-  if (!sessionDetails.company) {
+  if (!sessionDetails.companyCode) {
 
     return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
   }
-  const Party = PartyModel.createModel(sessionDetails.company);
+  const Party = PartyModel.createModel(sessionDetails.companyCode);
   const taxes = await Party.find();
   return response.status(HTTP_OK).json(taxes);
 
@@ -31,12 +31,12 @@ const getParty = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const Party = PartyModel.createModel(sessionDetails.company);
+    const Party = PartyModel.createModel(sessionDetails.companyCode);
     const party = await Party.findById(request.params.id);
     if (!party) {
 
@@ -58,12 +58,12 @@ const saveParty = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const Party = PartyModel.createModel(sessionDetails.company);
+    const Party = PartyModel.createModel(sessionDetails.companyCode);
 
     const party = new Party(request.body);
     await party.save();
@@ -83,12 +83,12 @@ const updateParty = async(request: any, response: any) => {
 
     const {id} = request.params;
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const Party = PartyModel.createModel(sessionDetails.company);
+    const Party = PartyModel.createModel(sessionDetails.companyCode);
 
     const party = await Party.findById(id);
 
@@ -113,12 +113,12 @@ const deleteParty = async(request: any, response: any) => {
 
     const {id} = request.params;
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const Party = PartyModel.createModel(sessionDetails.company);
+    const Party = PartyModel.createModel(sessionDetails.companyCode);
     const resp = await Party.deleteOne({_id: id});
     if (resp.deletedCount === 0) {
 

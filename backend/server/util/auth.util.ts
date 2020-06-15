@@ -1,6 +1,7 @@
 
 import * as passport from 'passport';
 import {Strategy as JWTStrategy, ExtractJwt} from 'passport-jwt';
+import {UserSession} from '../auth/user/UserImpl';
 
 export class AuthUtil {
 
@@ -37,18 +38,20 @@ export class AuthUtil {
 
   };
 
-  public static findSessionDetails = (request: any) => {
+  public static findSessionDetails = (request: any): UserSession => {
 
     if (!request.user) {
 
       throw new Error('Permission denied.');
 
     }
-    return {
-      company: process.env.COMMON_DB,
-      branch: 'branch2',
-      finYear: 'fin2'
+    const sessionDetails: UserSession = {
+      companyCode: request.user.companyCode,
+      _id: request.user.id,
+      email: request.user.email,
+      exp: request.user.exp
     };
+    return sessionDetails;
 
   };
 

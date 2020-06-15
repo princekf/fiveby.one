@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import { UserS } from 'fivebyone';
 import { CommonUtil } from '../../util/common.util';
-import { UserImpl } from './UserImpl';
+import { UserImpl, UserSession } from './UserImpl';
 
 const {Schema} = mongoose;
 
@@ -10,7 +10,7 @@ interface UserM extends UserS {
   salt: string;
   setPassword(password: string): void;
   isPasswordValid(password: string): boolean;
-  generateJwt(): { token: string; expiry: Date };
+  generateJwt(userSession: UserSession): { token: string; expiry: Date };
 }
 // Declare the model interface
 interface UserDoc extends UserM, mongoose.Document {

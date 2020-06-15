@@ -130,6 +130,46 @@ describe(`${AuthUris.USER_URI} tests`, () => {
 
   });
 
+  it('SHOULD NOT: save a user with invalid company Id.', async() => {
+
+    const userJson: any = {
+      name: 'John Honai',
+      mobile: '+91123456789',
+      email: 'john.honai@fivebyOne.com',
+      password: 'Simple_123@',
+      addressLine1: 'Jawahar Nagar',
+      addressLine2: 'TTC',
+      addressLine3: 'Vellayambalam',
+      addressLine4: 'Museum',
+      state: 'Kerala',
+      country: 'India',
+      pinCode: '223344',
+    };
+
+    const companyData = await request(app).post(AuthUris.COMPANY_URI)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Company',
+        email: 'office@company.com',
+        addressLine1: 'Annai Nagar',
+        addressLine2: 'MGR Street',
+        addressLine3: 'Near Bakery road',
+        addressLine4: 'Chennai',
+        state: 'Tamil Nadu',
+        country: 'India',
+        pincode: '223344',
+        contact: '9656444108',
+        phone: '7907919930'
+      });
+    const CompanySchema = CompanyModel.createModel();
+    await CompanySchema.remove({ email: 'office@company.com' });
+    const response = await request(app).post(`${AuthUris.USER_URI}/user/admin/${companyData.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send(userJson);
+    expect(response.status).toBe(HTTP_BAD_REQUEST);
+
+  });
+
   it('SHOULD NOT: save user without token', async() => {
 
     const userJson: any = {
@@ -585,9 +625,34 @@ describe(`${AuthUris.USER_URI} tests`, () => {
       });
     expect(response.status).toBe(HTTP_OK);
 
-    const validResponse = await request(app).get(`${`${AuthUris.USER_URI}/user/admin/${company._id}`}/${response.body._id}`)
+    const validResponse = await request(app).get(`${AuthUris.USER_URI}/user/admin/${company._id}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(validResponse.status).toBe(HTTP_OK);
+
+  });
+
+  it('SHOULD NOT: Get a user document with a valid document id but with an invalid company id', async() => {
+
+    const response = await request(app).post(`${AuthUris.USER_URI}/user/admin/${company._id}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'John Honai',
+        mobile: '+91123456789',
+        email: 'john.honai@fivebyOne.com',
+        password: 'Simple_123@',
+        addressLine1: 'Jawahar Nagar',
+        addressLine2: 'TTC',
+        addressLine3: 'Vellayambalam',
+        addressLine4: 'Museum',
+        state: 'Kerala',
+        country: 'India',
+        pinCode: '223344'
+      });
+    expect(response.status).toBe(HTTP_OK);
+
+    const validResponse = await request(app).get(`${AuthUris.USER_URI}/user/admin/$abc/${response.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(validResponse.status).toBe(HTTP_BAD_REQUEST);
 
   });
 
@@ -610,7 +675,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
       });
     expect(response.status).toBe(HTTP_OK);
 
-    const validResponse = await request(app).get(`${`${AuthUris.USER_URI}/user/admin/${company._id}`}/abc`)
+    const validResponse = await request(app).get(`${AuthUris.USER_URI}/user/admin/${company._id}/abc`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(validResponse.status).toBe(HTTP_BAD_REQUEST);
 
@@ -635,10 +700,10 @@ describe(`${AuthUris.USER_URI} tests`, () => {
       });
     expect(response.status).toBe(HTTP_OK);
 
-    const validResponse = await request(app)['delete'](`${`${AuthUris.USER_URI}/user/admin/${company._id}`}/${response.body._id}`)
+    const validResponse = await request(app)['delete'](`${AuthUris.USER_URI}/user/admin/${company._id}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(validResponse.status).toBe(HTTP_OK);
-    const getDeleteUser = await request(app).get(`${`${AuthUris.USER_URI}/user/admin/${company._id}`}/${response.body._id}`)
+    const getDeleteUser = await request(app).get(`${AuthUris.USER_URI}/user/admin/${company._id}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(getDeleteUser.status).toBe(HTTP_BAD_REQUEST);
 
@@ -653,6 +718,16 @@ describe(`${AuthUris.USER_URI} tests`, () => {
 
   });
 
+
+  it('SHOULD: list Users with an invalid company id', async() => {
+
+    const listAllUserReponse = await request(app)
+      .get(`${AuthUris.USER_URI}/user/admin/abc`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(listAllUserReponse.status).toBe(HTTP_BAD_REQUEST);
+
+  });
+
   it('SHOULD NOT: list users without token', async() => {
 
     const listAllUserReponse = await request(app).get(`${AuthUris.USER_URI}/user/admin/${company._id}`);
@@ -662,7 +737,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
 
   it('SHOULD NOT: list users with an invalid token', async() => {
 
-    const listAllUserReponse = await request(app).get(`${`${AuthUris.USER_URI}/user/admin/${company._id}`}`)
+    const listAllUserReponse = await request(app).get(`${AuthUris.USER_URI}/user/admin/${company._id}`)
       .set('Authorization', `Bearer2 ${serverToken}`);
     expect(listAllUserReponse.status).toBe(HTTP_UNAUTHORIZED);
 
@@ -687,7 +762,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
       });
     expect(savedUser.status).toBe(HTTP_OK);
     expect(savedUser.body).toHaveProperty('_id');
-    const updatedUserBody = await request(app).put(`${`${AuthUris.USER_URI}/user/admin/${company._id}`}/${savedUser.body._id}`)
+    const updatedUserBody = await request(app).put(`${AuthUris.USER_URI}/user/admin/${company._id}/${savedUser.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Palarivattam Sasi',
@@ -703,7 +778,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
         pinCode: '223344'
       });
     expect(updatedUserBody.status).toBe(HTTP_OK);
-    const updatedUserResponse = await request(app).get(`${`${AuthUris.USER_URI}/user/admin/${company._id}`}/${savedUser.body._id}`)
+    const updatedUserResponse = await request(app).get(`${AuthUris.USER_URI}/user/admin/${company._id}/${savedUser.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(updatedUserResponse.status).toBe(HTTP_OK);
     expect(updatedUserResponse.body.name).toBe('Palarivattam Sasi');
@@ -780,7 +855,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
     expect(savedUser.status).toBe(HTTP_OK);
     expect(savedUser.body).toHaveProperty('_id');
 
-    const updatedUserBody = await request(app).put(`${`${AuthUris.USER_URI}/user/admin/${company._id}`}/${savedUser.body._id}`)
+    const updatedUserBody = await request(app).put(`${AuthUris.USER_URI}/user/admin/${company._id}/${savedUser.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Palarivattam Sasi',
@@ -796,7 +871,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
         pinCode: '223344'
       });
     expect(updatedUserBody.status).toBe(HTTP_OK);
-    const updatedUserResponse = await request(app).get(`${`${AuthUris.USER_URI}/user/admin/${company._id}`}/${savedUser.body._id}`)
+    const updatedUserResponse = await request(app).get(`${AuthUris.USER_URI}/user/admin/${company._id}/${savedUser.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     const updateUser: UserEntity = updatedUserResponse.body;
 
@@ -851,7 +926,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
     expect(savedUser.body).toHaveProperty('_id');
     const CompanySchema = CompanyModel.createModel();
     await CompanySchema.deleteOne({ name: 'Continental Exporters' });
-    const updatedUserBody = await request(app).put(`${`${AuthUris.USER_URI}/user/admin/${tempCompanyRes.body._id}`}/${savedUser.body._id}`)
+    const updatedUserBody = await request(app).put(`${AuthUris.USER_URI}/user/admin/${tempCompanyRes.body._id}/${savedUser.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Palarivattam Sasi',
@@ -889,7 +964,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
       });
     expect(savedUser.status).toBe(HTTP_OK);
     expect(savedUser.body).toHaveProperty('_id');
-    const updatedUserResponse = await request(app).put(`${`${AuthUris.USER_URI}/user/admin/${company._id}`}/${savedUser.body._id}`)
+    const updatedUserResponse = await request(app).put(`${AuthUris.USER_URI}/user/admin/${company._id}/${savedUser.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Palarivattam Sasi'
@@ -921,7 +996,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
       .send(userJson);
     expect(savedUser.status).toBe(HTTP_OK);
     expect(savedUser.body).toHaveProperty('_id');
-    const updatedUserResponse = await request(app).put(`${`${AuthUris.USER_URI}/user/admin/${company._id}`}/${savedUser.body._id}`)
+    const updatedUserResponse = await request(app).put(`${AuthUris.USER_URI}/user/admin/${company._id}/${savedUser.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
       .send({
         name: 'Joseph Alex',
@@ -1119,6 +1194,32 @@ describe(`${AuthUris.USER_URI} tests`, () => {
     const validResponse = await request(app)['delete'](`${AuthUris.USER_URI}/user/admin/${company._id}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(validResponse.status).toBe(HTTP_OK);
+
+  });
+
+  it('SHOULD: delete a user with valid Id but with invalid company Id', async() => {
+
+
+    const response = await request(app).post(`${AuthUris.USER_URI}/user/admin/${company._id}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'John Honai',
+        mobile: '+91123456789',
+        email: 'john.honai@fivebyOne.com',
+        password: 'Simple_123@',
+        addressLine1: 'Jawahar Nagar',
+        addressLine2: 'TTC',
+        addressLine3: 'Vellayambalam',
+        addressLine4: 'Museum',
+        state: 'Kerala',
+        country: 'India',
+        pinCode: '223344'
+      });
+    expect(response.status).toBe(HTTP_OK);
+
+    const validResponse = await request(app)['delete'](`${AuthUris.USER_URI}/user/admin/abc/${response.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    expect(validResponse.status).toBe(HTTP_BAD_REQUEST);
 
   });
 

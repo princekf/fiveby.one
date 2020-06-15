@@ -54,12 +54,12 @@ const validateParentAndFindAncestors =
 const listProductGroup = async(_request: any, response: any) => {
 
   const sessionDetails = AuthUtil.findSessionDetails(_request);
-  if (!sessionDetails.company) {
+  if (!sessionDetails.companyCode) {
 
     return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
   }
-  const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.company);
+  const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
   const productGroups = await ProductGroupSchema.find().populate('parent');
   return response.status(HTTP_OK).json(productGroups);
 
@@ -70,12 +70,12 @@ const getProductGroup = async(request: any, response: any) => {
   try {
 
     const sessionDetails = request.body;
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.company);
+    const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
     const productGroup = await ProductGroupSchema.findById(request.params.id).populate('parent');
     if (!productGroup) {
 
@@ -98,12 +98,12 @@ const saveProductGroup = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.company);
+    const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
     const productGroup = new ProductGroupSchema(request.body);
     const ancestors: string[] = await validateParentAndFindAncestors(productGroup, ProductGroupSchema);
     productGroup.ancestors = ancestors;
@@ -123,14 +123,14 @@ const updateProductGroup = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
     const { id } = request.params;
     const updateObject: ProductGroupS = request.body;
-    const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.company);
+    const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
     const ancestors: string[] = await validateParentAndFindAncestors(updateObject, ProductGroupSchema, id);
     updateObject.ancestors = ancestors;
     await ProductGroupSchema.update({ _id: id }, updateObject);
@@ -152,19 +152,19 @@ const deleteProductGroup = async(request: any, response: any) => {
     const productGroupId = request.params.id;
     // If it is a parent group, then can't be deleted.
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.company);
+    const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
     const productGroupsSelected: ProductGroupEntity[] = await ProductGroupSchema.find({ ancestors: productGroupId });
     if (productGroupsSelected && productGroupsSelected.length > 0) {
 
       return response.status(HTTP_BAD_REQUEST).send(new Error('Cannot delete a parent group'));
 
     }
-    const ProductSchema = ProductModel.createModel(sessionDetails.company);
+    const ProductSchema = ProductModel.createModel(sessionDetails.companyCode);
     const products: ProdutEntity[] = await ProductSchema.find({ group: productGroupId });
     if (products && products.length > 0) {
 

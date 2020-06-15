@@ -5,50 +5,23 @@ import { UserModel } from './user.model';
 import { CompanyModel } from '../company/company.model';
 import { Constants, User as UserS, Company as CompanyEntity } from 'fivebyone';
 import { AuthUtil } from '../../util/auth.util';
+import { isValidObjectId } from 'mongoose';
+import { UserSession } from './UserImpl';
 
-const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
+const { HTTP_OK, HTTP_BAD_REQUEST, INVALID_OBJECT_ID } = Constants;
 
-const validateRequestedUser = async(request: any, email: string, password: string, done: any) => {
+const getCompany = async(companyKey: string): Promise<CompanyEntity> => {
 
-  // Get the company name from URL.
-  const companyName = request.get('COMPANY');
-  if (!companyName) {
-
-    return done('Login failed.', null);
-
-  }
-  const User = UserModel.createModel(companyName);
-  try {
-
-    const user = await User.findOne({ email });
-    if (user && user.isPasswordValid(password)) {
-
-      return done(null, user);
-
-    }
-
-  } catch (error) {
-  }
-  return done('Login failed.', null);
-
-};
-
-passport.use('user-login', new LocalStrategy({
-  usernameField: 'email',
-  passReqToCallback: true,
-}, validateRequestedUser));
-
-const getCompany = async(companyId: string): Promise<CompanyEntity> => {
-
-  if (!companyId) {
-
-    return null;
-
-  }
   const Company = CompanyModel.createModel();
-  const companyData: CompanyEntity = await Company.findById(companyId);
+  const query = {
+    $or: [
+      { '_id': isValidObjectId(companyKey) ? companyKey : INVALID_OBJECT_ID },
+      { 'code': companyKey }
+    ]
+  };
+  const companyData: CompanyEntity = await Company.findOne(query);
 
-  if (companyData === null) {
+  if (!companyData || Object.keys(companyData).length === 0) {
 
     return null;
 
@@ -58,22 +31,59 @@ const getCompany = async(companyId: string): Promise<CompanyEntity> => {
 
 };
 
+const validateRequestedUser = async(request: any, email: string, password: string, done: any) => {
+
+  // Get the company code from params.
+  const { code } = request.params;
+
+  const company: CompanyEntity = await getCompany(code);
+  if (!company) {
+
+    return done(null, false, { message: 'No company found' });
+
+  }
+  const User = UserModel.createModel(code);
+  try {
+
+    const user: any = await User.findOne({ email });
+    if (user && user.isPasswordValid(password)) {
+
+      return done(null, {
+        loggedInUser: user,
+        companyCode: code
+      });
+
+    }
+
+  } catch (error) {
+
+    return done(null, false, { message: `error when validating user \n${error}` });
+
+  }
+  return done(null, false, { message: 'No user found' });
+
+
+};
+
+passport.use('user-login', new LocalStrategy({
+  usernameField: 'email',
+  passReqToCallback: true,
+}, validateRequestedUser));
+
+
 const router = expressRouter();
 
 const doLogin = (request: any, response: any) => {
 
-  if (!request.user) {
+  const userSession: UserSession = {
+    _id: request.user.loggedInUser._id,
+    companyCode: request.user.companyCode,
+    email: request.user.loggedInUser.email,
+    exp: 0
+  };
 
-    return response.status(HTTP_BAD_REQUEST).json({ 'user': 'login failed.' });
+  const jwtToken = request.user.loggedInUser.generateJwt(userSession);
 
-  }
-  const jwtToken = request.user.generateJwt();
-  response.cookie('jwt', jwtToken.token, {
-    httpOnly: true,
-    sameSite: true,
-    signed: true,
-    secure: true
-  });
   return response.status(HTTP_OK).json(jwtToken);
 
 };
@@ -83,21 +93,8 @@ const getUser = async(request: Request, response: Response) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
-
-      return response.status(HTTP_UNAUTHORIZED).send('Permission denied');
-
-    }
-    const company: CompanyEntity = await getCompany(sessionDetails.company);
-
-    if (!company) {
-
-      return response.status(HTTP_BAD_REQUEST).send('Company should be valid.');
-
-    }
-    const User = UserModel.createModel(company.code);
-    const user = await User.findById(request.params.id)
-      .populate('companyBranch');
+    const User = UserModel.createModel(sessionDetails.companyCode);
+    const user = await User.findById(request.params.id);
     if (!user) {
 
       return response.status(HTTP_BAD_REQUEST).send('No user with the specified id.');
@@ -125,8 +122,7 @@ const getUserForAdmin = async(request: Request, response: Response) => {
 
     }
     const User = UserModel.createModel(company.code);
-    const user = await User.findById(request.params.id)
-      .populate('companyBranch');
+    const user = await User.findById(request.params.id);
     if (!user) {
 
       return response.status(HTTP_BAD_REQUEST).send('No user with the specified id.');
@@ -148,20 +144,7 @@ const saveUser = async(request: Request, response: Response) => {
 
     // Fetch company name by company id
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
-
-      return response.status(HTTP_UNAUTHORIZED).send('Permission denied');
-
-    }
-
-    const company: CompanyEntity = await getCompany(sessionDetails.company);
-
-    if (!company) {
-
-      return response.status(HTTP_BAD_REQUEST).send('Company should be valid.');
-
-    }
-    const User = UserModel.createModel(company.code);
+    const User = UserModel.createModel(sessionDetails.companyCode);
     const user = new User(request.body);
     user.setPassword(request.body.password);
     await user.save();
@@ -204,20 +187,8 @@ const saveUserForAdmin = async(request: Request, response: Response) => {
 const listAllUsers = async(request: Request, response: Response) => {
 
   const sessionDetails = AuthUtil.findSessionDetails(request);
-  if (!sessionDetails.company) {
-
-    return response.status(HTTP_UNAUTHORIZED).send('Permission denied');
-
-  }
-  const company: CompanyEntity = await getCompany(sessionDetails.company);
-
-  if (!company) {
-
-    return response.status(HTTP_BAD_REQUEST).send('Company should be valid.');
-
-  }
-  const User = UserModel.createModel(company.code);
-  const users = await User.find().populate('company');
+  const User = UserModel.createModel(sessionDetails.companyCode);
+  const users = await User.find();
   return response.status(HTTP_OK).json(users);
 
 };
@@ -227,13 +198,13 @@ const listUsersForAdmin = async(request: Request, response: Response) => {
   const { cId } = request.params;
   const company: CompanyEntity = await getCompany(cId);
 
-  if (!company) {
+  if (!company || Object.keys(company).length === 0) {
 
     return response.status(HTTP_BAD_REQUEST).send('Company should be valid.');
 
   }
   const User = UserModel.createModel(company.code);
-  const users = await User.find().populate('company');
+  const users = await User.find();
   return response.status(HTTP_OK).json(users);
 
 };
@@ -255,8 +226,7 @@ const updateUserForAdmin = async(request: any, response: any) => {
     }
     const User = UserModel.createModel(company.code);
     await User
-      .updateOne({ _id: id }, updateUserObject, { runValidators: true })
-      .populate('companyBranch');
+      .updateOne({ _id: id }, updateUserObject, { runValidators: true });
     return response.status(HTTP_OK).json(updateUserObject);
 
   } catch (error) {
@@ -273,24 +243,11 @@ const updateUser = async(request: any, response: any) => {
 
     const { id } = request.params;
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
-
-      return response.status(HTTP_UNAUTHORIZED).send('Permission denied');
-
-    }
     const updateUserObject: UserS = request.body;
     delete updateUserObject.email;
-    const company: CompanyEntity = await getCompany(sessionDetails.company);
-
-    if (!company) {
-
-      return response.status(HTTP_BAD_REQUEST).send('Company should be valid.');
-
-    }
-    const User = UserModel.createModel(company.code);
+    const User = UserModel.createModel(sessionDetails.companyCode);
     await User
-      .updateOne({ _id: id }, updateUserObject, { runValidators: true })
-      .populate('companyBranch');
+      .updateOne({ _id: id }, updateUserObject, { runValidators: true });
     return response.status(HTTP_OK).json(updateUserObject);
 
   } catch (error) {
@@ -306,13 +263,8 @@ const deleteUser = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
-
-      return response.status(HTTP_UNAUTHORIZED).send('Permission denied');
-
-    }
     const { id } = request.params;
-    const User = UserModel.createModel(process.env.COMMON_DB);
+    const User = UserModel.createModel(sessionDetails.companyCode);
     const resp = await User.deleteOne({ _id: id });
     if (resp.deletedCount === 0) {
 
@@ -361,7 +313,7 @@ const deleteUserForAdmin = async(request: any, response: any) => {
 
 };
 
-router.route('/login').post(passport.authenticate('user-login', { session: false }), doLogin);
+router.route('/:code/login').post(passport.authenticate('user-login', { session: false }), doLogin);
 
 router.route('/:id').get(passport.authenticate('user-jwt', { session: false }), getUser);
 

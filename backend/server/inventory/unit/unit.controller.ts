@@ -51,12 +51,12 @@ const validateParentAndFindAncestors =
 const listUnit = async(request: any, response: any) => {
 
   const sessionDetails = AuthUtil.findSessionDetails(request);
-  if (!sessionDetails.company) {
+  if (!sessionDetails.companyCode) {
 
     return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
   }
-  const UnitSchema = UnitModel.createModel(sessionDetails.company);
+  const UnitSchema = UnitModel.createModel(sessionDetails.companyCode);
   const units = await UnitSchema.find().populate('baseUnit');
   return response.status(HTTP_OK).json(units);
 
@@ -67,12 +67,12 @@ const getUnit = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const UnitSchema = UnitModel.createModel(sessionDetails.company);
+    const UnitSchema = UnitModel.createModel(sessionDetails.companyCode);
     const unit = await UnitSchema.findById(request.params.id).populate('baseUnit');
     if (!unit) {
 
@@ -95,12 +95,12 @@ const saveUnit = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const UnitSchema = UnitModel.createModel(sessionDetails.company);
+    const UnitSchema = UnitModel.createModel(sessionDetails.companyCode);
     const unit = new UnitSchema(request.body);
     const ancestors: string[] = await validateParentAndFindAncestors(unit, UnitSchema);
     unit.ancestors = ancestors;
@@ -121,7 +121,7 @@ const updateUnit = async(request: any, response: any) => {
 
     const { id } = request.params;
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
@@ -149,19 +149,19 @@ const deleteUnit = async(request: any, response: any) => {
     const unitId = request.params.id;
     // If it is a parent group, then can't be deleted.
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.company) {
+    if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
 
     }
-    const UnitSchema = UnitModel.createModel(sessionDetails.company);
+    const UnitSchema = UnitModel.createModel(sessionDetails.companyCode);
     const unitSelected: UnitEntity[] = await UnitSchema.find({ ancestors: unitId });
     if (unitSelected && unitSelected.length > 0) {
 
       return response.status(HTTP_BAD_REQUEST).send(new Error('Cannot delete base unit'));
 
     }
-    const ProductSchema = ProductModel.createModel(sessionDetails.company);
+    const ProductSchema = ProductModel.createModel(sessionDetails.companyCode);
     const products: ProductEntity[] = await ProductSchema.find({ unit: unitId });
     if (products && products.length > 0) {
 
