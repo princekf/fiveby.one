@@ -3,13 +3,11 @@ import * as MMS from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import * as request from 'supertest';
 import app from '../../app';
-import User from '../../auth/user/user.model';
-import Unit from './unit.model';
-import Company from '../../auth/company/company.model';
-import CompanyBranchM from '../../auth/companyBranch/companyBranch.model';
-import { Constants, Unit as UnitEntity, InventoryUris, ProductGroup as ProductGroupEntity, AuthUris, CompanyS as CompanyI, CompanyBranchS, CompanyBranch } from 'fivebyone';
+import {UserModel} from '../../auth/user/user.model';
+import {UnitModel} from './unit.model';
+import { Constants, Unit as UnitEntity, InventoryUris, ProductGroup as ProductGroupEntity, AuthUris, CompanyS as CompanyI } from 'fivebyone';
 
-const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
+const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 const companyInputJSON: CompanyI = {
   name: 'Mercedes Benz',
   email: 'care@diamler.org',
@@ -23,24 +21,18 @@ const companyInputJSON: CompanyI = {
   contact: '9656444108',
   phone: '7907919930',
 };
-const companyBranchInput: CompanyBranchS = {
-  company: null,
-  name: null,
-  addressLine1: 'Panvel - Kochi - Kanyakumari Highway',
-  addressLine2: 'Vikas Nagar',
-  addressLine3: 'Maradu',
-  addressLine4: 'Ernakulam',
-  contact: '7907919930',
-  phone: '9656444108',
-  email: 'contactUs@rajasreeKochi.com',
+const userJson: any = {
+  name: 'John Honai',
+  mobile: '+91123456789',
+  email: 'john.honai@fivebyOne.com',
+  password: 'Simple_123@',
+  addressLine1: 'Jawahar Nagar',
+  addressLine2: 'TTC',
+  addressLine3: 'Vellayambalam',
+  addressLine4: 'Museum',
   state: 'Kerala',
   country: 'India',
-  pincode: '685588',
-  finYears: [ {
-    name: '2019-20',
-    startDate: '2019-02-01',
-    endDate: '2020-02-01'
-  } ]
+  pinCode: '223344',
 };
 describe(`${InventoryUris.UNIT_URI} tests`, () => {
 
@@ -48,57 +40,85 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
   let serverToken = '';
   const kilogramDecimalPlaces = 3;
   const THOUSAND = 1000;
+  let companyDetails: any;
+  let serverTokenAdmin = '';
 
-  const createCompanyBranch = async(companyBrInput: CompanyBranchS): Promise<CompanyBranch> => {
+  const createTestAdmin = async() => {
 
-    const companyBranch = new CompanyBranchM(companyBrInput);
-    await companyBranch.save();
-    const companyBranchEntity: CompanyBranch = await CompanyBranchM.findOne({ name: companyBranch.name });
-    return companyBranchEntity;
+    const user = {
+      email: 'pshaji@fivebyone.com',
+      password: 'Simple_12@',
+      name: 'Pashanam Shaji',
+      mobile: '+919234567887'
+    };
+    const response = await request(app).post(`${AuthUris.ADMIN_URI}`)
+      .send(user);
+    expect(response.status).toBe(HTTP_OK);
+    const response2 = await request(app).post(`${AuthUris.ADMIN_URI}/login`)
+      .send({
+        email: 'pshaji@fivebyone.com',
+        password: 'Simple_12@',
+      });
+    expect(response2.status).toBe(HTTP_OK);
+    serverTokenAdmin = response2.body.token;
 
   };
 
+
   const createTestUser = async() => {
 
-    const uri = await mongod.getConnectionString();
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-    });
-    const company = new Company(companyInputJSON);
-    await company.save();
-    await request(app).post(AuthUris.COMPANY_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+    const response = await request(app).post(AuthUris.COMPANY_URI)
+      .set('Authorization', `Bearer ${serverTokenAdmin}`)
       .send(companyInputJSON);
-    const user = new User();
-    user.email = 'test@email.com';
-    user.name = 'Test User';
-    user.company = company;
-    companyBranchInput.company = company;
-    companyBranchInput.name = 'five.byOne';
-    const companyBranch = await createCompanyBranch(companyBranchInput);
-    user.companyBranches = [ companyBranch ];
-    user.setPassword('Simple_123@');
-    await user.save();
+    expect(response.status).toBe(HTTP_OK);
+
+    const companyData = await request(app).post(AuthUris.COMPANY_URI)
+      .set('Authorization', `Bearer ${serverTokenAdmin}`)
+      .send({
+        name: 'K and K automobiles',
+        email: 'manoharn@kAndK.com',
+        addressLine1: 'Annai Nagar',
+        addressLine2: 'MGR Street',
+        addressLine3: 'Near Bakery road',
+        addressLine4: 'Chennai',
+        state: 'Tamil Nadu',
+        country: 'India',
+        pincode: '223344',
+        contact: '9656444108',
+        phone: '7907919930'
+      });
+    companyDetails = companyData.body;
+    const response2 = await request(app).post(`${AuthUris.USER_URI}/user/admin/${companyDetails._id}`)
+      .set('Authorization', `Bearer ${serverTokenAdmin}`)
+      .send(userJson);
+    expect(response2.status).toBe(HTTP_OK);
+    const response3 = await request(app).post(`${AuthUris.USER_URI}/${companyDetails.code}/login`)
+      .send({
+        email: 'john.honai@fivebyOne.com',
+        password: 'Simple_123@',
+      });
+    expect(response3.status).toBe(HTTP_OK);
+    serverToken = response3.body.token;
 
   };
 
   // Connect to mongoose mock, create a test user and get the access token
   beforeAll(async() => {
 
+    const uri = await mongod.getConnectionString();
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+    });
+
+    await createTestAdmin();
     await createTestUser();
-    const response = await request(app).post(`${AuthUris.USER_URI}/login`)
-      .send({
-        email: 'test@email.com',
-        password: 'Simple_123@',
-      });
-    const { body: { token } } = response;
-    serverToken = token;
 
   });
 
   // Remove test user, disconnect and stop database
   afterAll(async() => {
 
+    const User = UserModel.createModel(companyDetails.code);
     await User.remove({});
     await mongoose.disconnect();
     await mongod.stop();
@@ -112,12 +132,13 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
   // Remove sample items
   afterEach(async() => {
 
+    const Unit = UnitModel.createModel(companyDetails.code);
     await Unit.remove({});
 
   });
 
 
-  it('Shoule save a new unit with valid values', async() => {
+  it('Should save a new unit with valid values', async() => {
 
     const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
       .set('Authorization', `Bearer ${serverToken}`)
@@ -127,8 +148,9 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         decimalPlaces: kilogramDecimalPlaces,
       });
     expect(response.status).toBe(HTTP_OK);
-    const savedUnit: UnitEntity = response.body;
-    const savedUnit2: UnitEntity = await Unit.findById(savedUnit._id).populate('baseUnit');
+    const response1 = await request(app).get(`${InventoryUris.UNIT_URI}/${response.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    const savedUnit2: UnitEntity = response1.body;
     expect(savedUnit2.name).toBe('Kilogram');
     expect(savedUnit2.shortName).toBe('kg');
     expect(savedUnit2.decimalPlaces).toBe(kilogramDecimalPlaces);
@@ -136,7 +158,7 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
 
   });
 
-  it('Shoule save a new unit after trim', async() => {
+  it('Should save a new unit after trim', async() => {
 
     const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
       .set('Authorization', `Bearer ${serverToken}`)
@@ -146,12 +168,68 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         decimalPlaces: kilogramDecimalPlaces,
       });
     expect(response.status).toBe(HTTP_OK);
-    const savedUnit: UnitEntity = response.body;
-    const savedUnit2: UnitEntity = await Unit.findById(savedUnit._id).populate('baseUnit');
+    const response1 = await request(app).get(`${InventoryUris.UNIT_URI}/${response.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    const savedUnit2: UnitEntity = response1.body;
     expect(savedUnit2.name).toBe('Kilogram');
     expect(savedUnit2.shortName).toBe('kg');
     expect(savedUnit2.decimalPlaces).toBe(kilogramDecimalPlaces);
     expect(savedUnit2.ancestors.length).toBe(0);
+
+  });
+
+  it('Should not save a new unit with invalid token', async() => {
+
+    const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer2 ${serverToken}`)
+      .send({
+        name: 'Kilogram',
+        shortName: 'kg',
+        decimalPlaces: kilogramDecimalPlaces,
+      });
+    expect(response.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not save a new unit without token', async() => {
+
+    const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .send({
+        name: 'Kilogram',
+        shortName: 'kg',
+        decimalPlaces: kilogramDecimalPlaces,
+      });
+    expect(response.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not get the saved unit without token', async() => {
+
+    const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Kilogram',
+        shortName: 'kg',
+        decimalPlaces: kilogramDecimalPlaces,
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const response1 = await request(app).get(`${InventoryUris.UNIT_URI}/${response.body._id}`);
+    expect(response1.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not get the saved unit with invaild token', async() => {
+
+    const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Kilogram',
+        shortName: 'kg',
+        decimalPlaces: kilogramDecimalPlaces,
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const response1 = await request(app).get(`${InventoryUris.UNIT_URI}/${response.body._id}`);
+    expect(response1.status).toBe(HTTP_UNAUTHORIZED);
 
   });
 
@@ -268,7 +346,8 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
     expect(response2.status).toBe(HTTP_OK);
     const savedUnit2: UnitEntity = response2.body;
 
-    await Unit.deleteOne({ _id: savedUnit2._id });
+    await request(app)['delete'](`${InventoryUris.UNIT_URI}/${savedUnit2._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
 
     const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
       .set('Authorization', `Bearer ${serverToken}`)
@@ -305,7 +384,9 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
       });
     expect(response2.status).toBe(HTTP_OK);
 
-    const savedUnit2: UnitEntity = await Unit.findById(response2.body._id).populate('baseUnit');
+    const responseG1 = await request(app).get(`${InventoryUris.UNIT_URI}/${response2.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    const savedUnit2: UnitEntity = responseG1.body;
     expect(savedUnit2.name).toBe('Kilogram');
     expect(savedUnit2.shortName).toBe('kg');
     expect(savedUnit2.decimalPlaces).toBe(kilogramDecimalPlaces);
@@ -326,7 +407,9 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         decimalPlaces: kilogramDecimalPlaces,
       });
     expect(response3.status).toBe(HTTP_OK);
-    const savedUnit3: UnitEntity = await Unit.findById(response3.body._id).populate('baseUnit');
+    const responseG2 = await request(app).get(`${InventoryUris.UNIT_URI}/${response3.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    const savedUnit3: UnitEntity = responseG2.body;
     expect(savedUnit3.name).toBe('Quintal');
     expect(savedUnit3.shortName).toBe('qt');
     expect(savedUnit3.times).toBe(THOUSAND);
@@ -365,7 +448,38 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
 
   });
 
-  it('Shoudl get a specific unit by id', async() => {
+  it('Should not list all units without token', async() => {
+
+    const response1 = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Gram',
+        shortName: 'gm',
+        decimalPlaces: 0,
+      });
+    expect(response1.status).toBe(HTTP_OK);
+    const response = await request(app).get(`${InventoryUris.UNIT_URI}`);
+    expect(response.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not list all units with invaild token', async() => {
+
+    const response1 = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Gram',
+        shortName: 'gm',
+        decimalPlaces: 0,
+      });
+    expect(response1.status).toBe(HTTP_OK);
+    const response = await request(app).get(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer2 ${serverToken}`);
+    expect(response.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should get a specific unit by id', async() => {
 
     const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
       .set('Authorization', `Bearer ${serverToken}`)
@@ -402,7 +516,9 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         decimalPlaces: 0,
       });
     expect(response2.status).toBe(HTTP_OK);
-    await Unit.deleteOne({ _id: response2.body.id });
+
+    await request(app)['delete'](`${InventoryUris.UNIT_URI}/${response2.body.id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
 
     const response = await request(app).get(`${InventoryUris.UNIT_URI}/${response2.body.id}`)
       .set('Authorization', `Bearer ${serverToken}`);
@@ -410,7 +526,7 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
 
   });
 
-  it('Should update unit with valid values', async() => {
+  it('Should not update unit without token', async() => {
 
     const response1 = await request(app).post(`${InventoryUris.UNIT_URI}`)
       .set('Authorization', `Bearer ${serverToken}`)
@@ -420,6 +536,46 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         decimalPlaces: 0,
       });
     expect(response1.status).toBe(HTTP_OK);
+
+    const savedUnit1: UnitEntity = response1.body;
+    savedUnit1.name = 'Gram-1';
+    const response2 = await request(app).put(`${InventoryUris.UNIT_URI}/${savedUnit1._id}`)
+      .send(savedUnit1);
+    expect(response2.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not update unit with invaild token', async() => {
+
+    const response1 = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Gram',
+        shortName: 'gm',
+        decimalPlaces: 0,
+      });
+    expect(response1.status).toBe(HTTP_OK);
+
+    const savedUnit1: UnitEntity = response1.body;
+    savedUnit1.name = 'Gram-1';
+    const response2 = await request(app).put(`${InventoryUris.UNIT_URI}/${savedUnit1._id}`)
+      .set('Authorization', `Bearer2 ${serverToken}`)
+      .send(savedUnit1);
+    expect(response2.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should update unit with valid values 1', async() => {
+
+    const response1 = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Gram',
+        shortName: 'gm',
+        decimalPlaces: 0,
+      });
+    expect(response1.status).toBe(HTTP_OK);
+
     const savedUnit1: UnitEntity = response1.body;
     savedUnit1.name = 'Gram-1';
     const response2 = await request(app).put(`${InventoryUris.UNIT_URI}/${savedUnit1._id}`)
@@ -585,7 +741,9 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         baseUnit: response1.body._id,
       });
     expect(response2.status).toBe(HTTP_OK);
-    const savedUnit2: UnitEntity = await Unit.findById(response2.body._id).populate('baseUnit');
+    const responseG1 = await request(app).get(`${InventoryUris.UNIT_URI}/${response2.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    const savedUnit2: UnitEntity = responseG1.body;
     expect(savedUnit2.baseUnit.name).toBe('Gram');
     expect(savedUnit2.ancestors.length).toBe(1);
     expect(savedUnit2.ancestors[0]).toBe(response1.body._id);
@@ -600,7 +758,9 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         baseUnit: response2.body._id,
       });
     expect(response3.status).toBe(HTTP_OK);
-    const savedUnit3: UnitEntity = await Unit.findById(response3.body._id).populate('baseUnit');
+    const responseG2 = await request(app).get(`${InventoryUris.UNIT_URI}/${response3.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    const savedUnit3: UnitEntity = responseG2.body;
     expect(savedUnit3.baseUnit.name).toBe('Kilogram');
     const ancestorsLength = 2;
     expect(savedUnit3.ancestors.length).toBe(ancestorsLength);
@@ -614,7 +774,10 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         baseUnit: savedUnit3,
       });
     expect(response4.status).toBe(HTTP_BAD_REQUEST);
-    const savedUnit1New: UnitEntity = await Unit.findById(response1.body._id).populate('baseUnit');
+    const responseG3 = await request(app).get(`${InventoryUris.UNIT_URI}/${response1.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    const savedUnit1New: UnitEntity = responseG3.body;
+
     expect(savedUnit1New.name).toBe('Gram');
     expect(savedUnit1New.ancestors.length).toBe(0);
     expect(!savedUnit1New.baseUnit).toBe(true);
@@ -644,7 +807,8 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response4.status).toBe(HTTP_OK);
     const savedUnit4: UnitEntity = response4.body;
-    await Unit.deleteOne({ _id: response.body._id });
+    await request(app)['delete'](`${InventoryUris.UNIT_URI}/${response.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
 
     const response3 = await request(app).put(`${InventoryUris.UNIT_URI}/${response2.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`)
@@ -765,6 +929,37 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
 
   });
 
+  it('Should not delete unit with invaild token.', async() => {
+
+    const response1 = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Gram',
+        shortName: 'gm',
+        decimalPlaces: 0,
+      });
+    expect(response1.status).toBe(HTTP_OK);
+    const response3 = await request(app)['delete'](`${InventoryUris.UNIT_URI}/${response1.body._id}`)
+      .set('Authorization', `Bearer2 ${serverToken}`);
+    expect(response3.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not delete unit without token.', async() => {
+
+    const response1 = await request(app).post(`${InventoryUris.UNIT_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'Gram',
+        shortName: 'gm',
+        decimalPlaces: 0,
+      });
+    expect(response1.status).toBe(HTTP_OK);
+    const response3 = await request(app)['delete'](`${InventoryUris.UNIT_URI}/${response1.body._id}`);
+    expect(response3.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
   it('Ancestors should be changed when a base unit is changed.', async() => {
 
     const response1 = await request(app).post(`${InventoryUris.UNIT_URI}`)
@@ -851,7 +1046,7 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         decimalPlaces: 0,
       });
     expect(response2.status).toBe(HTTP_OK);
-    await Unit.deleteOne({ _id: response2.body.id });
+
     const response3 = await request(app)['delete'](`${InventoryUris.UNIT_URI}/${response2.body.id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response3.status).toBe(HTTP_BAD_REQUEST);
@@ -880,11 +1075,14 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
         baseUnit: savedUnit,
       });
     expect(response2.status).toBe(HTTP_OK);
-    const savedUnit2: UnitEntity = await Unit.findById(response2.body._id).populate('baseUnit');
+    const responseG1 = await request(app).get(`${InventoryUris.UNIT_URI}/${response2.body._id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
+    const savedUnit2: UnitEntity = responseG1.body;
     expect(savedUnit2.ancestors.length).toBe(1);
     expect(savedUnit2.baseUnit.name).toBe('Gram');
 
-    await Unit.deleteOne({ _id: response2.body._id });
+    await request(app)['delete'](`${InventoryUris.UNIT_URI}/${response2.body.id}`)
+      .set('Authorization', `Bearer ${serverToken}`);
     const response4 = await request(app).get(`${InventoryUris.UNIT_URI}/${response1.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     const unitAfterDeleteChild: UnitEntity = response4.body;
