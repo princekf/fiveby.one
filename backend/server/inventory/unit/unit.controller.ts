@@ -127,10 +127,15 @@ const updateUnit = async(request: any, response: any) => {
 
     }
     const updateObject = request.body;
-    const ancestors: string[] = await validateParentAndFindAncestors(updateObject, updateObject, id);
+    const UnitSchema = UnitModel.createModel(sessionDetails.companyCode);
+    const ancestors: string[] = await validateParentAndFindAncestors(updateObject, UnitSchema, id);
     updateObject.ancestors = ancestors;
-    const UnitSchema = UnitModel.createModel(updateObject.company);
-    await UnitSchema.update({ _id: id }, updateObject, { runValidators: true });
+    const updatedDetails = await UnitSchema.updateOne({ _id: id }, updateObject, { runValidators: true });
+    if (updatedDetails.nModified === 0) {
+
+      return response.status(HTTP_BAD_REQUEST).send('Update failed');
+
+    }
     return response.status(HTTP_OK).json(updateObject);
 
   } catch (error) {

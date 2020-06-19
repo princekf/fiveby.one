@@ -3,13 +3,12 @@ import * as MMS from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import * as request from 'supertest';
 import app from '../../app';
-import User from '../../auth/user/user.model';
-import Tax from './tax.model';
-import Company from '../../auth/company/company.model';
-import {CompanyBranchM} from '../../auth/companyBranch/companyBranch.model';
+import {UserModel} from '../../auth/user/user.model';
+import {TaxModel} from './tax.model';
 import { Constants, Tax as TaxEntity, InventoryUris, AuthUris, CompanyS as CompanyI, CompanyBranchS, CompanyBranch } from 'fivebyone';
 
-const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
+const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_INTERNAL_SERVER_ERROR, HTTP_UNAUTHORIZED } = Constants;
+
 const companyInputJSON: CompanyI = {
   name: 'Mercedes Benz',
   email: 'care@diamler.org',
@@ -23,88 +22,114 @@ const companyInputJSON: CompanyI = {
   contact: '9656444108',
   phone: '7907919930',
 };
-const companyBranchInput: CompanyBranchS = {
-  company: null,
-  name: null,
-  addressLine1: 'Panvel - Kochi - Kanyakumari Highway',
-  addressLine2: 'Vikas Nagar',
-  addressLine3: 'Maradu',
-  addressLine4: 'Ernakulam',
-  contact: '7907919930',
-  phone: '9656444108',
-  email: 'contactUs@rajasreeKochi.com',
+
+const userJson: any = {
+  name: 'John Honai',
+  mobile: '+91123456789',
+  email: 'john.honai@fivebyOne.com',
+  password: 'Simple_123@',
+  addressLine1: 'Jawahar Nagar',
+  addressLine2: 'TTC',
+  addressLine3: 'Vellayambalam',
+  addressLine4: 'Museum',
   state: 'Kerala',
   country: 'India',
-  pincode: '685588',
-  finYears: [ {
-    name: '2019-20',
-    startDate: '2019-02-01',
-    endDate: '2020-02-01'
-  } ]
+  pinCode: '223344',
 };
+
 describe(`${InventoryUris.TAX_URI} tests`, () => {
 
   const mongod = new MMS.MongoMemoryServer();
   let serverToken = '';
-  const createCompanyBranch = async(companyBrInput: CompanyBranchS): Promise<CompanyBranch> => {
+  let serverTokenAdmin = '';
+  let companyDetails: any;
 
-    const companyBranch = new CompanyBranchM(companyBrInput);
-    await companyBranch.save();
-    const companyBranchEntity: CompanyBranch = await CompanyBranchM.findOne({ name: companyBranch.name });
-    return companyBranchEntity;
+  const createTestAdmin = async() => {
+
+    const user = {
+      email: 'pshaji@fivebyone.com',
+      password: 'Simple_12@',
+      name: 'Pashanam Shaji',
+      mobile: '+919234567887'
+    };
+    const response = await request(app).post(`${AuthUris.ADMIN_URI}`)
+      .send(user);
+    expect(response.status).toBe(HTTP_OK);
+    const response2 = await request(app).post(`${AuthUris.ADMIN_URI}/login`)
+      .send({
+        email: 'pshaji@fivebyone.com',
+        password: 'Simple_12@',
+      });
+    expect(response2.status).toBe(HTTP_OK);
+    serverTokenAdmin = response2.body.token;
 
   };
+
+
   const createTestUser = async() => {
+
+    const response = await request(app).post(AuthUris.COMPANY_URI)
+      .set('Authorization', `Bearer ${serverTokenAdmin}`)
+      .send(companyInputJSON);
+    expect(response.status).toBe(HTTP_OK);
+
+    const companyData = await request(app).post(AuthUris.COMPANY_URI)
+      .set('Authorization', `Bearer ${serverTokenAdmin}`)
+      .send({
+        name: 'K and K automobiles',
+        email: 'manoharn@kAndK.com',
+        addressLine1: 'Annai Nagar',
+        addressLine2: 'MGR Street',
+        addressLine3: 'Near Bakery road',
+        addressLine4: 'Chennai',
+        state: 'Tamil Nadu',
+        country: 'India',
+        pincode: '223344',
+        contact: '9656444108',
+        phone: '7907919930'
+      });
+    companyDetails = companyData.body;
+    const response2 = await request(app).post(`${AuthUris.USER_URI}/user/admin/${companyDetails._id}`)
+      .set('Authorization', `Bearer ${serverTokenAdmin}`)
+      .send(userJson);
+    expect(response2.status).toBe(HTTP_OK);
+    const response3 = await request(app).post(`${AuthUris.USER_URI}/${companyDetails.code}/login`)
+      .send({
+        email: 'john.honai@fivebyOne.com',
+        password: 'Simple_123@',
+      });
+    expect(response3.status).toBe(HTTP_OK);
+    serverToken = response3.body.token;
+
+  };
+
+  beforeAll(async() => {
 
     const uri = await mongod.getConnectionString();
     await mongoose.connect(uri, {
       useNewUrlParser: true,
     });
-    const company = new Company(companyInputJSON);
-    await company.save();
-    await request(app).post(AuthUris.COMPANY_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
-      .send(companyInputJSON);
-    const user = new User();
-    user.email = 'test@email.com';
-    user.name = 'Test User';
-    user.company = company;
-    companyBranchInput.company = company;
-    companyBranchInput.name = 'five.byOne';
-    const companyBranch = await createCompanyBranch(companyBranchInput);
-    user.companyBranches = [ companyBranch ];
-    user.setPassword('Simple_123@');
-    await user.save();
 
-  };
-  // Connect to mongoose mock, create a test user and get the access token
-  beforeAll(async() => {
-
+    await createTestAdmin();
     await createTestUser();
-    const response = await request(app).post(`${AuthUris.USER_URI}/login`)
-      .send({
-        email: 'test@email.com',
-        password: 'Simple_123@',
-      });
-    const { body: { token } } = response;
-    serverToken = token;
+
+  });
+
+  // Remove sample items
+  afterEach(async() => {
+
+    const Tax = TaxModel.createModel(companyDetails.code);
+    await Tax.remove({});
 
   });
 
   // Remove test user, disconnect and stop database
   afterAll(async() => {
 
+    const User = UserModel.createModel(companyDetails.code);
     await User.remove({});
     await mongoose.disconnect();
     await mongod.stop();
-
-  });
-
-
-  // Remove sample items
-  afterEach(async() => {
-
-    await Tax.remove({});
 
   });
 
@@ -218,6 +243,24 @@ describe(`${InventoryUris.TAX_URI} tests`, () => {
         } ]
       });
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+
+  });
+
+  it('Should not save tax with invalid token.', async() => {
+
+    const tPercentage = 18;
+    const response = await request(app).post(InventoryUris.TAX_URI)
+      .set('Authorization', `Bearer2 ${serverToken}`)
+      .send({
+        name: 'CGST-9',
+        groupName: 'CGST',
+        effectiveFrom: [ {
+          startDate: '2018-01-01',
+          endDate: '2020-12-31',
+          percentage: tPercentage
+        } ]
+      });
+    expect(response.status).toBe(HTTP_UNAUTHORIZED);
 
   });
 
