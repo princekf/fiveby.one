@@ -69,7 +69,7 @@ const getProductGroup = async(request: any, response: any) => {
 
   try {
 
-    const sessionDetails = request.body;
+    const sessionDetails = AuthUtil.findSessionDetails(request);
     if (!sessionDetails.companyCode) {
 
       return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
