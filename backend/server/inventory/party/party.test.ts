@@ -3,12 +3,11 @@ import * as MMS from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import * as request from 'supertest';
 import app from '../../app';
-import User from '../../auth/user/user.model';
-import Party from './party.model';
-import Company from '../../auth/company/company.model';
-import CompanyBranchM from '../../auth/companyBranch/companyBranch.model';
-import {Constants, Party as PartyEntity, InventoryUris, AuthUris, CompanyS as CompanyI, CompanyBranchS, CompanyBranch} from 'fivebyone';
-const {HTTP_OK, HTTP_BAD_REQUEST} = Constants;
+import {UserModel} from '../../auth/user/user.model';
+import {PartyModel} from './party.model';
+import {Constants, Party as PartyEntity, InventoryUris, AuthUris, CompanyS as CompanyI} from 'fivebyone';
+
+const {HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED} = Constants;
 const companyInputJSON: CompanyI = {
   name: 'Mercedes Benz',
   email: 'care@diamler.org',
@@ -22,81 +21,104 @@ const companyInputJSON: CompanyI = {
   contact: '9656444108',
   phone: '7907919930',
 };
-const companyBranchInput: CompanyBranchS = {
-  company: null,
-  name: null,
-  addressLine1: 'Panvel - Kochi - Kanyakumari Highway',
-  addressLine2: 'Vikas Nagar',
-  addressLine3: 'Maradu',
-  addressLine4: 'Ernakulam',
-  contact: '7907919930',
-  phone: '9656444108',
-  email: 'contactUs@rajasreeKochi.com',
+const userJson: any = {
+  name: 'John Honai',
+  mobile: '+91123456789',
+  email: 'john.honai@fivebyOne.com',
+  password: 'Simple_123@',
+  addressLine1: 'Jawahar Nagar',
+  addressLine2: 'TTC',
+  addressLine3: 'Vellayambalam',
+  addressLine4: 'Museum',
   state: 'Kerala',
   country: 'India',
-  pincode: '685588',
-  finYears: [ {
-    name: '2019-20',
-    startDate: '2019-02-01',
-    endDate: '2020-02-01'
-  } ]
+  pinCode: '223344',
 };
 
 describe(`${InventoryUris.PARTY_URI} tests`, () => {
 
   const mongod = new MMS.MongoMemoryServer();
   let serverToken = '';
-  const createCompanyBranch = async(companyBrInput: CompanyBranchS): Promise<CompanyBranch> => {
+  let serverTokenAdmin = '';
+  let companyDetails: any;
 
-    const companyBranch = new CompanyBranchM(companyBrInput);
-    await companyBranch.save();
-    const companyBranchEntity: CompanyBranch = await CompanyBranchM.findOne({ name: companyBranch.name });
-    return companyBranchEntity;
+
+  const createTestAdmin = async() => {
+
+    const user = {
+      email: 'pshaji@fivebyone.com',
+      password: 'Simple_12@',
+      name: 'Pashanam Shaji',
+      mobile: '+919234567887'
+    };
+    const response = await request(app).post(`${AuthUris.ADMIN_URI}`)
+      .send(user);
+    expect(response.status).toBe(HTTP_OK);
+    const response2 = await request(app).post(`${AuthUris.ADMIN_URI}/login`)
+      .send({
+        email: 'pshaji@fivebyone.com',
+        password: 'Simple_12@',
+      });
+    expect(response2.status).toBe(HTTP_OK);
+    serverTokenAdmin = response2.body.token;
 
   };
 
+
   const createTestUser = async() => {
 
-    const uri = await mongod.getConnectionString();
-    await mongoose.connect(uri, {
-      useNewUrlParser: true,
-    });
-    const company = new Company(companyInputJSON);
-    await company.save();
-    const companyRes = await Company.findOne({ name: companyInputJSON.name });
-    await request(app).post(AuthUris.COMPANY_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+    const response = await request(app).post(AuthUris.COMPANY_URI)
+      .set('Authorization', `Bearer ${serverTokenAdmin}`)
       .send(companyInputJSON);
-    const user = new User();
-    user.email = 'test@email.com';
-    user.name = 'Test User';
-    user.company = companyRes;
-    companyBranchInput.company = company;
-    companyBranchInput.name = 'five.byOne';
-    const companyBranch = await createCompanyBranch(companyBranchInput);
-    user.companyBranches = [ companyBranch ];
-    user.setPassword('Simple_123@');
-    await user.save();
+    expect(response.status).toBe(HTTP_OK);
+
+    const companyData = await request(app).post(AuthUris.COMPANY_URI)
+      .set('Authorization', `Bearer ${serverTokenAdmin}`)
+      .send({
+        name: 'K and K automobiles',
+        email: 'manoharn@kAndK.com',
+        addressLine1: 'Annai Nagar',
+        addressLine2: 'MGR Street',
+        addressLine3: 'Near Bakery road',
+        addressLine4: 'Chennai',
+        state: 'Tamil Nadu',
+        country: 'India',
+        pincode: '223344',
+        contact: '9656444108',
+        phone: '7907919930'
+      });
+    companyDetails = companyData.body;
+    const response2 = await request(app).post(`${AuthUris.USER_URI}/user/admin/${companyDetails._id}`)
+      .set('Authorization', `Bearer ${serverTokenAdmin}`)
+      .send(userJson);
+    expect(response2.status).toBe(HTTP_OK);
+    const response3 = await request(app).post(`${AuthUris.USER_URI}/${companyDetails.code}/login`)
+      .send({
+        email: 'john.honai@fivebyOne.com',
+        password: 'Simple_123@',
+      });
+    expect(response3.status).toBe(HTTP_OK);
+    serverToken = response3.body.token;
 
   };
 
   // Connect to mongoose mock, create a test user and get the access token
   beforeAll(async() => {
 
+    const uri = await mongod.getConnectionString();
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+    });
+
+    await createTestAdmin();
     await createTestUser();
-    const response = await request(app).post(`${AuthUris.USER_URI}/login`)
-      .send({
-        email: 'test@email.com',
-        password: 'Simple_123@',
-      });
-    const {body: {token}} = response;
-    serverToken = token;
 
   });
 
   // Remove test user, disconnect and stop database
   afterAll(async() => {
 
+    const User = UserModel.createModel(companyDetails.code);
     await User.remove({});
     await mongoose.disconnect();
     await mongod.stop();
@@ -107,6 +129,7 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
   // Remove sample items
   afterEach(async() => {
 
+    const Party = PartyModel.createModel(companyDetails.code);
     await Party.remove({});
 
   });
@@ -213,6 +236,75 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.addresses[0].pinCode).toBe('682001');
     expect(!party1.addresses[0].landMark).toBe(true);
     expect(party1.registrationNumbers.length).toBe(0);
+
+  });
+
+  it('Should not save party with invaild token.', async() => {
+
+    const response = await request(app).post(InventoryUris.PARTY_URI)
+      .set('Authorization', `Bearer2 ${serverToken}`)
+      .send({
+        name: 'John Honai',
+        code: 'JNHN',
+        mobile: '+91123456789',
+        email: 'john.honai@fiveby.one',
+        isCustomer: true,
+        isVendor: false,
+        addresses: [
+          {
+            type: 'billing',
+            addressLine1: '36-B, Orchid Villa',
+            addressLine2: 'Harihar Nagar',
+            addressLine3: 'Pathalam',
+            addressLine4: 'Kochi',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '682001',
+            landMark: 'Behind EMS Library'
+          }
+        ],
+        registrationNumbers: [
+          {
+            name: 'GST Number',
+            value: 'AABBCCDDEEFF'
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not save party without token.', async() => {
+
+    const response = await request(app).post(InventoryUris.PARTY_URI)
+      .send({
+        name: 'John Honai',
+        code: 'JNHN',
+        mobile: '+91123456789',
+        email: 'john.honai@fiveby.one',
+        isCustomer: true,
+        isVendor: false,
+        addresses: [
+          {
+            type: 'billing',
+            addressLine1: '36-B, Orchid Villa',
+            addressLine2: 'Harihar Nagar',
+            addressLine3: 'Pathalam',
+            addressLine4: 'Kochi',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '682001',
+            landMark: 'Behind EMS Library'
+          }
+        ],
+        registrationNumbers: [
+          {
+            name: 'GST Number',
+            value: 'AABBCCDDEEFF'
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_UNAUTHORIZED);
 
   });
 
@@ -1339,6 +1431,76 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.registrationNumbers[1].value).toBe('XYSOP');
 
   });
+
+  it('Should not update party with invalid token.', async() => {
+
+    const response0 = await request(app).post(InventoryUris.PARTY_URI)
+      .set('Authorization', `Bearer2 ${serverToken}`)
+      .send({
+        name: 'John Honai0',
+        code: 'JNHN0',
+        mobile: '+911234567890',
+        email: 'john.honai@fiveby.one0',
+        isCustomer: false,
+        isVendor: true,
+        addresses: [
+          {
+            type: 'billing0',
+            addressLine1: '36-B, Orchid Villa0',
+            addressLine2: 'Harihar Nagar0',
+            addressLine3: 'Pathalam0',
+            addressLine4: 'Kochi0',
+            state: 'Kerala0',
+            country: 'India0',
+            pinCode: '6820010',
+            landMark: 'Behind EMS Library0'
+          }
+        ],
+        registrationNumbers: [
+          {
+            name: 'GST Number0',
+            value: 'AABBCCDDEEFF0'
+          }
+        ]
+      });
+    expect(response0.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not update party without token.', async() => {
+
+    const response0 = await request(app).post(InventoryUris.PARTY_URI)
+      .send({
+        name: 'John Honai0',
+        code: 'JNHN0',
+        mobile: '+911234567890',
+        email: 'john.honai@fiveby.one0',
+        isCustomer: false,
+        isVendor: true,
+        addresses: [
+          {
+            type: 'billing0',
+            addressLine1: '36-B, Orchid Villa0',
+            addressLine2: 'Harihar Nagar0',
+            addressLine3: 'Pathalam0',
+            addressLine4: 'Kochi0',
+            state: 'Kerala0',
+            country: 'India0',
+            pinCode: '6820010',
+            landMark: 'Behind EMS Library0'
+          }
+        ],
+        registrationNumbers: [
+          {
+            name: 'GST Number0',
+            value: 'AABBCCDDEEFF0'
+          }
+        ]
+      });
+    expect(response0.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
   it('Should list empty if no party.', async() => {
 
     const response1 = await request(app).get(`${InventoryUris.PARTY_URI}`)
@@ -1436,6 +1598,102 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(party1.registrationNumbers[1].value).toBe('XYSOP');
 
   });
+
+  it('Should not list all partys without token.', async() => {
+
+    const response = await request(app).post(`${InventoryUris.PARTY_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'John Honai',
+        code: 'JNHN',
+        mobile: '+91123456789',
+        email: 'john.honai@fiveby.one',
+        isCustomer: true,
+        isVendor: false,
+        addresses: [
+          {
+            type: 'billing',
+            addressLine1: '36-B, Orchid Villa',
+            addressLine2: 'Harihar Nagar',
+            addressLine3: 'Pathalam',
+            addressLine4: 'Kochi',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '682001',
+            landMark: 'Behind EMS Library'
+          },
+          {
+            type: 'delivery',
+            addressLine1: '36-C, Orchid Villa',
+            addressLine2: 'Harihar Valley',
+            addressLine3: 'Monvila',
+            addressLine4: 'Trivandrum',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '689007',
+            landMark: 'Near AKG Library'
+          }
+        ],
+        registrationNumbers: [
+          {
+            name: 'GST Number',
+            value: 'AABBCCDDEEFF'
+          },
+          {
+            name: 'PAN Number',
+            value: 'XYSOP'
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const response1 = await request(app).get(`${InventoryUris.PARTY_URI}`);
+    expect(response1.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+
+  it('Should not list all partys with invaild token.', async() => {
+
+    const response = await request(app).post(`${InventoryUris.PARTY_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'John Honai',
+        code: 'JNHN',
+        mobile: '+91123456789',
+        email: 'john.honai@fiveby.one',
+        isCustomer: true,
+        isVendor: false,
+        addresses: [
+          {
+            type: 'billing',
+            addressLine1: '36-B, Orchid Villa',
+            addressLine2: 'Harihar Nagar',
+            addressLine3: 'Pathalam',
+            addressLine4: 'Kochi',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '682001',
+            landMark: 'Behind EMS Library'
+          }
+        ],
+        registrationNumbers: [
+          {
+            name: 'GST Number',
+            value: 'AABBCCDDEEFF'
+          },
+          {
+            name: 'PAN Number',
+            value: 'XYSOP'
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const response1 = await request(app).get(`${InventoryUris.PARTY_URI}`)
+      .set('Authorization', `Bearer2 ${serverToken}`);
+    expect(response1.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
   it('Should get party with valid id.', async() => {
 
     const response = await request(app).post(`${InventoryUris.PARTY_URI}`)
@@ -1579,6 +1837,112 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     expect(response2.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
+  it('Should not get party with invalid token.', async() => {
+
+    const response = await request(app).post(`${InventoryUris.PARTY_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'John Honai',
+        code: 'JNHN',
+        mobile: '+91123456789',
+        email: 'john.honai@fiveby.one',
+        isCustomer: true,
+        isVendor: false,
+        addresses: [
+          {
+            type: 'billing',
+            addressLine1: '36-B, Orchid Villa',
+            addressLine2: 'Harihar Nagar',
+            addressLine3: 'Pathalam',
+            addressLine4: 'Kochi',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '682001',
+            landMark: 'Behind EMS Library'
+          },
+          {
+            type: 'delivery',
+            addressLine1: '36-C, Orchid Villa',
+            addressLine2: 'Harihar Valley',
+            addressLine3: 'Monvila',
+            addressLine4: 'Trivandrum',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '689007',
+            landMark: 'Near AKG Library'
+          }
+        ],
+        registrationNumbers: [
+          {
+            name: 'GST Number',
+            value: 'AABBCCDDEEFF'
+          },
+          {
+            name: 'PAN Number',
+            value: 'XYSOP'
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const response1 = await request(app).get(`${InventoryUris.PARTY_URI}/${response.body._id}`)
+      .set('Authorization', `Bearer2 ${serverToken}`);
+    expect(response1.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not get party without token.', async() => {
+
+    const response = await request(app).post(`${InventoryUris.PARTY_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'John Honai',
+        code: 'JNHN',
+        mobile: '+91123456789',
+        email: 'john.honai@fiveby.one',
+        isCustomer: true,
+        isVendor: false,
+        addresses: [
+          {
+            type: 'billing',
+            addressLine1: '36-B, Orchid Villa',
+            addressLine2: 'Harihar Nagar',
+            addressLine3: 'Pathalam',
+            addressLine4: 'Kochi',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '682001',
+            landMark: 'Behind EMS Library'
+          },
+          {
+            type: 'delivery',
+            addressLine1: '36-C, Orchid Villa',
+            addressLine2: 'Harihar Valley',
+            addressLine3: 'Monvila',
+            addressLine4: 'Trivandrum',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '689007',
+            landMark: 'Near AKG Library'
+          }
+        ],
+        registrationNumbers: [
+          {
+            name: 'GST Number',
+            value: 'AABBCCDDEEFF'
+          },
+          {
+            name: 'PAN Number',
+            value: 'XYSOP'
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const response1 = await request(app).get(`${InventoryUris.PARTY_URI}/${response.body._id}`);
+    expect(response1.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
   it('Should delete party with valid id.', async() => {
 
     const response = await request(app).post(`${InventoryUris.PARTY_URI}`)
@@ -1693,6 +2057,111 @@ describe(`${InventoryUris.PARTY_URI} tests`, () => {
     const response1 = await request(app).get(`${InventoryUris.PARTY_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(response1.status).toBe(HTTP_BAD_REQUEST);
+
+  });
+
+  it('Should not delete party with invalid token.', async() => {
+
+    const response = await request(app).post(`${InventoryUris.PARTY_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'John Honai',
+        code: 'JNHN',
+        mobile: '+91123456789',
+        email: 'john.honai@fiveby.one',
+        isCustomer: true,
+        isVendor: false,
+        addresses: [
+          {
+            type: 'billing',
+            addressLine1: '36-B, Orchid Villa',
+            addressLine2: 'Harihar Nagar',
+            addressLine3: 'Pathalam',
+            addressLine4: 'Kochi',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '682001',
+            landMark: 'Behind EMS Library'
+          },
+          {
+            type: 'delivery',
+            addressLine1: '36-C, Orchid Villa',
+            addressLine2: 'Harihar Valley',
+            addressLine3: 'Monvila',
+            addressLine4: 'Trivandrum',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '689007',
+            landMark: 'Near AKG Library'
+          }
+        ],
+        registrationNumbers: [
+          {
+            name: 'GST Number',
+            value: 'AABBCCDDEEFF'
+          },
+          {
+            name: 'PAN Number',
+            value: 'XYSOP'
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const response2 = await request(app)['delete'](`${InventoryUris.PARTY_URI}/${response.body._id}`)
+      .set('Authorization', `Bearer2 ${serverToken}`);
+    expect(response2.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not delete party without token.', async() => {
+
+    const response = await request(app).post(`${InventoryUris.PARTY_URI}`)
+      .set('Authorization', `Bearer ${serverToken}`)
+      .send({
+        name: 'John Honai',
+        code: 'JNHN',
+        mobile: '+91123456789',
+        email: 'john.honai@fiveby.one',
+        isCustomer: true,
+        isVendor: false,
+        addresses: [
+          {
+            type: 'billing',
+            addressLine1: '36-B, Orchid Villa',
+            addressLine2: 'Harihar Nagar',
+            addressLine3: 'Pathalam',
+            addressLine4: 'Kochi',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '682001',
+            landMark: 'Behind EMS Library'
+          },
+          {
+            type: 'delivery',
+            addressLine1: '36-C, Orchid Villa',
+            addressLine2: 'Harihar Valley',
+            addressLine3: 'Monvila',
+            addressLine4: 'Trivandrum',
+            state: 'Kerala',
+            country: 'India',
+            pinCode: '689007',
+            landMark: 'Near AKG Library'
+          }
+        ],
+        registrationNumbers: [
+          {
+            name: 'GST Number',
+            value: 'AABBCCDDEEFF'
+          },
+          {
+            name: 'PAN Number',
+            value: 'XYSOP'
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_OK);
+    const response2 = await request(app)['delete'](`${InventoryUris.PARTY_URI}/${response.body._id}`);
+    expect(response2.status).toBe(HTTP_UNAUTHORIZED);
 
   });
 
