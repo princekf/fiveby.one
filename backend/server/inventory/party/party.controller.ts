@@ -66,6 +66,12 @@ const saveParty = async(request: any, response: any) => {
     const Party = PartyModel.createModel(sessionDetails.companyCode);
 
     const party = new Party(request.body);
+
+    if (request.body.isCustomer === false && request.body.isVendor === false) {
+
+      return response.status(HTTP_BAD_REQUEST).json('Party should either vendor, or customer or both.');
+
+    }
     await party.save();
     return response.status(HTTP_OK).json(party);
 
