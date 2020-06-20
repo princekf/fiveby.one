@@ -62,14 +62,6 @@ export class CompanyBranchModel {
   };
 
   private static companyBranchSchema = new Schema<CompanyBranchDoc>({
-    company: {
-      type: Schema.Types.ObjectId,
-      ref: 'Company',
-      required: true,
-      trim: true,
-      index: true,
-      sparse: true,
-    },
     name: {
       type: String,
       required: true,

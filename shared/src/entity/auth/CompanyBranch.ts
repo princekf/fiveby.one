@@ -1,5 +1,3 @@
-import { Company } from './Company';
-
 interface FinYear {
   name: string;
   startDate: string;
@@ -7,7 +5,6 @@ interface FinYear {
 }
 
 export interface CompanyBranchS {
-  company: Company;
   name: string;
   contact: string;
   phone: string;

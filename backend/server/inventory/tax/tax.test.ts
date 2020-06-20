@@ -5,9 +5,9 @@ import * as request from 'supertest';
 import app from '../../app';
 import {UserModel} from '../../auth/user/user.model';
 import {TaxModel} from './tax.model';
-import { Constants, Tax as TaxEntity, InventoryUris, AuthUris, CompanyS as CompanyI, CompanyBranchS, CompanyBranch } from 'fivebyone';
+import { Constants, Tax as TaxEntity, InventoryUris, AuthUris, CompanyS as CompanyI} from 'fivebyone';
 
-const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_INTERNAL_SERVER_ERROR, HTTP_UNAUTHORIZED } = Constants;
+const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
 const companyInputJSON: CompanyI = {
   name: 'Mercedes Benz',

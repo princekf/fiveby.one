@@ -3,7 +3,7 @@ import * as MMS from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import * as request from 'supertest';
 import app from '../../app';
-import { AuthUris, Constants, User } from 'fivebyone';
+import { AuthUris, Constants } from 'fivebyone';
 import { AdminUserModel } from './admin.model';
 
 const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_INTERNAL_SERVER_ERROR, HTTP_UNAUTHORIZED } = Constants;

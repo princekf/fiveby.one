@@ -5,7 +5,7 @@ import {AdminUserModel} from './admin.model';
 import { Constants } from 'fivebyone';
 // Import { AuthUtil } from '../../util/auth.util';
 
-const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
+const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
 
 const router = expressRouter();
 

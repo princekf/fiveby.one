@@ -9,7 +9,7 @@ import {
 } from 'fivebyone';
 import passport = require('passport');
 
-const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
+const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
 
 const router = expressRouter();
 
@@ -54,14 +54,19 @@ const validateParentAndFindAncestors =
 const listProductGroup = async(_request: any, response: any) => {
 
   const sessionDetails = AuthUtil.findSessionDetails(_request);
-  if (!sessionDetails.companyCode) {
+  try {
 
-    return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
+    const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
+    const productGroups = await ProductGroupSchema.find()
+      .populate({ path: 'parent',
+        model: ProductGroupSchema });
+    return response.status(HTTP_OK).json(productGroups);
+
+  } catch (error) {
+
+    return response.status(HTTP_BAD_REQUEST).json({ message: `List product group failed \n${error}` });
 
   }
-  const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
-  const productGroups = await ProductGroupSchema.find().populate('parent');
-  return response.status(HTTP_OK).json(productGroups);
 
 };
 
@@ -70,13 +75,11 @@ const getProductGroup = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.companyCode) {
-
-      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
-
-    }
     const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
-    const productGroup = await ProductGroupSchema.findById(request.params.id).populate('parent');
+    const productGroup = await ProductGroupSchema.findById(request.params.id)
+      .populate({path: 'parent',
+        model: ProductGroupSchema });
+
     if (!productGroup) {
 
       return response.status(HTTP_BAD_REQUEST).send('No product group with the specified id.');
@@ -86,7 +89,7 @@ const getProductGroup = async(request: any, response: any) => {
 
   } catch (error) {
 
-    return response.status(HTTP_BAD_REQUEST).send(error);
+    return response.status(HTTP_BAD_REQUEST).send({ message: `fetch product failed \n${error}` });
 
   }
 
@@ -98,11 +101,6 @@ const saveProductGroup = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.companyCode) {
-
-      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
-
-    }
     const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
     const productGroup = new ProductGroupSchema(request.body);
     const ancestors: string[] = await validateParentAndFindAncestors(productGroup, ProductGroupSchema);
@@ -112,7 +110,7 @@ const saveProductGroup = async(request: any, response: any) => {
 
   } catch (error) {
 
-    return response.status(HTTP_BAD_REQUEST).send(error);
+    return response.status(HTTP_BAD_REQUEST).send({ message: `Error when saving a product group\n${error}` });
 
   }
 
@@ -123,11 +121,6 @@ const updateProductGroup = async(request: any, response: any) => {
   try {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.companyCode) {
-
-      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
-
-    }
     const { id } = request.params;
     const updateObject: ProductGroupS = request.body;
     const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
@@ -138,7 +131,7 @@ const updateProductGroup = async(request: any, response: any) => {
 
   } catch (error) {
 
-    return response.status(HTTP_BAD_REQUEST).send(error);
+    return response.status(HTTP_BAD_REQUEST).send({message: `Error when updating the product group \n ${error}`});
 
   }
 
@@ -152,23 +145,18 @@ const deleteProductGroup = async(request: any, response: any) => {
     const productGroupId = request.params.id;
     // If it is a parent group, then can't be deleted.
     const sessionDetails = AuthUtil.findSessionDetails(request);
-    if (!sessionDetails.companyCode) {
-
-      return response.status(HTTP_UNAUTHORIZED).json('Permission denied.');
-
-    }
     const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
     const productGroupsSelected: ProductGroupEntity[] = await ProductGroupSchema.find({ ancestors: productGroupId });
     if (productGroupsSelected && productGroupsSelected.length > 0) {
 
-      return response.status(HTTP_BAD_REQUEST).send(new Error('Cannot delete a parent group'));
+      return response.status(HTTP_BAD_REQUEST).send({message: 'Cannot delete a parent group'});
 
     }
     const ProductSchema = ProductModel.createModel(sessionDetails.companyCode);
     const products: ProdutEntity[] = await ProductSchema.find({ group: productGroupId });
     if (products && products.length > 0) {
 
-      return response.status(HTTP_BAD_REQUEST).send(new Error('Cant delete a group which has products'));
+      return response.status(HTTP_BAD_REQUEST).send({message: 'Cant delete a group which has products'});
 
     }
 
