@@ -27,7 +27,7 @@ describe(`${AuthUris.ADMIN_URI} tests`, () => {
   afterEach(async() => {
 
     const AdminUser = AdminUserModel.createModel();
-    await AdminUser.remove({});
+    await AdminUser.deleteMany({});
 
   });
 
@@ -35,7 +35,7 @@ describe(`${AuthUris.ADMIN_URI} tests`, () => {
   afterAll(async() => {
 
     const AdminUser = AdminUserModel.createModel();
-    await AdminUser.remove({});
+    await AdminUser.deleteMany({});
     await mongoose.disconnect();
     await mongod.stop();
 

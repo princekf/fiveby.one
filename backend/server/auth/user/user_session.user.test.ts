@@ -111,7 +111,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
   afterAll(async() => {
 
     const AdminSchema = AdminUserModel.createModel();
-    AdminSchema.remove({});
+    AdminSchema.deleteMany({});
     await mongoose.disconnect();
     await mongod.stop();
 
@@ -126,7 +126,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
   afterEach(async() => {
 
     const User = UserModel.createModel(company.code);
-    await User.remove({});
+    await User.deleteMany({});
 
   });
 

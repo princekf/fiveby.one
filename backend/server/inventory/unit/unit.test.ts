@@ -119,7 +119,7 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
   afterAll(async() => {
 
     const User = UserModel.createModel(companyDetails.code);
-    await User.remove({});
+    await User.deleteMany({});
     await mongoose.disconnect();
     await mongod.stop();
 
@@ -133,7 +133,7 @@ describe(`${InventoryUris.UNIT_URI} tests`, () => {
   afterEach(async() => {
 
     const Unit = UnitModel.createModel(companyDetails.code);
-    await Unit.remove({});
+    await Unit.deleteMany({});
 
   });
 

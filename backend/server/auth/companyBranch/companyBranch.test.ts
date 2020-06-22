@@ -16,7 +16,7 @@ import { CompanyBranchModel } from './companyBranch.model';
 const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
 
-describe(`${AuthUris.USER_URI} tests`, () => {
+describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
 
   const mongod = new MMS.MongoMemoryServer();
   let adminToken = '';
@@ -113,7 +113,7 @@ describe(`${AuthUris.USER_URI} tests`, () => {
   afterAll(async() => {
 
     const AdminSchema = AdminUserModel.createModel();
-    await AdminSchema.remove({});
+    await AdminSchema.deleteMany({});
     await mongoose.disconnect();
     await mongod.stop();
 
@@ -128,9 +128,9 @@ describe(`${AuthUris.USER_URI} tests`, () => {
   afterEach(async() => {
 
     const User = UserModel.createModel(company.code);
-    await User.remove({});
+    await User.deleteMany({});
     const CompanyBranchSchema = CompanyBranchModel.createModel(company.code);
-    await CompanyBranchSchema.remove({});
+    await CompanyBranchSchema.deleteMany({});
 
   });
 

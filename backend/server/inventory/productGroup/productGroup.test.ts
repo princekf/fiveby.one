@@ -113,7 +113,7 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
   afterAll(async() => {
 
     const AdminSchema = AdminUserModel.createModel();
-    AdminSchema.remove({});
+    AdminSchema.deleteMany({});
     await mongoose.disconnect();
     await mongod.stop();
 
@@ -128,9 +128,9 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
   afterEach(async() => {
 
     const User = UserModel.createModel(company.code);
-    await User.remove({});
+    await User.deleteMany({});
     const ProductGroup = ProductGroupModel.createModel(company.code);
-    await ProductGroup.remove({});
+    await ProductGroup.deleteMany({});
 
   });
 

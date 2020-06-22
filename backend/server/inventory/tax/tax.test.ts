@@ -119,7 +119,7 @@ describe(`${InventoryUris.TAX_URI} tests`, () => {
   afterEach(async() => {
 
     const Tax = TaxModel.createModel(companyDetails.code);
-    await Tax.remove({});
+    await Tax.deleteMany({});
 
   });
 
@@ -127,7 +127,7 @@ describe(`${InventoryUris.TAX_URI} tests`, () => {
   afterAll(async() => {
 
     const User = UserModel.createModel(companyDetails.code);
-    await User.remove({});
+    await User.deleteMany({});
     await mongoose.disconnect();
     await mongod.stop();
 

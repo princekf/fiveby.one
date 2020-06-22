@@ -56,7 +56,7 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
   afterEach(async() => {
 
     const CompanySchema = CompanyModel.createModel();
-    await CompanySchema.remove({});
+    await CompanySchema.deleteMany({});
 
   });
 

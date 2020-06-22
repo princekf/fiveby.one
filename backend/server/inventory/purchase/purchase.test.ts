@@ -109,7 +109,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
   // Remove test user, disconnect and stop database
   afterAll(async() => {
 
-    await User.remove({});
+    await User.deleteMany({});
     await mongoose.disconnect();
     await mongod.stop();
 
@@ -119,12 +119,12 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
   // Remove sample items
   afterEach(async() => {
 
-    await Purchase.remove({});
-    await ProductGroup.remove({});
-    await Product.remove({});
-    await Party.remove({});
-    await Unit.remove({});
-    await Tax.remove({});
+    await Purchase.deleteMany({});
+    await ProductGroup.deleteMany({});
+    await Product.deleteMany({});
+    await Party.deleteMany({});
+    await Unit.deleteMany({});
+    await Tax.deleteMany({});
 
   });
   const getPartyEntity = async(): Promise<PartyEntity> => {

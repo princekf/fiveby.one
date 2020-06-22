@@ -116,7 +116,7 @@ describe(`${InventoryUris.PRODUCT_URI} tests`, () => {
   afterAll(async() => {
 
     const AdminSchema = AdminUserModel.createModel();
-    AdminSchema.remove({});
+    AdminSchema.deleteMany({});
     await mongoose.disconnect();
     await mongod.stop();
 
