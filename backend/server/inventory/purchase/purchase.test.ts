@@ -3,15 +3,14 @@ import * as MMS from 'mongodb-memory-server';
 import * as mongoose from 'mongoose';
 import * as request from 'supertest';
 import app from '../../app';
-import User from '../../auth/user/user.model';
-import Purchase from './purchase.model';
-import Party from '../party/party.model';
-import Product from '../product/product.model';
-import ProductGroup from '../productGroup/productGroup.model';
-import Unit from '../unit/unit.model';
-import Tax from '../tax/tax.model';
-import Company from '../../auth/company/company.model';
-import CompanyBranchM from '../../auth/companyBranch/companyBranch.model';
+import { UserModel } from '../../auth/user/user.model';
+import { AdminUserModel } from '../../auth/admin/admin.model';
+import { PurchaseModel } from './purchase.model';
+import { PartyModel } from '../party/party.model';
+import { ProductModel } from '../product/product.model';
+import { ProductGroupModel } from '../productGroup/productGroup.model';
+import { UnitModel } from '../unit/unit.model';
+import { TaxModel } from '../tax/tax.model';
 import {
   Constants, Purchase as PurchaseEntity,
   InventoryUris, Party as PartyEntity,
@@ -19,118 +18,104 @@ import {
   ProductGroup as ProductGroupEntity,
   Unit as UnitEntity,
   Tax as TaxEntity,
-  AuthUris, CompanyS as CompanyI, CompanyBranchS, CompanyBranch
+  AuthUris, Company
 } from 'fivebyone';
 
-const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
-const companyInputJSON: CompanyI = {
-  name: 'Mercedes Benz',
-  email: 'care@diamler.org',
-  addressLine1: 'Annai Nagar',
-  addressLine2: 'MGR Street',
-  addressLine3: 'Near Bakery road',
-  addressLine4: 'Chennai',
-  state: 'Tamil Nadu',
-  country: 'India',
-  pincode: '223344',
-  contact: '9656444108',
-  phone: '7907919930',
-};
-const companyBranchInput: CompanyBranchS = {
-  company: null,
-  name: null,
-  addressLine1: 'Panvel - Kochi - Kanyakumari Highway',
-  addressLine2: 'Vikas Nagar',
-  addressLine3: 'Maradu',
-  addressLine4: 'Ernakulam',
-  contact: '7907919930',
-  phone: '9656444108',
-  email: 'contactUs@rajasreeKochi.com',
-  state: 'Kerala',
-  country: 'India',
-  pincode: '685588',
-  finYears: [ {
-    name: '2019-20',
-    startDate: '2019-02-01',
-    endDate: '2020-02-01'
-  } ]
-};
 
-describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
+const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
+
+
+describe(`${AuthUris.USER_URI} tests`, () => {
 
   const mongod = new MMS.MongoMemoryServer();
-  let serverToken = '';
-  const createCompanyBranch = async(companyBrInput: CompanyBranchS): Promise<CompanyBranch> => {
+  let adminToken = '';
+  let clientToken = '';
+  let company: Company = null;
 
-    const companyBranch = new CompanyBranchM(companyBrInput);
-    await companyBranch.save();
-    const companyBranchEntity: CompanyBranch = await CompanyBranchM.findOne({ name: companyBranch.name });
-    return companyBranchEntity;
-
-  };
-
-  const createTestUser = async() => {
+  const createAdminUser = async() => {
 
     const uri = await mongod.getConnectionString();
     await mongoose.connect(uri, {
       useNewUrlParser: true,
+      useUnifiedTopology: true
     });
-    const company = new Company(companyInputJSON);
-    await company.save();
-    await request(app).post(AuthUris.COMPANY_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
-      .send(companyInputJSON);
-    const user = new User();
-    user.email = 'test@email.com';
-    user.name = 'Test User';
-    user.company = company;
-    companyBranchInput.company = company;
-    companyBranchInput.name = 'five.byOne';
-    const companyBranch = await createCompanyBranch(companyBranchInput);
-    user.companyBranches = [ companyBranch ];
-    user.setPassword('Simple_123@');
-    await user.save();
+    await request(app).post(`${AuthUris.ADMIN_URI}`)
+      .send(
+        {
+          email: 'manappaliPavithran@fiveByOne.com',
+          name: 'Pavithram Manappalli',
+          password: 'Simple_12@'
+        }
+      );
+
+    const response = await request(app).post(`${AuthUris.ADMIN_URI}/login`)
+      .send(
+        {
+          email: 'manappaliPavithran@fiveByOne.com',
+          password: 'Simple_12@'
+        }
+      );
+    adminToken = response.body.token;
 
   };
-  // Connect to mongoose mock, create a test user and get the access token
-  beforeAll(async() => {
 
-    await createTestUser();
-    const response = await request(app).post(`${AuthUris.USER_URI}/login`)
+  const getCompanyData = async(): Promise<Company> => {
+
+    const companyData = await request(app).post(AuthUris.COMPANY_URI)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({
-        email: 'test@email.com',
-        password: 'Simple_123@',
+        name: 'K and K automobiles',
+        email: 'manoharn@kAndK.com',
+        addressLine1: 'Annai Nagar',
+        addressLine2: 'MGR Street',
+        addressLine3: 'Near Bakery road',
+        addressLine4: 'Chennai',
+        state: 'Tamil Nadu',
+        country: 'India',
+        pincode: '223344',
+        contact: '9656444108',
+        phone: '7907919930'
       });
-    const { body: { token } } = response;
-    serverToken = token;
+    return companyData.body;
 
-  });
+  };
 
-  // Remove test user, disconnect and stop database
-  afterAll(async() => {
+  const createRootLevelClient = async() => {
 
-    await User.deleteMany({});
-    await mongoose.disconnect();
-    await mongod.stop();
+    await request(app).post(`${AuthUris.USER_URI}/user/admin/${company._id}`)
+      .send(
+        {
+          name: 'Office',
+          mobile: '+91123456789',
+          email: 'automobiles@KnK.com',
+          password: 'Simple_123@',
+          addressLine1: 'Jawahar Nagar',
+          addressLine2: 'TTC',
+          addressLine3: 'Vellayambalam',
+          addressLine4: 'Museum',
+          state: 'Kerala',
+          country: 'India',
+          pinCode: '223344',
+        }
+      )
+      .set('Authorization', `Bearer ${adminToken}`);
 
-  });
+    const response = await request(app).post(`${AuthUris.USER_URI}/${company.code}/login`)
+      .send(
+        {
+          email: 'automobiles@KnK.com',
+          password: 'Simple_123@'
+        }
+      );
+    clientToken = response.body.token;
+
+  };
 
 
-  // Remove sample items
-  afterEach(async() => {
-
-    await Purchase.deleteMany({});
-    await ProductGroup.deleteMany({});
-    await Product.deleteMany({});
-    await Party.deleteMany({});
-    await Unit.deleteMany({});
-    await Tax.deleteMany({});
-
-  });
   const getPartyEntity = async(): Promise<PartyEntity> => {
 
     const response = await request(app).post(InventoryUris.PARTY_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         name: 'John Honai',
         code: 'JNHN',
@@ -159,7 +144,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
         ]
       });
     const response1 = await request(app).get(`${InventoryUris.PARTY_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     const party: PartyEntity = response1.body;
     return party;
 
@@ -168,7 +153,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
   const getOnlyCustomerPartyEntity = async(): Promise<PartyEntity> => {
 
     const response = await request(app).post(InventoryUris.PARTY_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         name: 'John Honai',
         code: 'JNHN',
@@ -197,7 +182,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
         ]
       });
     const response1 = await request(app).get(`${InventoryUris.PARTY_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     const party: PartyEntity = response1.body;
     return party;
 
@@ -205,17 +190,17 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
   const getProductEntity1 = async(): Promise<ProductEntity> => {
 
     const response3 = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         name: 'Product Group Name 2',
         shortName: 'Short Name 2',
       });
     const response4 = await request(app).get(`${InventoryUris.PRODUCT_GROUP_URI}/${response3.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     const productGroup: ProductGroupEntity = response4.body;
     const reOrderLevelValue = 100;
     const response = await request(app).post(InventoryUris.PRODUCT_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         group: productGroup,
         name: 'Product One',
@@ -230,7 +215,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
         hasBatch: false,
       });
     const response2 = await request(app).get(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     const product: ProductEntity = response2.body;
     return product;
 
@@ -239,17 +224,17 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
   const getProductEntity2 = async(): Promise<ProductEntity> => {
 
     const response3 = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         name: 'Product Group Name 3',
         shortName: 'Short Name 3',
       });
     const response4 = await request(app).get(`${InventoryUris.PRODUCT_GROUP_URI}/${response3.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     const productGroup: ProductGroupEntity = response4.body;
     const reOrderLevelValue = 100;
     const response = await request(app).post(InventoryUris.PRODUCT_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         group: productGroup,
         name: 'Product Two',
@@ -264,7 +249,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
         hasBatch: true,
       });
     const response2 = await request(app).get(`${InventoryUris.PRODUCT_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     const product: ProductEntity = response2.body;
     return product;
 
@@ -273,14 +258,14 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
 
     const kilogramDecimalPlaces = 3;
     const response = await request(app).post(`${InventoryUris.UNIT_URI}`)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         name: 'Kilogram',
         shortName: 'kg',
         decimalPlaces: kilogramDecimalPlaces,
       });
     const response2 = await request(app).get(`${InventoryUris.UNIT_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     const unit: UnitEntity = response2.body;
     return unit;
 
@@ -289,7 +274,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
 
     const tPercentage = 9;
     const response = await request(app).post(InventoryUris.TAX_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         name: 'SGST-9',
         groupName: 'SGST',
@@ -300,7 +285,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
         } ]
       });
     const response1 = await request(app).get(`${InventoryUris.TAX_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     const tax: TaxEntity = response1.body;
     return tax;
 
@@ -309,7 +294,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
 
     const tPercentage = 9;
     const response = await request(app).post(InventoryUris.TAX_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         name: 'CGST-9',
         groupName: 'CGST',
@@ -320,11 +305,54 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
         } ]
       });
     const response1 = await request(app).get(`${InventoryUris.TAX_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     const tax: TaxEntity = response1.body;
     return tax;
 
   };
+
+
+  beforeAll(async() => {
+
+    await createAdminUser();
+    company = await getCompanyData();
+
+  });
+
+  afterAll(async() => {
+
+    const AdminSchema = AdminUserModel.createModel();
+    AdminSchema.deleteMany({});
+    await mongoose.disconnect();
+    await mongod.stop();
+
+  });
+
+  beforeEach(async() => {
+
+    await createRootLevelClient();
+
+  });
+
+  afterEach(async() => {
+
+    const User = UserModel.createModel(company.code);
+    await User.deleteMany({});
+    const PurchaseMod = PurchaseModel.createModel(company.code);
+    await PurchaseMod.deleteMany({});
+    const ProductGroupMod = ProductGroupModel.createModel(company.code);
+    await ProductGroupMod.deleteMany({});
+    const ProductMod = ProductModel.createModel(company.code);
+    await ProductMod.deleteMany({});
+    const PartyMod = PartyModel.createModel(company.code);
+    await PartyMod.deleteMany({});
+    const UnitMod = UnitModel.createModel(company.code);
+    await UnitMod.deleteMany({});
+    const TaxMod = TaxModel.createModel(company.code);
+    await TaxMod.deleteMany({});
+
+  });
+
   it('Should save purchase with valid values.', async() => {
 
     const party = await getPartyEntity();
@@ -347,7 +375,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1500;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -381,7 +409,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_OK);
 
     const response2 = await request(app).get(`${InventoryUris.PURCHASE_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     expect(response2.status).toBe(HTTP_OK);
     const purchase: PurchaseEntity = response2.body;
     expect(purchase.purchaseDate).toBe('2020-04-01');
@@ -418,6 +446,332 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
 
   });
 
+  it('Should not fetch a purchase with an invalid token.', async() => {
+
+    const party = await getPartyEntity();
+    const product = await getProductEntity1();
+    const unit = await getUnitEntity();
+    const sgst = await getTaxEntitySGST();
+    const cgst = await getTaxEntityCGST();
+
+    const pTotalAmount = 1000;
+    const pTotalDiscount = 100;
+    const pTotalTax = 50.10;
+    const pRoundOff = -0.10;
+    const pGrandTotal = 950;
+
+    const unitPrice = 500;
+    const quantity = 2;
+    const discount = 100;
+    const totalTax = 50.10;
+    const totalAmount = 950.10;
+    const mrp = 1500;
+
+    const response = await request(app).post(InventoryUris.PURCHASE_URI)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .send({
+        purchaseDate: '2020-04-01',
+        invoiceNumber: 'AB0091',
+        invoiceDate: '2020-04-01',
+        orderNumber: 'ORD-0981',
+        orderDate: '2020-04-01',
+        party: party._id,
+        totalAmount: pTotalAmount,
+        totalDiscount: pTotalDiscount,
+        totalTax: pTotalTax,
+        roundOff: pRoundOff,
+        grandTotal: pGrandTotal,
+        narration: 'Test Purchase',
+        purchaseItems: [
+          {
+            product: product._id,
+            unitPrice,
+            quantity,
+            unit: unit._id,
+            discount,
+            totalTax,
+            taxes: [ sgst._id, cgst._id ],
+            totalAmount,
+            batchNumber: 'BN-001',
+            expirtyDate: '2022-03-21',
+            mfgDate: '2020-03-21',
+            mrp,
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_OK);
+
+    const response2 = await request(app).get(`${InventoryUris.PURCHASE_URI}/${response.body._id}`)
+      .set('Authorization', `Bearer2 ${clientToken}`);
+    expect(response2.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not fetch a purchase with an empty token.', async() => {
+
+    const party = await getPartyEntity();
+    const product = await getProductEntity1();
+    const unit = await getUnitEntity();
+    const sgst = await getTaxEntitySGST();
+    const cgst = await getTaxEntityCGST();
+
+    const pTotalAmount = 1000;
+    const pTotalDiscount = 100;
+    const pTotalTax = 50.10;
+    const pRoundOff = -0.10;
+    const pGrandTotal = 950;
+
+    const unitPrice = 500;
+    const quantity = 2;
+    const discount = 100;
+    const totalTax = 50.10;
+    const totalAmount = 950.10;
+    const mrp = 1500;
+
+    const response = await request(app).post(InventoryUris.PURCHASE_URI)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .send({
+        purchaseDate: '2020-04-01',
+        invoiceNumber: 'AB0091',
+        invoiceDate: '2020-04-01',
+        orderNumber: 'ORD-0981',
+        orderDate: '2020-04-01',
+        party: party._id,
+        totalAmount: pTotalAmount,
+        totalDiscount: pTotalDiscount,
+        totalTax: pTotalTax,
+        roundOff: pRoundOff,
+        grandTotal: pGrandTotal,
+        narration: 'Test Purchase',
+        purchaseItems: [
+          {
+            product: product._id,
+            unitPrice,
+            quantity,
+            unit: unit._id,
+            discount,
+            totalTax,
+            taxes: [ sgst._id, cgst._id ],
+            totalAmount,
+            batchNumber: 'BN-001',
+            expirtyDate: '2022-03-21',
+            mfgDate: '2020-03-21',
+            mrp,
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_OK);
+
+    const response2 = await request(app).get(`${InventoryUris.PURCHASE_URI}/${response.body._id}`);
+    expect(response2.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should save purchase with valid values.', async() => {
+
+    const party = await getPartyEntity();
+    const product = await getProductEntity1();
+    const unit = await getUnitEntity();
+    const sgst = await getTaxEntitySGST();
+    const cgst = await getTaxEntityCGST();
+
+    const pTotalAmount = 1000;
+    const pTotalDiscount = 100;
+    const pTotalTax = 50.10;
+    const pRoundOff = -0.10;
+    const pGrandTotal = 950;
+
+    const unitPrice = 500;
+    const quantity = 2;
+    const discount = 100;
+    const totalTax = 50.10;
+    const totalAmount = 950.10;
+    const mrp = 1500;
+
+    const response = await request(app).post(InventoryUris.PURCHASE_URI)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .send({
+        purchaseDate: '2020-04-01',
+        invoiceNumber: 'AB0091',
+        invoiceDate: '2020-04-01',
+        orderNumber: 'ORD-0981',
+        orderDate: '2020-04-01',
+        party: party._id,
+        totalAmount: pTotalAmount,
+        totalDiscount: pTotalDiscount,
+        totalTax: pTotalTax,
+        roundOff: pRoundOff,
+        grandTotal: pGrandTotal,
+        narration: 'Test Purchase',
+        purchaseItems: [
+          {
+            product: product._id,
+            unitPrice,
+            quantity,
+            unit: unit._id,
+            discount,
+            totalTax,
+            taxes: [ sgst._id, cgst._id ],
+            totalAmount,
+            batchNumber: 'BN-001',
+            expirtyDate: '2022-03-21',
+            mfgDate: '2020-03-21',
+            mrp,
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_OK);
+
+    const response2 = await request(app).get(`${InventoryUris.PURCHASE_URI}/${response.body._id}`)
+      .set('Authorization', `Bearer ${clientToken}`);
+    expect(response2.status).toBe(HTTP_OK);
+    const purchase: PurchaseEntity = response2.body;
+    expect(purchase.purchaseDate).toBe('2020-04-01');
+    expect(purchase.invoiceNumber).toBe('AB0091');
+    expect(purchase.invoiceDate).toBe('2020-04-01');
+    expect(purchase.orderNumber).toBe('ORD-0981');
+    expect(purchase.orderDate).toBe('2020-04-01');
+    expect(purchase.party.name).toBe(party.name);
+    expect(purchase.totalAmount).toBe(pTotalAmount);
+    expect(purchase.totalDiscount).toBe(pTotalDiscount);
+    expect(purchase.totalTax).toBe(pTotalTax);
+    expect(purchase.roundOff).toBe(pRoundOff);
+    expect(purchase.grandTotal).toBe(pGrandTotal);
+    expect(purchase.narration).toBe('Test Purchase');
+    expect(purchase.purchaseItems.length).toBe(1);
+    const [ pItem ] = purchase.purchaseItems;
+    expect(pItem.product.name).toBe(product.name);
+    expect(pItem.unitPrice).toBe(unitPrice);
+    expect(pItem.quantity).toBe(quantity);
+    expect(pItem.discount).toBe(discount);
+    expect(pItem.totalAmount).toBe(totalAmount);
+    expect(pItem.mrp).toBe(mrp);
+    expect(pItem.expirtyDate).toBe('2022-03-21');
+    expect(pItem.mfgDate).toBe('2020-03-21');
+    expect(pItem.batchNumber).toBe('BN-001');
+    expect(pItem.unit.name).toBe(unit.name);
+    expect(pItem.totalTax).toBe(totalTax);
+    const taxLength = 2;
+    expect(pItem.taxes.length).toBe(taxLength);
+    expect(pItem.taxes[0].name).toBe(sgst.name);
+    expect(pItem.taxes[0].effectiveFrom[0].percentage).toBe(sgst.effectiveFrom[0].percentage);
+    expect(pItem.taxes[1].name).toBe(cgst.name);
+    expect(pItem.taxes[1].effectiveFrom[0].percentage).toBe(cgst.effectiveFrom[0].percentage);
+
+  });
+
+  it('Should not save purchase with an invalid token.', async() => {
+
+    const party = await getPartyEntity();
+    const product = await getProductEntity1();
+    const unit = await getUnitEntity();
+    const sgst = await getTaxEntitySGST();
+    const cgst = await getTaxEntityCGST();
+
+    const pTotalAmount = 1000;
+    const pTotalDiscount = 100;
+    const pTotalTax = 50.10;
+    const pRoundOff = -0.10;
+    const pGrandTotal = 950;
+
+    const unitPrice = 500;
+    const quantity = 2;
+    const discount = 100;
+    const totalTax = 50.10;
+    const totalAmount = 950.10;
+    const mrp = 1500;
+
+    const response = await request(app).post(InventoryUris.PURCHASE_URI)
+      .set('Authorization', `Bearer2 ${clientToken}`)
+      .send({
+        purchaseDate: '2020-04-01',
+        invoiceNumber: 'AB0091',
+        invoiceDate: '2020-04-01',
+        orderNumber: 'ORD-0981',
+        orderDate: '2020-04-01',
+        party: party._id,
+        totalAmount: pTotalAmount,
+        totalDiscount: pTotalDiscount,
+        totalTax: pTotalTax,
+        roundOff: pRoundOff,
+        grandTotal: pGrandTotal,
+        narration: 'Test Purchase',
+        purchaseItems: [
+          {
+            product: product._id,
+            unitPrice,
+            quantity,
+            unit: unit._id,
+            discount,
+            totalTax,
+            taxes: [ sgst._id, cgst._id ],
+            totalAmount,
+            batchNumber: 'BN-001',
+            expirtyDate: '2022-03-21',
+            mfgDate: '2020-03-21',
+            mrp,
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
+
+  it('Should not save purchase with an empty token.', async() => {
+
+    const party = await getPartyEntity();
+    const product = await getProductEntity1();
+    const unit = await getUnitEntity();
+    const sgst = await getTaxEntitySGST();
+    const cgst = await getTaxEntityCGST();
+
+    const pTotalAmount = 1000;
+    const pTotalDiscount = 100;
+    const pTotalTax = 50.10;
+    const pRoundOff = -0.10;
+    const pGrandTotal = 950;
+
+    const unitPrice = 500;
+    const quantity = 2;
+    const discount = 100;
+    const totalTax = 50.10;
+    const totalAmount = 950.10;
+    const mrp = 1500;
+
+    const response = await request(app).post(InventoryUris.PURCHASE_URI)
+      .send({
+        purchaseDate: '2020-04-01',
+        invoiceNumber: 'AB0091',
+        invoiceDate: '2020-04-01',
+        orderNumber: 'ORD-0981',
+        orderDate: '2020-04-01',
+        party: party._id,
+        totalAmount: pTotalAmount,
+        totalDiscount: pTotalDiscount,
+        totalTax: pTotalTax,
+        roundOff: pRoundOff,
+        grandTotal: pGrandTotal,
+        narration: 'Test Purchase',
+        purchaseItems: [
+          {
+            product: product._id,
+            unitPrice,
+            quantity,
+            unit: unit._id,
+            discount,
+            totalTax,
+            taxes: [ sgst._id, cgst._id ],
+            totalAmount,
+            batchNumber: 'BN-001',
+            expirtyDate: '2022-03-21',
+            mfgDate: '2020-03-21',
+            mrp,
+          }
+        ]
+      });
+    expect(response.status).toBe(HTTP_UNAUTHORIZED);
+
+  });
 
   it('Should save purchase with minimum values.', async() => {
 
@@ -434,7 +788,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1500;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -468,7 +822,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_OK);
 
     const response2 = await request(app).get(`${InventoryUris.PURCHASE_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     expect(response2.status).toBe(HTTP_OK);
     const purchase: PurchaseEntity = response2.body;
     expect(purchase.purchaseDate).toBe('2020-04-01');
@@ -531,7 +885,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp2 = 500;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -579,7 +933,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_OK);
 
     const response2 = await request(app).get(`${InventoryUris.PURCHASE_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     expect(response2.status).toBe(HTTP_OK);
     const purchase: PurchaseEntity = response2.body;
     expect(purchase.purchaseDate).toBe('2020-04-01');
@@ -656,7 +1010,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response0 = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         invoiceNumber: 'AB0091',
         invoiceDate: '2020-04-01',
@@ -701,7 +1055,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
       });
     expect(response0.status).toBe(HTTP_BAD_REQUEST);
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '',
         invoiceNumber: 'AB0091',
@@ -771,7 +1125,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -828,71 +1182,13 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
         invoiceDate: '2020-03-01',
         orderNumber: 'ORD-0981',
         orderDate: '2020-04-01',
-        party: party._id,
-        totalAmount: pTotalAmount,
-        totalDiscount: pTotalDiscount,
-        totalTax: pTotalTax,
-        roundOff: pRoundOff,
-        grandTotal: pGrandTotal,
-        narration: 'Test Purchase',
-        purchaseItems: [
-          {
-            product: product1._id,
-            unitPrice,
-            quantity,
-            unit: unit._id,
-            discount,
-            taxes: [ sgst._id, cgst._id ],
-            totalTax,
-            totalAmount,
-            batchNumber: 'BN-001',
-            expirtyDate: '2022-03-21',
-            mfgDate: '2020-03-21',
-            mrp,
-          }
-        ]
-      });
-    expect(response.status).toBe(HTTP_BAD_REQUEST);
-
-  });
-
-
-  it('Order date should not be after invoice date', async() => {
-
-    const party = await getPartyEntity();
-    const product1 = await getProductEntity1();
-
-    const unit = await getUnitEntity();
-    const sgst = await getTaxEntitySGST();
-    const cgst = await getTaxEntityCGST();
-
-    const pTotalAmount = 1000;
-    const pTotalDiscount = 100;
-    const pTotalTax = 50.10;
-    const pRoundOff = -0.10;
-    const pGrandTotal = 950;
-
-    const unitPrice = 500;
-    const quantity = 2;
-    const discount = 100;
-    const totalTax = 200;
-    const totalAmount = 900;
-    const mrp = 1500;
-    const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
-      .send({
-        purchaseDate: '2020-03-31',
-        invoiceNumber: 'AB0091',
-        invoiceDate: '2020-03-28',
-        orderNumber: 'ORD-0981',
-        orderDate: '2020-03-30',
         party: party._id,
         totalAmount: pTotalAmount,
         totalDiscount: pTotalDiscount,
@@ -942,7 +1238,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -998,7 +1294,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1055,7 +1351,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1089,6 +1385,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Grand total should not be less than 0', async() => {
 
     const party = await getPartyEntity();
@@ -1111,7 +1408,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1145,6 +1442,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Total discount should not be less than 0', async() => {
 
     const party = await getPartyEntity();
@@ -1167,7 +1465,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1224,7 +1522,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1258,6 +1556,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Total amount should not be less than 0', async() => {
 
 
@@ -1281,7 +1580,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1315,6 +1614,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Purchase item - product is mandatory', async() => {
 
     const party = await getPartyEntity();
@@ -1336,7 +1636,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1392,7 +1692,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1426,6 +1726,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Purchase item - unit price is mandatory', async() => {
 
     const party = await getPartyEntity();
@@ -1447,7 +1748,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1480,7 +1781,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
       });
     expect(response.status).toBe(HTTP_BAD_REQUEST);
     const response1 = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1513,6 +1814,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response1.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Purchase item - quantity is mandatory', async() => {
 
     const party = await getPartyEntity();
@@ -1534,7 +1836,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1567,7 +1869,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
       });
     expect(response.status).toBe(HTTP_BAD_REQUEST);
     const response1 = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1622,7 +1924,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 900;
     const mrp = 1500;
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-03-31',
         invoiceNumber: 'AB0091',
@@ -1656,6 +1958,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Purchase item - should save with empty tax', async() => {
 
     const party = await getPartyEntity();
@@ -1676,7 +1979,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 700;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -1710,7 +2013,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_OK);
 
     const response2 = await request(app).get(`${InventoryUris.PURCHASE_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     expect(response2.status).toBe(HTTP_OK);
     const purchase: PurchaseEntity = response2.body;
     expect(purchase.purchaseDate).toBe('2020-04-01');
@@ -1760,7 +2063,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1500;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -1793,7 +2096,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_OK);
 
     const response2 = await request(app).get(`${InventoryUris.PURCHASE_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`);
+      .set('Authorization', `Bearer ${clientToken}`);
     expect(response2.status).toBe(HTTP_OK);
     const purchase: PurchaseEntity = response2.body;
     expect(purchase.purchaseDate).toBe('2020-04-01');
@@ -1843,7 +2146,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 700;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -1877,6 +2180,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Purchase item - total amount is mandatory', async() => {
 
     const party = await getPartyEntity();
@@ -1899,7 +2203,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1500;
 
     let response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -1933,7 +2237,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
     response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -1989,7 +2293,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1500;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2046,7 +2350,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1500;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2080,6 +2384,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Purchase - total of tax should match with purchase items.', async() => {
 
     const party = await getPartyEntity();
@@ -2102,7 +2407,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1500;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2136,6 +2441,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Purchase - total of amount should match with purchase items.', async() => {
 
     const party = await getPartyEntity();
@@ -2158,7 +2464,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1500;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2217,7 +2523,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount2 = -50;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2292,7 +2598,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount2 = -100;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2340,6 +2646,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Purchase item - mrp is mandatory', async() => {
 
     const party = await getPartyEntity();
@@ -2361,7 +2668,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const totalAmount = 1000;
 
     let response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2394,7 +2701,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
       });
     expect(response.status).toBe(HTTP_BAD_REQUEST);
     response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2450,7 +2757,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = -100;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2484,6 +2791,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
+
   it('Purchase item - mfg date shoud not be after expiry date', async() => {
 
     const party = await getPartyEntity();
@@ -2506,7 +2814,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1000;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2563,7 +2871,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1000;
 
     let response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2596,7 +2904,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
       });
     expect(response.status).toBe(HTTP_BAD_REQUEST);
     response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2629,7 +2937,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
       });
     expect(response.status).toBe(HTTP_BAD_REQUEST);
     response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2662,7 +2970,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
     response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2695,62 +3003,6 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     expect(response.status).toBe(HTTP_BAD_REQUEST);
 
   });
-  it('Purchase item - purchase date should not be after expiry date', async() => {
-
-    const party = await getPartyEntity();
-    const product = await getProductEntity1();
-    const unit = await getUnitEntity();
-    const sgst = await getTaxEntitySGST();
-    const cgst = await getTaxEntityCGST();
-
-    const pTotalAmount = 1000;
-    const pTotalDiscount = 100;
-    const pTotalTax = 100;
-    const pRoundOff = 0;
-    const pGrandTotal = 1000;
-
-    const unitPrice = 500;
-    const quantity = 2;
-    const discount = 100;
-    const totalTax = 100;
-    const totalAmount = 1000;
-    const mrp = 1000;
-
-    const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
-      .send({
-        purchaseDate: '2020-04-01',
-        invoiceNumber: 'AB0091',
-        invoiceDate: '2020-04-01',
-        orderNumber: 'ORD-0981',
-        orderDate: '2020-04-01',
-        party: party._id,
-        totalAmount: pTotalAmount,
-        totalDiscount: pTotalDiscount,
-        totalTax: pTotalTax,
-        roundOff: pRoundOff,
-        grandTotal: pGrandTotal,
-        narration: 'Test Purchase',
-        purchaseItems: [
-          {
-            product: product._id,
-            unitPrice,
-            quantity,
-            unit: unit._id,
-            discount,
-            taxes: [ sgst._id, cgst._id ],
-            totalTax,
-            totalAmount,
-            batchNumber: 'BN-001',
-            expirtyDate: '2020-03-31',
-            mfgDate: '2020-03-21',
-            mrp,
-          }
-        ]
-      });
-    expect(response.status).toBe(HTTP_BAD_REQUEST);
-
-  });
 
   it('Purchase item - mfg date should not be after purchase date', async() => {
 
@@ -2774,7 +3026,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1000;
 
     const response = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2813,7 +3065,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
   it('Party should not update type from vendor to no vendor, if purchase is made', async() => {
 
     const response = await request(app).post(InventoryUris.PARTY_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         name: 'John Honai',
         code: 'JNHN',
@@ -2862,7 +3114,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
     const mrp = 1000;
 
     const response2 = await request(app).post(InventoryUris.PURCHASE_URI)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         purchaseDate: '2020-04-01',
         invoiceNumber: 'AB0091',
@@ -2897,7 +3149,7 @@ describe(`${InventoryUris.PURCHASE_URI} tests`, () => {
 
 
     const response1 = await request(app).put(`${InventoryUris.PARTY_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${serverToken}`)
+      .set('Authorization', `Bearer ${clientToken}`)
       .send({
         isVendor: false,
       });

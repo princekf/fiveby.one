@@ -115,23 +115,19 @@ export class PurchaseModel {
     }
   });
 
-  private static validatePurchase = async function(dbName: any) {
-
-    const result = await PurchaseUtil.validatePurchase(this, dbName);
-    if (!result) {
-
-      throw new Error('Purchase validation failed.');
-
-    }
-
-  };
 
   public static createModel = (dbName: string): Model<PurchaseDoc, {}> => {
 
     const mongoConnection = connection.useDb(dbName);
-    PurchaseModel.purchaseSchema.pre<PurchaseDoc>('save', () => {
+    PurchaseModel.purchaseSchema.pre<PurchaseDoc>('save', async function() {
 
-      PurchaseModel.validatePurchase(dbName);
+      // . this object, here  referes to the purchase schema enitity
+      const result = await PurchaseUtil.validatePurchase(this, dbName);
+      if (!result) {
+
+        throw new Error('Purchase validation failed.');
+
+      }
 
     });
     return mongoConnection.model('Purchase', PurchaseModel.purchaseSchema);

@@ -4,6 +4,10 @@ import { AuthUtil } from '../../util/auth.util';
 import { PurchaseModel } from './purchase.model';
 import { Constants } from 'fivebyone';
 import passport = require('passport');
+import { PartyModel } from '../party/party.model';
+import { UnitModel } from '../unit/unit.model';
+import { TaxModel } from '../tax/tax.model';
+import { ProductModel } from '../product/product.model';
 
 const { HTTP_OK, HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED } = Constants;
 
@@ -42,11 +46,19 @@ const getPurchase = async(request: any, response: any) => {
 
     }
     const PurchaseSchema = PurchaseModel.createModel(sessionDetails.companyCode);
+    const PartyMod = PartyModel.createModel(sessionDetails.companyCode);
+    const UnitMod = UnitModel.createModel(sessionDetails.companyCode);
+    const ProductMod = ProductModel.createModel(sessionDetails.companyCode);
+    const TaxesMod = TaxModel.createModel(sessionDetails.companyCode);
     const purchase = await PurchaseSchema.findById(request.params.id)
-      .populate('party')
-      .populate('purchaseItems.product')
-      .populate('purchaseItems.unit')
-      .populate('purchaseItems.taxes');
+      .populate({ path: 'party',
+        model: PartyMod })
+      .populate({ path: 'purchaseItems.product',
+        model: ProductMod })
+      .populate({ path: 'purchaseItems.unit',
+        model: UnitMod })
+      .populate({ path: 'purchaseItems.taxes',
+        model: TaxesMod });
     if (!purchase) {
 
       return response.status(HTTP_BAD_REQUEST).send('No purchase with the specified id.');
