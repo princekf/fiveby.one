@@ -197,6 +197,7 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
       .set('Authorization', `Bearer ${serverToken}`)
       .send(company2);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -219,6 +220,7 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
       .set('Authorization', `Bearer ${serverToken}`)
       .send(companyInputJSON);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -241,6 +243,7 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
       .set('Authorization', `Bearer ${serverToken}`)
       .send(companyInputJSON);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -263,6 +266,7 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
       .set('Authorization', `Bearer ${serverToken}`)
       .send(companyInputJSON);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -303,6 +307,7 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
       .set('Authorization', `Bearer ${serverToken}`)
       .send(otherCompanyInput);
     expect(otherCompanyResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(otherCompanyResponse.body).toHaveProperty('message');
 
   });
 
@@ -473,6 +478,8 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
       .set('Authorization', `Bearer ${serverToken}`)
       .send({});
     expect(updateCompanyResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(updateCompanyResponse.body).toHaveProperty('message');
+    expect(updateCompanyResponse.body.message).toBe('No body to update');
 
   });
 
@@ -690,10 +697,12 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
     const dumbResponse = await request(app).get(`${AuthUris.COMPANY_URI}/abc`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(dumbResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(dumbResponse.body).toHaveProperty('message');
 
     const invalidIdResponse = await request(app).get(`${AuthUris.COMPANY_URI}/5ed24574d1383411e036dfc2`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(invalidIdResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(invalidIdResponse.body).toHaveProperty('message');
 
   });
 
@@ -934,13 +943,16 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
       .send(companyInputJSON);
     expect(response.status).toBe(HTTP_OK);
 
-    const validResponse = await request(app)['delete'](`${AuthUris.COMPANY_URI}/abc`)
+    const inValidResponse = await request(app)['delete'](`${AuthUris.COMPANY_URI}/abc`)
       .set('Authorization', `Bearer ${serverToken}`);
-    expect(validResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(inValidResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(inValidResponse.body).toHaveProperty('message');
 
     const deletedResponse = await request(app)['delete'](`${AuthUris.COMPANY_URI}/5ed2497242e04916ef53c87a`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(deletedResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(deletedResponse.body).toHaveProperty('message');
+    expect(deletedResponse.body.message).toBe('No company deleted. Check the company id.');
 
   });
 
@@ -971,6 +983,8 @@ describe(`${AuthUris.COMPANY_URI} tests`, () => {
     const deletedResponse = await request(app)['delete'](`${AuthUris.COMPANY_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${serverToken}`);
     expect(deletedResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(deletedResponse.body).toHaveProperty('message');
+    expect(deletedResponse.body.message).toBe('No company deleted. Check the company id.');
 
   });
 

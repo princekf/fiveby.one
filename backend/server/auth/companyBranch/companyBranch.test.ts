@@ -296,6 +296,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
     const companyBranchInput2: CompanyBranchS = {
       name: 'Rajasree Motors',
@@ -324,6 +325,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput2);
     expect(response2.status).toBe(HTTP_BAD_REQUEST);
+    expect(response2.body).toHaveProperty('message');
 
   });
 
@@ -346,6 +348,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -374,6 +377,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -401,6 +405,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -428,6 +433,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -455,6 +461,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -482,6 +489,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -509,6 +517,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -558,6 +567,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
         } ]
       });
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -585,6 +595,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -612,6 +623,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(response.body).toHaveProperty('message');
 
   });
 
@@ -861,6 +873,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(updatedCompanyBranchInput);
     expect(updateResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(updateResponse.body).toHaveProperty('message');
 
   });
   it('Should not update: without financial year name', async() => {
@@ -915,6 +928,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .send(updatedCompanyBranchInput);
 
     expect(updateResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(updateResponse.body).toHaveProperty('message');
 
   });
 
@@ -970,6 +984,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .send(updatedCompanyBranchInput);
 
     expect(updateResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(updateResponse.body).toHaveProperty('message');
 
   });
 
@@ -1130,6 +1145,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(updatedCompanyBranchInput);
     expect(updateResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(updateResponse.body).toHaveProperty('message');
 
   });
 
@@ -1188,6 +1204,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(updatedCompanyBranchInput);
     expect(updateResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(updateResponse.body).toHaveProperty('message');
 
   });
 
@@ -1245,6 +1262,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(updatedCompanyBranchInput);
     expect(updateResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(updateResponse.body).toHaveProperty('message');
 
   });
 
@@ -1296,6 +1314,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .send(updatedCompanyBranchInput);
 
     expect(invalidCompanyIdRes.status).toBe(HTTP_BAD_REQUEST);
+    expect(updateResponse.body).toHaveProperty('message');
 
 
   });
@@ -1338,6 +1357,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .send(updatedCompanyBranchInput);
 
     expect(updateResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(updateResponse.body).toHaveProperty('message');
 
   });
 
@@ -1472,6 +1492,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(getResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(getResponse.body).toHaveProperty('message');
 
   });
 
@@ -1507,6 +1528,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
       .set('Authorization', `Bearer ${clientToken}`)
       .send(companyBranchInput);
     expect(getResponse.status).toBe(HTTP_BAD_REQUEST);
+    expect(getResponse.body).toHaveProperty('message');
 
   });
 
@@ -1709,36 +1731,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
     const getDeleted = await request(app).get(`${AuthUris.COMPANY_BRANCH_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${clientToken}`);
     expect(getDeleted.status).toBe(HTTP_BAD_REQUEST);
-
-  });
-
-  it('Create a Company branch and delete it', async() => {
-
-    const companyBranchInput: CompanyBranchS = {
-      name: 'Rajasree Motors',
-      addressLine1: 'Panvel - Kochi - Kanyakumari Highway',
-      addressLine2: 'Vikas Nagar',
-      addressLine3: 'Maradu',
-      addressLine4: 'Ernakulam',
-      contact: '7907919930',
-      phone: '9656444108',
-      email: 'contactUs@rajasreeKochi.com',
-      state: 'Kerala',
-      country: 'India',
-      pincode: '685588',
-      finYears: [ {
-        name: '2019-20',
-        startDate: '2019-02-01',
-        endDate: '2020-02-01'
-      } ]
-    };
-    const response = await request(app).post(AuthUris.COMPANY_BRANCH_URI)
-      .set('Authorization', `Bearer ${clientToken}`)
-      .send(companyBranchInput);
-    expect(response.status).toBe(HTTP_OK);
-    const deletedRes = await request(app)['delete'](`${AuthUris.COMPANY_BRANCH_URI}/${response.body._id}`)
-      .set('Authorization', `Bearer ${clientToken}`);
-    expect(deletedRes.status).toBe(HTTP_OK); ;
+    expect(getDeleted.body).toHaveProperty('message');
 
   });
 
@@ -1828,6 +1821,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
     const deletedRes = await request(app)['delete'](`${AuthUris.COMPANY_BRANCH_URI}/abc`)
       .set('Authorization', `Bearer ${clientToken}`);
     expect(deletedRes.status).toBe(HTTP_BAD_REQUEST);
+    expect(deletedRes.body).toHaveProperty('message');
     const getDeleted = await request(app).get(`${AuthUris.COMPANY_BRANCH_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${clientToken}`);
     expect(getDeleted.status).toBe(HTTP_OK);
@@ -1864,6 +1858,7 @@ describe(`${AuthUris.COMPANY_BRANCH_URI} tests`, () => {
     const getDeleted = await request(app)['delete'](`${AuthUris.COMPANY_BRANCH_URI}/${response.body._id}`)
       .set('Authorization', `Bearer ${clientToken}`);
     expect(getDeleted.status).toBe(HTTP_BAD_REQUEST);
+    expect(getDeleted.body).toHaveProperty('message');
 
   });
 

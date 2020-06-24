@@ -17,14 +17,14 @@ const getCompany = async(request: any, response: any) => {
     const company = await Company.findById(request.params.id);
     if (!company) {
 
-      return response.status(HTTP_BAD_REQUEST).send('No company with the specified id.');
+      return response.status(HTTP_BAD_REQUEST).send({ message: 'No company with the specified id.' });
 
     }
     return response.status(HTTP_OK).json(company);
 
   } catch (error) {
 
-    return response.status(HTTP_BAD_REQUEST).send(error);
+    return response.status(HTTP_BAD_REQUEST).send({ message: `Company data could not be fetched\n${error}` });
 
   }
 
@@ -42,7 +42,7 @@ const saveCompany = async(request: any, response: any) => {
 
   } catch (error) {
 
-    return response.status(HTTP_BAD_REQUEST).send(error);
+    return response.status(HTTP_BAD_REQUEST).send({ message: `Company data could not be saved\n${error}` });
 
   }
 
@@ -64,7 +64,7 @@ const updateCompany = async(request: any, response: any) => {
     const updateUserObject: CompanyS = request.body;
     if (!updateUserObject || updateUserObject && Object.keys(updateUserObject).length === 0) {
 
-      return response.status(HTTP_BAD_REQUEST).json('No body to update');
+      return response.status(HTTP_BAD_REQUEST).send({ message: 'No body to update' });
 
     }
     delete updateUserObject.email;
@@ -74,7 +74,7 @@ const updateCompany = async(request: any, response: any) => {
 
   } catch (error) {
 
-    return response.status(HTTP_BAD_REQUEST).send(error);
+    return response.status(HTTP_BAD_REQUEST).send({ message: `Could not update company\n${error}` });
 
   }
 
@@ -89,7 +89,7 @@ const deleteCompany = async(request: any, response: any) => {
     const resp = await Company.deleteOne({ _id: id });
     if (resp.deletedCount === 0) {
 
-      return response.status(HTTP_BAD_REQUEST).send('No company is deleted.');
+      return response.status(HTTP_BAD_REQUEST).send({ message: 'No company deleted. Check the company id.' });
 
     }
 
@@ -97,7 +97,7 @@ const deleteCompany = async(request: any, response: any) => {
 
   } catch (error) {
 
-    return response.status(HTTP_BAD_REQUEST).send(error);
+    return response.status(HTTP_BAD_REQUEST).send({ message: `Company could not be deleted\n${error}` });
 
   }
 

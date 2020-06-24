@@ -30,14 +30,14 @@ const getCompanyBranch = async(request: any, response: any) => {
       model: Company });
     if (!companyBranch) {
 
-      return response.status(HTTP_BAD_REQUEST).send('No Company branch with the specified id.');
+      return response.status(HTTP_BAD_REQUEST).send({ message: 'No Company branch with the specified id.' });
 
     }
     return response.status(HTTP_OK).json(companyBranch);
 
   } catch (error) {
 
-    return response.status(HTTP_BAD_REQUEST).send(error);
+    return response.status(HTTP_BAD_REQUEST).send({ message: `Could not fetch company branch\n${error}` });
 
   }
 
@@ -57,7 +57,7 @@ const saveCompanyBranch = async(request: any, response: any) => {
   } catch (error) {
 
 
-    return response.status(HTTP_BAD_REQUEST).send(error);
+    return response.status(HTTP_BAD_REQUEST).send({ message: `Could not save company branch\n${error}` });
 
   }
 
@@ -74,7 +74,7 @@ const updateCompanyBranch = async(request: any, response: any) => {
 
     if (!companyBr) {
 
-      return response.status(HTTP_BAD_REQUEST).send(new Error('Invalid company branch Id'));
+      return response.status(HTTP_BAD_REQUEST).send({ message: 'Invalid company branch Id' });
 
     }
 
@@ -86,7 +86,7 @@ const updateCompanyBranch = async(request: any, response: any) => {
 
   } catch (error) {
 
-    return response.status(HTTP_BAD_REQUEST).send(error);
+    return response.status(HTTP_BAD_REQUEST).send({ message: `Could not update company branch\n${error}` });
 
   }
 
@@ -104,7 +104,7 @@ const deleteCompanyBranch = async(request: any, response: any) => {
     const companyBranch: CompanyBranchEntity = await CompanyBranch.findById(companyBranchId);
     if (!companyBranch) {
 
-      return response.status(HTTP_BAD_REQUEST).send(new Error('Invalid company branch Id'));
+      return response.status(HTTP_BAD_REQUEST).send({ message: 'Company Branch could not be found' });
 
     }
     await CompanyBranch.deleteOne({ _id: companyBranchId });
@@ -112,7 +112,7 @@ const deleteCompanyBranch = async(request: any, response: any) => {
 
   } catch (error) {
 
-    return response.status(HTTP_BAD_REQUEST).send(error);
+    return response.status(HTTP_BAD_REQUEST).send({ message: `Could not delete company branch\n${error}` });
 
   }
 
