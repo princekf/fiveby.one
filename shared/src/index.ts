@@ -26,7 +26,8 @@ import {Company, CompanyS} from './entity/auth/Company';
 export {Company, CompanyS};
 import {CompanyBranch, CompanyBranchS} from './entity/auth/CompanyBranch';
 export {CompanyBranch, CompanyBranchS};
-
+import FBORuleEngine, {RuleCondition, RuleEvent, RuleResult } from './rule-engine/FBORuleEngine';
+export {FBORuleEngine, RuleCondition, RuleEvent, RuleResult };
 export const Greeter = (name: string) => {
 
   return `Hello ${name}`;

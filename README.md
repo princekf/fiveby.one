@@ -1,5 +1,5 @@
 # Fullstack Express-React app written in TypeScript
-
+mongod -f path/to/mongod.conf --fork
 |Branch|Build Status|
 |------|------------|
 |master|[![Build Status](https://travis-ci.com/princekf/erp-typescript-express-mongodb-react.svg?branch=master)](https://travis-ci.com/princekf/erp-typescript-express-mongodb-react)|

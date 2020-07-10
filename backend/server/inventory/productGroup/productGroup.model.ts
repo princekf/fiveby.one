@@ -30,6 +30,18 @@ export class ProductGroupModel {
       type: [ String ],
       required: false,
       index: true,
+    },
+    taxRules: {
+      type: [
+        {
+          condition: {
+            type: Object,
+          },
+          event: {
+            type: Object,
+          }
+        }
+      ]
     }
   });
 
