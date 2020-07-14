@@ -9,7 +9,9 @@ import {
   Constants, AuthUris,
   Company,
   InventoryUris,
-  ProductGroup as ProductGroupEntity
+  ProductGroup as ProductGroupEntity,
+  FBORuleEngine,
+  RuleCondition,
 } from 'fivebyone';
 import { ProductGroupModel } from './productGroup.model';
 
@@ -149,6 +151,92 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
     expect(savedProductGroup2.name).toBe('Product Group Name 2');
     expect(savedProductGroup2.shortName).toBe('Short Name 2');
     expect(savedProductGroup2.ancestors.length).toBe(0);
+
+  });
+
+  it('Should save a new productGroup with a valid rule', async() => {
+
+    const fRule = new FBORuleEngine();
+    const condition: RuleCondition = {
+      type: 'all',
+      conditions: [
+        {
+          fact: '$.billingAddress.state',
+          operator: 'equal',
+          value: 'Kerala'
+        },
+        {
+          fact: '$.quantity',
+          operator: 'lessOrEqual',
+          value: 10,
+        },
+        {
+          fact: '$.amount',
+          operator: 'greaterOrEqual',
+          value: 100,
+        }
+      ]
+    };
+    const transaction = {
+      date: '2020-06-24',
+      billingAddress: {
+        state: 'Kerala',
+      },
+      product: {
+        code: '10110101',
+        brand: 'LG'
+      },
+      quantity: 10,
+      amount: 100,
+    };
+
+    const events = [
+      {
+        name: 'CGST',
+        value: '$.amount * $.quantity * .09'
+      },
+      {
+        name: 'SGST',
+        value: '$.amount * $.quantity * .09'
+      }
+    ];
+
+    const startDate = '2018-01-01';
+    const endDate = '2019-01-01';
+    fRule.setCondition(condition);
+    fRule.setFact(transaction);
+    fRule.setEvents(events);
+    const ret = fRule.evaluateRule();
+    expect(ret.result).toBe(true);
+
+    const inputJSON: any = {
+      name: 'Product Group Name 2',
+      shortName: 'Short Name 2',
+      taxRules: [ {
+        condition,
+        startDate,
+        endDate,
+        events
+      } ]
+    };
+
+    const response = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .send(inputJSON);
+
+    expect(response.status).toBe(HTTP_OK);
+
+    const savedProductGroup: ProductGroupEntity = response.body;
+    const ProductGroup = ProductGroupModel.createModel(company.code);
+    const savedProductGroup2: ProductGroupEntity = await ProductGroup.findById(savedProductGroup._id).populate('parent');
+
+    expect(savedProductGroup2.name).toBe('Product Group Name 2');
+    expect(savedProductGroup2.shortName).toBe('Short Name 2');
+    expect(savedProductGroup2.ancestors.length).toBe(0);
+    expect(savedProductGroup2.taxRules[0].condition)
+      .toEqual(expect.objectContaining(condition));
+    expect(savedProductGroup2.taxRules[0].events)
+      .toEqual(expect.objectContaining(events));
 
   });
 
@@ -302,13 +390,13 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
     expect(response2.status).toBe(HTTP_OK);
 
     const ProductGroup = ProductGroupModel.createModel(company.code);
-    const savedProductGroup2: ProductGroupEntity = await ProductGroup.findById(response2.body._id).populate('parent');
+    const savedProductGroup2: ProductGroupEntity = await ProductGroup.findById(response2.body._id)
+      .populate('parent');
     expect(savedProductGroup2.name).toBe('Group Name 2');
     expect(savedProductGroup2.shortName).toBe('Short Name 2');
     expect(savedProductGroup2.parent.name).toBe(savedProductGroup1.name);
     expect(savedProductGroup2.ancestors.length).toBe(1);
-    expect(savedProductGroup2.ancestors[0]).toBe(savedProductGroup1._id);
-
+    expect(savedProductGroup2.ancestors[0]._id.toString()).toBe(savedProductGroup1._id);
     // Level two parent
     const response3 = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
       .set('Authorization', `Bearer ${clientToken}`)
@@ -324,8 +412,8 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
     expect(savedProductGroup3.parent.name).toBe(savedProductGroup2.name);
     const ancestorsLength = 2;
     expect(savedProductGroup3.ancestors.length).toBe(ancestorsLength);
-    expect(savedProductGroup3.ancestors[0]).toBe(savedProductGroup1._id);
-    expect(savedProductGroup3.ancestors[1]).toBe(response2.body._id);
+    expect(savedProductGroup3.ancestors[0]._id.toString()).toBe(savedProductGroup1._id);
+    expect(savedProductGroup3.ancestors[1]._id.toString()).toBe(response2.body._id);
 
   });
 
@@ -350,6 +438,99 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
         ancestors: [],
       }),
     ]);
+
+  });
+
+  it('Should list all product groups with parent', async() => {
+
+    const response1 = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .send({
+        name: 'Product Group Name1',
+        shortName: 'Short Name',
+      });
+    expect(response1.status).toBe(HTTP_OK);
+
+    const fRule = new FBORuleEngine();
+    const condition: RuleCondition = {
+      type: 'all',
+      conditions: [
+        {
+          fact: '$.billingAddress.state',
+          operator: 'equal',
+          value: 'Kerala'
+        },
+        {
+          fact: '$.quantity',
+          operator: 'lessOrEqual',
+          value: 10,
+        },
+        {
+          fact: '$.amount',
+          operator: 'greaterOrEqual',
+          value: 100,
+        }
+      ]
+    };
+    const transaction = {
+      date: '2020-06-24',
+      billingAddress: {
+        state: 'Kerala',
+      },
+      product: {
+        code: '10110101',
+        brand: 'LG'
+      },
+      quantity: 10,
+      amount: 100,
+    };
+
+    const events = [
+      {
+        name: 'CGST',
+        value: '$.amount * $.quantity * .09'
+      },
+      {
+        name: 'SGST',
+        value: '$.amount * $.quantity * .09'
+      }
+    ];
+
+    const startDate = '2018-01-01';
+    const endDate = '2019-01-01';
+    fRule.setCondition(condition);
+    fRule.setFact(transaction);
+    fRule.setEvents(events);
+    const ret = fRule.evaluateRule();
+
+    expect(ret.result).toBe(true);
+    const inputJSON: any = {
+      name: 'Product Group Name 2',
+      shortName: 'Short Name 2',
+      taxRules: [ {
+        condition,
+        startDate,
+        endDate,
+        events
+      } ]
+    };
+    const response2 = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .send(inputJSON);
+    const response = await request(app).get(InventoryUris.PRODUCT_GROUP_URI)
+      .set('Authorization', `Bearer ${clientToken}`);
+    expect(response2.status).toBe(HTTP_OK);
+    const listedProductGroups: ProductGroupEntity[] = response.body;
+    expect(listedProductGroups.length.toString()).toEqual('2');
+
+    listedProductGroups.forEach((group) => {
+
+      expect(group).toHaveProperty('_id');
+      expect(group).toHaveProperty('ancestors');
+      expect(group).toHaveProperty('name');
+      expect(group).toHaveProperty('taxRules');
+
+    });
 
   });
 
@@ -456,7 +637,7 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
 
   });
 
-  it('Should update product group with valid values', async() => {
+  it('Should update product group with valid rule', async() => {
 
     const response1 = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
       .set('Authorization', `Bearer ${clientToken}`)
@@ -465,24 +646,82 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
         shortName: 'Short Name 1',
       });
     expect(response1.status).toBe(HTTP_OK);
+    const fRule = new FBORuleEngine();
+    const condition: RuleCondition = {
+      type: 'all',
+      conditions: [
+        {
+          fact: '$.billingAddress.state',
+          operator: 'equal',
+          value: 'Kerala'
+        },
+        {
+          fact: '$.quantity',
+          operator: 'lessOrEqual',
+          value: 10,
+        },
+        {
+          fact: '$.amount',
+          operator: 'greaterOrEqual',
+          value: 100,
+        }
+      ]
+    };
+    const transaction = {
+      date: '2020-06-24',
+      billingAddress: {
+        state: 'Kerala',
+      },
+      product: {
+        code: '10110101',
+        brand: 'LG'
+      },
+      quantity: 10,
+      amount: 100,
+    };
+
+    const events = [
+      {
+        name: 'CGST',
+        value: '$.amount * $.quantity * .09'
+      },
+      {
+        name: 'SGST',
+        value: '$.amount * $.quantity * .09'
+      }
+    ];
+
+    const startDate = '2018-01-01';
+    const endDate = '2019-01-01';
+    fRule.setCondition(condition);
+    fRule.setFact(transaction);
+    fRule.setEvents(events);
+    const ret = fRule.evaluateRule();
+    expect(ret.result).toBe(true);
+    const inputJSON: any = {
+      name: 'Product Group Name 2',
+      shortName: 'Short Name 2',
+      taxRules: [ {
+        condition,
+        startDate,
+        endDate,
+        events
+      } ]
+    };
+
     const savedProductGroup1: ProductGroupEntity = response1.body;
-    savedProductGroup1.name = 'Name-1';
     const response2 = await request(app).put(`${InventoryUris.PRODUCT_GROUP_URI}/${savedProductGroup1._id}`)
       .set('Authorization', `Bearer ${clientToken}`)
-      .send(savedProductGroup1);
+      .send(inputJSON);
     expect(response2.status).toBe(HTTP_OK);
     const response3 = await request(app).get(`${InventoryUris.PRODUCT_GROUP_URI}/${savedProductGroup1._id}`)
       .set('Authorization', `Bearer ${clientToken}`);
     expect(response3.status).toBe(HTTP_OK);
     const savedProductGroup2: ProductGroupEntity = response3.body;
-    expect(savedProductGroup2).toEqual(
-      expect.objectContaining({
-        _id: savedProductGroup1._id,
-        name: 'Name-1',
-        shortName: 'Short Name 1',
-        ancestors: [],
-      }),
-    );
+    expect(savedProductGroup2.taxRules[0].condition)
+      .toEqual(expect.objectContaining(condition));
+    expect(savedProductGroup2.taxRules[0].events)
+      .toEqual(expect.objectContaining(events));
 
   });
 
@@ -648,7 +887,7 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
     const savedProductGroup2: ProductGroupEntity = await ProductGroup.findById(response2.body._id).populate('parent');
     expect(savedProductGroup2.parent.name).toBe('Parent-1');
     expect(savedProductGroup2.ancestors.length).toBe(1);
-    expect(savedProductGroup2.ancestors[0]).toBe(response1.body._id);
+    expect(savedProductGroup2.ancestors[0]._id.toString()).toBe(response1.body._id);
 
     const response3 = await request(app).post(InventoryUris.PRODUCT_GROUP_URI)
       .set('Authorization', `Bearer ${clientToken}`)
@@ -661,8 +900,8 @@ describe(`${InventoryUris.PRODUCT_GROUP_URI} tests`, () => {
     expect(savedProductGroup3.parent.name).toBe('Parent-2');
     const ancestorsLength = 2;
     expect(savedProductGroup3.ancestors.length).toBe(ancestorsLength);
-    expect(savedProductGroup3.ancestors[0]).toBe(response1.body._id);
-    expect(savedProductGroup3.ancestors[1]).toBe(response2.body._id);
+    expect(savedProductGroup3.ancestors[0]._id.toString()).toBe(response1.body._id);
+    expect(savedProductGroup3.ancestors[1]._id.toString()).toBe(response2.body._id);
 
     const response4 = await request(app).put(`${InventoryUris.PRODUCT_GROUP_URI}/${response1.body._id}`)
       .set('Authorization', `Bearer ${clientToken}`)

@@ -1,8 +1,41 @@
 import { Document, Schema, connection, Model } from 'mongoose';
-import { ProductGroupS } from 'fivebyone';
+import { ProductGroupS, ProductGroup, Constants } from 'fivebyone';
+import moment = require('moment');
+const {DATE_FORMAT} = Constants;
 
 // Declare model interface
 interface ProductGroupDoc extends ProductGroupS, Document { }
+
+const validateDate = (productGroup: ProductGroup): boolean => {
+
+  if (!productGroup.taxRules) {
+
+    return true;
+
+  }
+
+  const isValid = productGroup.taxRules.reduce((_result: boolean, item: any): boolean => {
+
+    const startMom = moment(item.startDate, DATE_FORMAT, true);
+    const endMom = moment(item.endDate, DATE_FORMAT, true);
+    if (!startMom.isValid() || !endMom.isValid()) {
+
+      return false;
+
+    }
+    if (startMom.isAfter(endMom)) {
+
+      return false;
+
+    }
+
+    return true;
+
+  }, true);
+
+  return Boolean(isValid);
+
+};
 
 export class ProductGroupModel {
 
@@ -27,7 +60,10 @@ export class ProductGroupModel {
       required: false,
     },
     ancestors: {
-      type: [ String ],
+      type: [ {
+        type: Schema.Types.ObjectId,
+        ref: 'ProductGroup'
+      } ],
       required: false,
       index: true,
     },
@@ -37,9 +73,17 @@ export class ProductGroupModel {
           condition: {
             type: Object,
           },
-          event: {
+          events: {
             type: Object,
+          },
+          startDate: {
+            type: String,
+
+          },
+          endDate: {
+            type: String,
           }
+
         }
       ]
     }
@@ -48,6 +92,16 @@ export class ProductGroupModel {
   public static createModel = (dbName: string): Model<ProductGroupDoc, {}> => {
 
     const mongoConnection = connection.useDb(dbName);
+    ProductGroupModel.productSchema.pre<ProductGroupDoc>('validate', function() {
+
+      const result: boolean = validateDate(this);
+      if (!result) {
+
+        throw new Error('Date validation failed for Product group');
+
+      }
+
+    });
     return mongoConnection.model('ProductGroup', ProductGroupModel.productSchema);
 
   }

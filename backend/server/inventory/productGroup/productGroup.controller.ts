@@ -13,42 +13,56 @@ const { HTTP_OK, HTTP_BAD_REQUEST } = Constants;
 
 const router = expressRouter();
 
+const findProductGroup = (productGroups: Array<ProductGroupEntity>, productGroupId: string): boolean => {
 
-const validateParentAndFindAncestors =
-  async(productGroup: ProductGroupS, ProductGroupSchema: any, productGroupId: string = null): Promise<string[]> => {
+  const prGroup: ProductGroupEntity = productGroups.find((productGr: ProductGroupEntity) => {
 
-    let ancestors: string[] = [];
-    if (productGroup.parent) {
+    return productGr._id.toString() === productGroupId;
 
-      // Either it should be a object or id
-      const parentId = productGroup.parent._id ? productGroup.parent._id : productGroup.parent;
+  });
+  return Boolean(prGroup);
 
-      // If parent exists, then it should be a proper one.
-      const parentGroup: ProductGroupEntity = await ProductGroupSchema.findOne({ _id: parentId });
+};
 
-      if (!parentGroup) {
+const validateParentAndFindAncestors = async(productGroup: ProductGroupS, ProductGroupSchema: any,
+  productGroupE?: string): Promise<ProductGroupEntity[]> => {
 
-        throw new Error('Parent group doesn\'t exists');
+  let ancestors: ProductGroupEntity[] = [];
+  if (productGroup.parent) {
 
-      }
+    // Either it should be a object or id
+    const parentId = productGroup.parent._id ? productGroup.parent._id : productGroup.parent;
 
-      if (parentGroup.ancestors && parentGroup.ancestors.length > 0) {
+    // If parent exists, then it should be a proper one.
+    const parentGroup: ProductGroupEntity = await ProductGroupSchema.findOne({ _id: parentId })
+      .populate({
+        path: 'ancestors',
+        model: ProductGroupSchema
+      });
 
-        // If name of the product group contains in the ancestor list, then it is a circular relation.
-        if (productGroupId && parentGroup.ancestors.indexOf(productGroupId) !== -1) {
+    if (!parentGroup) {
 
-          throw new Error('Circular relation with parent.');
-
-        }
-        ancestors = ancestors.concat(parentGroup.ancestors);
-
-      }
-      ancestors.push(parentGroup._id);
+      throw new Error('Parent group doesn\'t exists');
 
     }
-    return ancestors;
 
-  };
+    if (parentGroup.ancestors && parentGroup.ancestors.length > 0) {
+
+      // If name of the product group contains in the ancestor list, then it is a circular relation.
+      if (productGroupE && findProductGroup(parentGroup.ancestors, productGroupE)) {
+
+        throw new Error('Circular relation with parent.');
+
+      }
+      ancestors = ancestors.concat(parentGroup.ancestors);
+
+    }
+    ancestors.push(parentGroup);
+
+  }
+  return ancestors;
+
+};
 
 
 const listProductGroup = async(_request: any, response: any) => {
@@ -58,8 +72,14 @@ const listProductGroup = async(_request: any, response: any) => {
 
     const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
     const productGroups = await ProductGroupSchema.find()
-      .populate({ path: 'parent',
-        model: ProductGroupSchema });
+      .populate({
+        path: 'parent',
+        model: ProductGroupSchema
+      })
+      .populate({
+        path: 'ancestors',
+        model: ProductGroupSchema
+      });
     return response.status(HTTP_OK).json(productGroups);
 
   } catch (error) {
@@ -103,7 +123,7 @@ const saveProductGroup = async(request: any, response: any) => {
     const sessionDetails = AuthUtil.findSessionDetails(request);
     const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
     const productGroup = new ProductGroupSchema(request.body);
-    const ancestors: string[] = await validateParentAndFindAncestors(productGroup, ProductGroupSchema);
+    const ancestors: ProductGroupEntity[] = await validateParentAndFindAncestors(productGroup, ProductGroupSchema);
     productGroup.ancestors = ancestors;
     await productGroup.save();
     return response.status(HTTP_OK).json(productGroup);
@@ -122,11 +142,11 @@ const updateProductGroup = async(request: any, response: any) => {
 
     const sessionDetails = AuthUtil.findSessionDetails(request);
     const { id } = request.params;
-    const updateObject: ProductGroupS = request.body;
+    let updateObject: ProductGroupS = request.body;
     const ProductGroupSchema = ProductGroupModel.createModel(sessionDetails.companyCode);
-    const ancestors: string[] = await validateParentAndFindAncestors(updateObject, ProductGroupSchema, id);
+    const ancestors: ProductGroupEntity[] = await validateParentAndFindAncestors(updateObject, ProductGroupSchema, id);
     updateObject.ancestors = ancestors;
-    await ProductGroupSchema.update({ _id: id }, updateObject);
+    updateObject = await ProductGroupSchema.findOneAndUpdate({ _id: id }, updateObject);
     return response.status(HTTP_OK).json(updateObject);
 
   } catch (error) {
